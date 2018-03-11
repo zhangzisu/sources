@@ -1,78 +1,72 @@
-#include<iostream>
-#include<cstdlib>
-#include<algorithm>
-#include<string>
-#include<cstring>
-#include<map>
+#include <algorithm>
+#include <cstdlib>
+#include <cstring>
+#include <iostream>
+#include <map>
+#include <string>
 #define MAXN 500010
-#define MOD 18446744073709551533ULL
-#define BASE 3
-int n, m, q, c[MAXN];
-std::string ss[MAXN], s;
-std::map<unsigned long long, int> M;
-int val[MAXN], w[MAXN], cnt[MAXN];
-inline bool startWith(const std::string &a, const std::string &b){
-    if(b.length() > a.length())return 0;
-    for(int i = 0;i < (int)b.length();i++)if(a[i] != b[i])return 0;
-    return 1;
+#define BLOCK 6300
+struct Query {
+    int l, r, t, *p;
+    inline friend bool operator<(const Query &a, const Query &b) {
+        if (a.l / BLOCK == b.l / BLOCK) {
+            return a.r == b.r ? a.t < b.t : a.r < b.r;
+        } else
+            return a.l < b.l;
+    }
+} qry[MAXN];
+struct Modify {
+    int x, y;
+} mdf[MAXN];
+int qs, ms, rq;
+int ch[MAXN][2], fuck[MAXN], cnt = 0;
+inline void insert(std::string &s, int pos) {
+    int p = 1, d;
+    for (int i = 0; i < (int)s.length(); i++) {
+        if (!ch[p][d = s[i] ^ 'a']) ch[p][d] = ++cnt;
+        p = ch[p][d];
+    }
+    fuck[p] = pos;
 }
-long long ans;
-
-int main(){
-    std::ios::sync_with_stdio(false);
-    std::cin.tie(0);
+int first[MAXN], last[MAXN], dfsclk = 0;
+inline void dfs(int x) {
+    first[x] = last[x] = ++dfsclk;
+    if (ch[x][0]) dfs(ch[x][0]), last[x] = std::max(last[x], last[ch[x][0]]);
+    if (ch[x][1]) dfs(ch[x][1]), last[x] = std::max(last[x], last[ch[x][1]]);
+}
+int n, m, q, type[MAXN], val[MAXN], w[MAXN], ans[MAXN];
+std::string s;
+int main() {
     std::cin >> n >> m >> q;
-    for(int i = 1;i <= n;i++){
-        std::cin >> ss[i];
+    for (int i = 1; i <= n; i++) {
+        std::cin >> s;
+        insert(s, i);
     }
-    for(int i = 1;i <= n;i++){
-        std::cin >> c[i];
-    }
-    for(int i = 1;i <= m;i++)
-        std::cin >> val[i];
-    for(int i = 1;i <= n;i++)
-        std::cin >> w[i];
-
-    if(m == 1){
-        for(int i = 1;i <= n;i++){
-            unsigned long long hash = 0;
-            for(int j = 0;j < (int)ss[i].length();j++){
-                hash = hash * BASE + (ss[i][j] ^ 'a') % MOD;
-                M[hash]++;
+    for (int i = 1; i <= n; i++) std::cin >> type[i];
+    for (int i = 1; i <= m; i++) std::cin >> val[i];
+    for (int i = 1; i <= n; i++) std::cin >> w[i];
+    dfsclk = 0;
+    int x, y;
+    while (q--) {
+        std::cin >> x;
+        if (x == 1) {
+            std::cin >> s;
+            rq++;
+            qs++;
+            int p = 1;
+            for (int i = 0; i < (int)s.length(); i++) p = ch[p][s[i] ^ 'a'];
+            if (!p) {
+                qs--;
+                ans[rq] = 0;
+            } else {
+                qry[qs] = {first[p], last[p], dfsclk, ans + rq};
             }
-        }
-        while(q--){
-            int d;
-            std::cin >> d;
-            if(d == 1){
-                std::cin >> s;
-                unsigned long long hash = 0;
-                for(int j = 0;j < (int)s.length();j++)hash = hash * BASE + (s[j] ^ 'a') % MOD;
-                int cnt = M.count(hash) ? M[hash] : 0;
-                printf("%lld\n", 1LL * cnt * val[1]);
-            }else{
-                std::cin >> d >> d;
-            }
-        }
-        return 0;
-    }else{
-        while(q--){
-            int d, dd, ddd;
-            std::cin >> d;
-            if(d == 1){
-                std::cin >> s;
-                memset(cnt, 0, sizeof(cnt));
-                for(int i = 1;i <= n;i++){
-                    if(startWith(ss[i], s))cnt[c[i]]++;
-                }
-                ans = 0;
-                for(int i = 1;i <= m;i++)ans += 1LL * val[i] * w[cnt[i]];
-                std::cout << ans << std::endl;
-            }else{
-                std::cin >> dd >> ddd;
-                c[dd] = ddd;
-            }
+        } else {
+            std::cin >> x >> y;
+            mdf[++ms] = {x, y};
+            ++dfsclk;
         }
     }
+    std::sort(qry + 1, qry + qs + 1);
     return 0;
 }
