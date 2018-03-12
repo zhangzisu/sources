@@ -30,6 +30,7 @@ inline void insert(int x) {
     if (!q) return void(sam[p].link = 1);
     s = sam[q][x];
     if (sam[q].len + 1 == sam[s].len) return void(sam[p].link = s);
+    // puts("C");
     sam[c = ++cnt] = state(sam[s], sam[q].len + 1);
     for (; q && sam[q][x] == s; q = sam[q].link) sam[q][x] = c;
     sam[s].link = sam[p].link = c;
@@ -86,6 +87,7 @@ int main() {
     for (int i = 1; i <= m; i++) scanf("%d%d", &l[i], &r[i]),l[i]++,r[i]++;
     while (q--) {
         scanf("%s%d%d", buf, &L, &R);
+        L++;R++;
         init(buf);
         long long ans = 0;
         for (int i = L; i <= R; i++) {

@@ -36,7 +36,7 @@ inline void Append(int x) {
         link(nq) = link(q), link(q) = link(np) = nq;
     }
 }
-
+namespace LargeK {
 int LOG[MAXN + 5], fa(MAXN + 5, 20), end[MAXN + 5], len[MAXN + 5];
 ll Ans;
 inline ll FindL(int p, int l) {
@@ -45,11 +45,9 @@ inline ll FindL(int p, int l) {
     return mx(p);
 }
 void Run(int p = 1) {
-    for (int i = 1, l = 0; i <= k; i++){
-        for (; p && !c(p, s[i] - 'a'); p = link(p)) l = maxlen(p);
-        p = p ? ++l, c(p, s[i] - 'a') : 1;
-        len[i] = l, end[i] = p;
-    }
+    for (int i = 1, l = 0; i <= k; p = p ? ++l, c(p, s[i] - 'a') : 1, len[i] = l, end[i] = p, i++)
+        for (; p && !c(p, s[i] - 'a'); p = link(p), l = maxlen(p))
+            ;
 }
 void Calc() {
     for (int i = 2; i <= n; LOG[i] = -~LOG[i >> 1], i++)
@@ -59,26 +57,21 @@ void Calc() {
     for (int j = 1, i; j <= LOG[n]; j++)
         for (i = 1; i <= tot; fa(i, j) = fa(fa(i, j - 1), j - 1), i++)
             ;
-    for (int i = 1, l, r; i <= q; oi(Ans), oc('\n'), i++) {
-        scanf("%s", s + 1);
-        Run();
-        Ans = 0, l = -~read(), r = -~read();
-        for (; l <= r; len[R[l]] >= R[l] - L[l] + 1 ? Ans += FindL(end[R[l]], R[l] - L[l] + 1) : 0, l++)
+    for (int i = 1, l, r; i <= q; printf("%lld\n", Ans), i++)
+        for (scanf("%s", s + 1), Run(), Ans = 0, scanf("%d%d", &l, &r), l++, r++; l <= r; len[R[l]] >= R[l] - L[l] + 1 ? Ans += FindL(end[R[l]], R[l] - L[l] + 1) : 0, l++)
             ;
-    }
 }
-
+}  // namespace LargeK
 int main() {
-    n = read(), m = read(), q = read(), k = read(), tot = 0, last = New(0, 0);
+    scanf("%d%d%d%d", &n, &m, &q, &k), tot = 0, last = New(0, 0);
     scanf("%s", s + 1);
     for (int i = 1; i <= n; Append(s[i] - 'a'), i++)
         ;
     for (int i = tot; i; mx(link(o[i])) += mx(o[i]), i--)
         ;
     mx(1) = 0;
-    for (int i = 1; i <= m; L[i] = -~read(), R[i] = -~read(), i++)
+    for (int i = 1; i <= m; scanf("%d%d", &L[i], &R[i]), L[i]++, R[i]++, i++)
         ;
-    Calc();
-    _END;
+    LargeK::Calc();
     return 0;
 }
