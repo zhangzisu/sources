@@ -2,52 +2,59 @@
 #include <cstdio>
 #include <cstdlib>
 #include <cstring>
-#define MAXN 1010
-#define MAXM 5010
-int head[MAXN], to[MAXM << 1], val[MAXM << 1], next[MAXM << 1], tot = 0;
+#define MAXN 100010
+#define MAXM 500010
+int sb[MAXN], n, m, q;
+int head[MAXN], to[MAXN << 1], val[MAXN << 1], next[MAXN << 1], tot = 0;
 inline void $(int u, int v, int w) {
     next[tot] = head[u], to[tot] = v, val[tot] = w, head[u] = tot++;
     next[tot] = head[v], to[tot] = u, val[tot] = w, head[v] = tot++;
 }
-int n, m, q, w[MAXN], min = 0x7FFFFFFF, max = 0;
+struct Edge {
+    int u, v, w;
+    inline friend bool operator<(const Edge &a, const Edge &b) {
+        return a.w < b.w;
+    }
+} e[MAXM];
+int p[MAXN], fucked[MAXM], fa[MAXN][18], ans[MAXN], deep[MAXN];
+inline int find(int x) { return x == p[x] ? x : p[x] = find(p[x]); }
 
-int vis[MAXN], fa[MAXN];
 void dfs(int x) {
-    vis[x] = 1;
     for (int i = head[x]; ~i; i = next[i]) {
-        if (!vis[to[i]]) {
-            dfs(to[i]);
-            fa[to[i]] = x;
-        }
+        if (to[i] == fa[x][0]) continue;
+        fa[to[i]][0] = x;
+        deep[to[i]] = deep[x] + 1;
+        dfs(to[i]);
     }
 }
 
 int main() {
-    scanf("%d%d%d", &n, &m, &q);
     memset(head, -1, sizeof(head));
-    for (int i = 1; i <= n; i++) scanf("%d", &w[i]);
+    scanf("%d%d%d", &n, &m, &q);
+    for (int i = 1; i <= n; i++) scanf("%d", &sb[i]);
     for (int i = 1; i <= m; i++) {
         int u, v;
         scanf("%d%d", &u, &v);
-        $(u, v, std::abs(w[u] - w[v]));
-        min = std::min(min, std::abs(w[u] - w[v]));
-        max = std::max(max, std::abs(w[u] - w[v]));
+        e[i] = {u, v, std::abs(sb[u] - sb[v])};
     }
-    for (int i = 1; i <= q; i++) {
-        int u, v;
-        scanf("%d%d", &u, &v);
-        register int l = min, r = max, ans = -1;
-        while (l <= r) {
-            int mid = (l + r) >> 1;
-            if (judge(u, v, mid))
-                ans = mid, r = mid - 1;
-            else
-                l = mid + 1;
+    std::sort(e + 1, e + m + 1);
+    for (int i = 1; i <= n; i++) p[i] = i;
+    for (int i = 1; i <= m; i++) {
+        int U = find(e[i].u), V = find(e[i].v);
+        if (U == V) continue;
+        $(e[i].u, e[i].v, e[i].w);
+        p[U] = V, fucked[i] = 1;
+    }
+    for (int i = 1; i <= n; i++) p[i] = i;
+    dfs(1);
+    memset(ans, 0x3F, sizeof(ans));
+    for (int i = 1; i <= m; i++) {
+        if (fucked[i]) continue;
+        int u = find(e[i].u), v = find(e[i].v);
+        while (u != v) {
+            if (deep[u] < deep[v]) std::swap(u, v);
+            //
         }
-        if (!~ans)
-            puts("infinitely");
-        else
-            printf("%d\n", ans);
     }
     return 0;
 }
