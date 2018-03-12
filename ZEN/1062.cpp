@@ -3,7 +3,7 @@
 #include <cstdlib>
 #include <cstring>
 #include <string>
-#define MAXN 10
+#define MAXN 500010
 struct state {
     int len, link, size, son[26];
     inline state(int len = 0, int size = 0) {
@@ -38,7 +38,7 @@ inline void insert(int x) {
 
 int n, m, q, k;
 char buf[MAXN];
-int l[MAXN], r[MAXN];
+int l[MAXN], r[MAXN], id[MAXN];
 int L, R, len[MAXN], pos[MAXN];
 int fa[MAXN][18];
 
@@ -50,7 +50,7 @@ inline void prepare() {
 
 inline void init(char* buf) {
     for (int i = 0, p = 1, l = 0; buf[i]; i++) {
-        for (; p && !sam[p][buf[i] - 'a']; p = sam[p][buf[i] - 'a']) l = sam[p].size;
+        for (; p && !sam[p][buf[i] - 'a']; l = sam[p].len) p = sam[p].link;
         if (p) {
             ++l;
             p = sam[p][buf[i] - 'a'];
@@ -72,22 +72,15 @@ int main() {
     scanf("%d%d%d%d", &n, &m, &q, &k);
     scanf("%s", buf);
     for (int i = 0; buf[i]; i++) insert(buf[i] - 'a');
-    for (int i = 1; i <= cnt; i++) printf("LINK[%d]=%d\n", i, sam[i].link);
-    for(int i=1;i<=cnt;i++){
-        for(int j=0;j<26;j++){
-            if(sam[i][j])printf("SON[%d][%c]=%d\n",i,(char)j+'a',sam[i][j]);
-        }
-    }
-
-    for (int i = cnt; i; i--) sam[sam[i].link].size += sam[i].size;
-    puts("DDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDD");
-    for(int i = 1;i <= cnt;i++)printf("NODE[%d] : {len = %d, size = %d}\n", i, sam[i].len, sam[i].size);
-    puts("DONEDONEDONEDONEDONEDONEDONEDONE");
-    sam[1].size = 0;
-    for (int i = 1; i <= m; i++) scanf("%d%d", &l[i], &r[i]),l[i]++,r[i]++;
+    for (int i = 1; i <= cnt; i++) id[i] = i;
+    std::sort(id + 1, id + cnt + 1, [](int a, int b) { return sam[a].len < sam[b].len; });
+    for (int i = cnt; i; i--) sam[sam[id[i]].link].size += sam[id[i]].size;
+    for (int i = 1; i <= n; i++)
+        sam[1].size = 0;
+    for (int i = 1; i <= m; i++) scanf("%d%d", &l[i], &r[i]), l[i]++, r[i]++;
+    prepare();
     while (q--) {
-        scanf("%s%d%d", buf, &L, &R);
-        L++;R++;
+        scanf("%s%d%d", buf, &L, &R), L++, R++;
         init(buf);
         long long ans = 0;
         for (int i = L; i <= R; i++) {
