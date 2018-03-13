@@ -3,13 +3,30 @@
 #include <cstdlib>
 #include <cstring>
 #define MAXN 2000010
-int son[MAXN][26], max[MAXN], cnt = 1;
-inline void insert(char *s) {
-    for (int p = 1; *s; s++, max[p]++) {
-        if (!son[p][*s - 'a']) son[p][*s - 'a'] = ++cnt;
-        p = son[p][*s - 'a'];
-    }
+struct state{
+	int son[26], link, len;
+	inline state(int len = 0){
+		memset(son, 0, sizeof(son));
+		this->link = 0; this->len = len;
+	}
+	inline state(const state &source, int newlen = 0){
+		memcpy(son, source.son, sizeof(son));
+		this->link = source.link; this->len = newlen;
+	}
+	inline int& operator [] (int index) { return son[index]; }
+}sam[MAXN];
+int pre = 1, cnt = 1;
+inline void insert(int val){
+	int p = ++cnt; sam[p] = state(sam[pre].link + 1);
+	int q = pre, s; pre = cnt;
+	for(;q && !sam[q][val];q = sam[q].link)sam[q][val] = p;
+	if(!q)return sam[p].link = 1, void();
+	if(sam[s = sam[q][val]].len == sam[q].len + 1)return sam[p].link = s, void();
+	int c = ++cnt; sam[c] = state(sam[s], sam[q].len + 1);
+	for(;q && sam[q][val] == s;q = sam[q].link)sam[q][val] = c;
+	sam[p].link = sam[s].link = c;
 }
+
 int pa[MAXN], fa[MAXN][20], deep[MAXN];
 long long pos[MAXN], last[MAXN];
 void dfs(int x) {

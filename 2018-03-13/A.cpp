@@ -3,100 +3,71 @@
 #include <cstdio>
 #include <cstdlib>
 #include <cstring>
-#define MAXN 100010
+#include <vector>
+#define MAXN 5000010
+#define FUCK 500
 
-int n, q, l[MAXN], r[MAXN];
-namespace dier {
+int n, q, l[MAXN], r[MAXN], id[MAXN];
+
 int m, d[MAXN];
-inline int main() {
-    while (q--) {
-        scanf("%d", &m);
-        memset(d, 0, sizeof(d));
-        for (int i = 1, x; i <= m; i++) scanf("%d", &x), d[x]++;
-        for (int i = 1; i <= n; i++) d[i] += d[i - 1];
-        int ans = 0;
-        for (int i = 1; i <= n; i++) {
-            ans += (d[r[i]] - d[l[i] - 1]) & 1;
-        }
-        printf("%d\n", ans);
-    }
-    return 0;
-}
-}  // namespace dier
-namespace fucker {
-struct node {
-    int l, r, max[2], min[2], val[2], pa, tag, sum, cnt;
-    inline node(int a = 0, int b = 0) {
-        max[0] = min[0] = val[0] = a;
-        max[1] = min[1] = val[1] = b;
-        tag = 0, sum = 0, cnt = 1, pa = 0;
-    }
-} p[MAXN << 1];
-inline void pushUp(node &a, node &b) {
-    for (int i = 0; i < 2; i++) {
-        a.max[i] = std::max(a.max[i], b.max[i]);
-        a.min[i] = std::min(a.min[i], b.min[i]);
-    }
-    a.sum += b.sum;
-    a.cnt += b.cnt;
-}
-inline void pushDown(int n) {
-    const int L = p[n].l, R = p[n].r;
-    if (p[n].tag) {
-        p[L].sum = p[L].cnt - p[L].sum;
-        p[R].sum = p[R].cnt - p[R].sum;
-        p[L].tag ^= 1, p[L].pa ^= 1;
-        p[R].tag ^= 1, p[R].pa ^= 1;
-        p[n].tag = 0;
-    }
-}
-int f[MAXN], root;
-int D;
-inline int cmp(const int &a, const int &b) {
-    return p[a].val[D] < p[b].val[D];
-}
-void Build(int &n, int l, int r, int d) {
+int L[MAXN], R[MAXN], sum[MAXN], root[MAXN], cnt;
+inline void insert(int &n, int m, int l, int r, int v) {
+    n = ++cnt;
+    L[n] = L[m], R[n] = R[m], sum[n] = sum[m] + 1;
+    if (l == r) return;
     int mid = (l + r) >> 1;
-    D = d;
-    std::nth_element(f + l, f + mid, f + r + 1, cmp);
-    n = f[mid];
-    if (l < mid) Build(p[n].l, l, mid - 1, d ^ 1), pushUp(p[n], p[p[n].l]);
-    if (r > mid) Build(p[n].r, mid + 1, r, d ^ 1), pushUp(p[n], p[p[n].r]);
+    if (v <= mid)
+        insert(L[n], L[m], l, mid, v);
+    else
+        insert(R[n], R[m], mid + 1, r, v);
 }
-inline bool in(int x, int l, int r) {
-    return x >= l && x <= r;
+inline int query(int n, int l, int r, int _l, int _r) {
+    if (!n || _l > _r) return 0;
+    if (l == _l && r == _r) return sum[n];
+    int mid = (l + r) >> 1;
+    if (_r <= mid) return query(L[n], l, mid, _l, _r);
+    if (_l > mid) return query(R[n], mid + 1, r, _l, _r);
+    return query(L[n], l, mid, _l, mid) + query(R[n], mid + 1, r, mid + 1, _r);
 }
-void rev(int n, int l0, int l1, int r0, int r1) {
-    pushDown(n);
-    if (p[n].max[0] <= l1 && p[n].min[0] >= l0 && p[n].max[1] <= r1 && p[n].min[1] >= r0) {
-        p[n].sum = p[n].cnt - p[n].sum;
-        p[n].tag ^= 1, p[n].pa ^= 1;
-        return;
-    }
-    if (p[n].max[0] < l0 || p[n].min[0] > l1 || p[n].max[1] < r0 || p[n].min[1] > r1) return;
-    if (in(p[n].val[0], l0, l1) && in(p[n].val[1], r0, r1)) p[n].pa ^= 1;
-    p[n].sum = p[n].pa, p[n].cnt = 1;
-    if (p[n].l) rev(p[n].l, l0, l1, r0, r1), pushUp(p[n], p[p[n].l]);
-    if (p[n].r) rev(p[n].r, l0, l1, r0, r1), pushUp(p[n], p[p[n].r]);
-}
-int a[MAXN], m;
-inline int main() {
-    for (int i = 1; i <= n; i++) p[i] = node(l[i], r[i]), f[i] = i;
-    Build(root, 1, n, 0);
-    while (q--) {
-        scanf("%d", &m);
-        for (int i = 1; i <= m; i++) scanf("%d", &a[i]);
-        for (int i = 1; i <= m; i++) rev(root, 1, a[i], a[i], n);
-        printf("%d\n", p[root].sum);
-        for (int i = 1; i <= m; i++) rev(root, 1, a[i], a[i], n);
-    }
-    return 0;
-}
-}  // namespace fucker
+std::vector<std::pair<int, int>> V;
 int main() {
     scanf("%d", &n);
-    for (int i = 1; i <= n; i++) scanf("%d%d", &l[i], &r[i]);
+    for (int i = 1; i <= n; i++) scanf("%d%d", &l[i], &r[i]), id[i] = i;
     scanf("%d", &q);
-    if (q <= 200) return dier::main();
-    return fucker::main();
+    std::sort(id + 1, id + n + 1, [](int a, int b) { return l[a] < l[b]; });
+    V.push_back({0, 0});
+    for (int i = 1; i <= n; i++) {
+        insert(root[i], root[i - 1], 1, n, r[id[i]]);
+        V.push_back({l[id[i]], i});
+    }
+    std::sort(V.begin(), V.end());
+    while (q--) {
+        scanf("%d", &m);
+        if (m > FUCK) {
+            memset(d, 0, sizeof(d));
+            for (int i = 1, x; i <= m; i++) scanf("%d", &x), d[x]++;
+            for (int i = 1; i <= n; i++) d[i] += d[i - 1];
+            int ans = 0;
+            for (int i = 1; i <= n; i++) {
+                ans += (d[r[i]] - d[l[i] - 1]) & 1;
+            }
+            printf("%d\n", ans);
+        } else {
+            for (int i = 1; i <= m; i++) scanf("%d", &d[i]);
+            std::sort(d + 1, d + m + 1);
+            d[0] = 0, d[m + 1] = n + 1;
+            int ans = 0;
+            for (int i = 1; i <= m; i++) {
+                for (int j = i; j <= m; j += 2) {
+                    int l0 = d[i - 1] + 1, l1 = d[i];
+                    int r0 = d[j], r1 = d[j + 1] - 1;
+                    int pos0 = (--std::lower_bound(V.begin(), V.end(), std::make_pair(l0, 0)))->second;
+                    int pos1 = (--std::upper_bound(V.begin(), V.end(), std::make_pair(l1, 0x3F3F3F3F)))->second;
+                    ans += query(root[pos1], 1, n, r0, r1) - query(root[pos0], 1, n, r0, r1);
+                }
+            }
+            printf("%d\n", ans);
+        }
+    }
+    return 0;
 }
