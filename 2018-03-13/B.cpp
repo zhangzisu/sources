@@ -42,31 +42,29 @@ inline void build() {
         });
 }
 
-int dfn[MAXN], nfd[MAXN], time;
+int dfn[MAXN], nfd[MAXN], _tim;
 inline void dfs(int x) {
-    nfd[dfn[x] = ++time] = x;
+    nfd[dfn[x] = ++_tim] = x;
     for (auto i : tr[x]) dfs(i), size[x] += size[i];
 }
 long long val[MAXN];
 inline long long sum(int l, int r) { return 1LL * (l + r) * (r - l + 1) / 2; }
 
-int n, q, p, m, g, k;
+int n, q, p, g;
+long long m, k;
 int main() {
     scanf("%s", buf + 1);
     n = strlen(buf + 1);
     for (int i = n; i; i--) insert(buf[i] - 'a', i);
     build(), dfs(1);
     for (int i = 1; i <= cnt; i++)
-        val[i] = val[i - 1] + sum(len[link[nfd[i]]] + 1, len[nfd[i]]);
+        val[i] = val[i - 1] + sum(len[link[nfd[i]]] + 1, len[nfd[i]]) * size[nfd[i]];
     scanf("%d", &q);
     while (q--) {
-        scanf("%d%d", &p, &m);
+        scanf("%d%lld", &p, &m);
         k = 1LL * p * g % m + 1;
-        printf("FUCKING %d\n", k);
         int res = std::lower_bound(val + 1, val + cnt + 1, k) - val;
-        printf("%d is fucked all the day.", res);
         register int l = len[link[nfd[res]]] + 1, r = len[nfd[res]], ans = -1;
-        printf("%d is fucking %d\n", l, r);
         k -= val[res - 1];
         while (l <= r) {
             int mid = (l + r) >> 1;
@@ -77,7 +75,7 @@ int main() {
         }
         k -= 1LL * size[nfd[res]] * sum(len[link[nfd[res]]] + 1, ans - 1);
         k = (k - 1) % ans + 1;
-        ans = buf[pos[res] + k - 1];
+        ans = buf[pos[nfd[res]] + k - 1];
         printf("%c\n", ans);
         g += ans;
     }

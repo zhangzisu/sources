@@ -64,7 +64,7 @@ struct sam {
     }
     void Get() {
         for (int i = 1; i <= cnt; i++)
-            sum[i] = sum[i - 1] + (ll)size[ps[i]] * get(st[fail[ps[i]]] + 1, st[ps[i]]);
+            printf("DDD!%lld\n",sum[i] = sum[i - 1] + (ll)size[ps[i]] * get(st[fail[ps[i]]] + 1, st[ps[i]]));
     }
     void work(ll x) {
         printf("FUCKING %lld\n", x);
@@ -75,7 +75,7 @@ struct sam {
             else
                 l = mid + 1;
         }
-        printf("%d is fucked all the day.", ret);
+        printf("%d is fucked all the day.\n", ret);
         //cerr<<ps[ret]<<' '<<size[ps[ret]]<<endl;
         l = st[fail[ps[ret]]] + 1, r = st[ps[ret]];
         printf("%d fucked %d!\n", l, r);
@@ -87,6 +87,7 @@ struct sam {
             else
                 l = mid + 1;
         }
+        printf("%d is fucked down.\n", Ret);
         x -= (ll)size[ps[ret]] * get(st[fail[ps[ret]]] + 1, Ret - 1);
         x = (x - 1) % Ret + 1;
         putchar(s[pos[ps[ret]] + x - 1]);
