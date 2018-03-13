@@ -1,74 +1,43 @@
-#include <algorithm>
-#include <cmath>
-#include <cstdio>
-#include <cstdlib>
-#include <cstring>
-#include <iostream>
-
-// using namespace std;
-#define BLOCK 512
-#define MAXN 200000
-#define ll long long
-#define c(x, y) t[x].c[y]
-#define maxlen(x) t[x].maxlen
-#define link(x) t[x].link
-#define mx(x) t[x].mx
-#define fa(i, j) fa[j][i]
-
-struct Node {
-    int c[26], maxlen, link;
-    ll mx;
-} t[MAXN + 5];
-char s[MAXN + 5];
-int book[MAXN + 5], o[MAXN + 5], L[MAXN + 5], R[MAXN + 5], last, tot, n, m, q, k;
-#define New(p, v) (++tot, maxlen(tot) = p ? maxlen(p) + 1 : 0, mx(tot) = v, tot)
-inline void Append(int x) {
-    int p = last, np = last = New(p, 1), q, nq;
-    for (; p && !c(p, x); c(p, x) = np, p = link(p))
-        ;
-    if (!p)
-        link(np) = 1;
-    else if (maxlen(q = c(p, x)) == maxlen(p) + 1)
-        link(np) = q;
-    else {
-        for (nq = New(p, 0), memcpy(t[nq].c, t[q].c, 104); p && c(p, x) == q; c(p, x) = nq, p = link(p))
-            ;
-        link(nq) = link(q), link(q) = link(np) = nq;
-    }
-}
-
-int LOG[MAXN + 5], fa(MAXN + 5, 20), end[MAXN + 5], len[MAXN + 5];
-ll Ans;
-inline ll FindL(int p, int l) {
-    for (int j = LOG[maxlen(p)]; ~j; maxlen(fa(p, j)) >= l ? p = fa(p, j) : 0, j--)
-        ;
-    return mx(p);
-}
-void Run(int p = 1) {
-    for (int i = 1, l = 0; i <= k; p = p ? ++l, c(p, s[i] - 'a') : 1, len[i] = l, end[i] = p, i++)
-        for (; p && !c(p, s[i] - 'a'); p = link(p), l = maxlen(p))
-            ;
-}
-
-int main() {
-    scanf("%d%d%d%d", &n, &m, &q, &k), tot = 0, last = New(0, 0);
-    scanf("%s", s + 1);
-    for (int i = 1; i <= n; Append(s[i] - 'a'), i++)
-        ;
-    for (int i = tot; i; mx(link(i)) += mx(i), i--)
-        ;
-    mx(1) = 0;
-    for (int i = 1; i <= m; scanf("%d%d", &L[i], &R[i]), L[i]++, R[i]++, i++)
-        ;
-    for (int i = 2; i <= n; LOG[i] = -~LOG[i >> 1], i++)
-        ;
-    for (int i = 1; i <= tot; fa(i, 0) = link(i), i++)
-        ;
-    for (int j = 1, i; j <= LOG[n]; j++)
-        for (i = 1; i <= tot; fa(i, j) = fa(fa(i, j - 1), j - 1), i++)
-            ;
-    for (int i = 1, l, r; i <= q; printf("%lld\n", Ans), i++)
-        for (scanf("%s", s + 1), Run(), Ans = 0, scanf("%d%d", &l, &r), l++, r++; l <= r; len[R[l]] >= R[l] - L[l] + 1 ? Ans += FindL(end[R[l]], R[l] - L[l] + 1) : 0, l++)
-            ;
-    return 0;
-}
+#include<cstdio>
+#include<cstring>
+#include<cstdlib>
+#include<algorithm>
+#define MAXN 100000
+struct martix{bool $12,$13,$14,$23,$24,$34;inline martix(bool value=false){
+$12=$13=$14=$23=$24=$34=value;}inline bool isConnect(int left,int right){
+if(left==0){if(right==0)return $12;else return $14;}else{if(right==0)return $23;
+else return $34;}}}val[MAXN<<2];bool HLT[MAXN],VLT[2][MAXN];
+inline martix Merge(const martix &a,const martix &b,int pos){martix ret;
+ret.$13=a.$13;ret.$24=b.$24;if(VLT[0][pos]){ret.$12|=a.$12 && b.$12;
+ret.$14|=a.$12 && b.$14;ret.$23|=a.$23 && b.$12;ret.$34|=a.$23 && b.$14;
+}if(VLT[1][pos]){ret.$12|=a.$14 && b.$23;ret.$14|=a.$14 && b.$34;
+ret.$23|=a.$34 && b.$23;ret.$34|=a.$34 && b.$34;}if(VLT[0][pos] && VLT[1][pos]){
+ret.$13|=a.$12 && b.$13 && a.$34;ret.$24|=b.$12 && a.$24 && b.$34;}
+return ret;}void Build(int n,int l,int r){if(l==r){val[n]=martix(HLT[l]=0);
+val[n].$12=val[n].$34=1;return;}int mid=(l+r)>>1;Build(n<<1,l,mid);Build(n<<1|1,mid+1,r);
+val[n]=martix(0);}martix Query(int n,int l,int r,int L,int R){if(l==L && r==R)return val[n];
+int mid=(l+r)>>1;if(R <= mid)return Query(n<<1,l,mid,L,R);if(L > mid)return
+Query(n<<1|1,mid+1,r,L,R);return Merge(Query(n<<1,l,mid,L,mid),Query(n<<1|1,mid+1,r,mid+1,R)
+,mid);}void Modify(int n,int l,int r,int p){if(l==r){val[n]=martix(HLT[l]);
+val[n].$12=val[n].$34=1;return;}int mid=(l+r)>>1;if(p <= mid)Modify(n<<1,l,mid,p);
+else Modify(n<<1|1,mid+1,r,p);val[n]=Merge(val[n<<1],val[n<<1|1],mid);}
+void _Modify(int n,int l,int r,int p){int mid=(l+r)>>1;if(p==mid){
+val[n]=Merge(val[n<<1],val[n<<1|1],mid);return;}if(p < mid)_Modify(n<<1,l,mid,p);
+else _Modify(n<<1|1,mid+1,r,p);val[n]=Merge(val[n<<1],val[n<<1|1],mid);}
+int n,r1,c1,r2,c2;char buf[100];int main(){scanf("%d",&n);Build(1,1,n);
+while(~scanf("%s",buf)){martix a,b,c;switch(buf[0]){case 'C':scanf("%d%d%d%d",
+&r1,&c1,&r2,&c2);r1--;r2--;if(c1 > c2)std::swap(c1,c2),std::swap(r1,r2);
+if(c1==c2)HLT[c1]=0,Modify(1,1,n,c1);else VLT[r1][c1]=0,_Modify(1,1,n,c1);
+break;case 'O':scanf("%d%d%d%d",&r1,&c1,&r2,&c2);r1--;r2--;
+if(c1 > c2)std::swap(c1,c2),std::swap(r1,r2);if(c1==c2)HLT[c1]=1,Modify(1,1,n,c1);
+else VLT[r1][c1]=1,_Modify(1,1,n,c1);break;case 'A':
+scanf("%d%d%d%d",&r1,&c1,&r2,&c2);r1--;r2--;if(c1 > c2)std::swap(c1,c2),std::swap(r1,r2);
+if(r1==r2 && c1==c2){puts("Y");continue;}a=Query(1,1,n,c1,c2);
+b=Query(1,1,n,1,c1);c=Query(1,1,n,c2,n);if(c1==c2){if(HLT[c1] || b.$24 || c.$13)puts("Y");
+else puts("N");continue;}if(a.isConnect(r1,r2) || (b.$24 && a.isConnect(!r1,r2))
+||(c.$13 && a.isConnect(r1,!r2))||(b.$24&&c.$13&&a.isConnect(!r1,!r2)))puts("Y");else
+puts("N");break;case 'E':return 0;}}return 0;}
+/*
+BZOJ 1018
+39L AC
+*/
