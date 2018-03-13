@@ -2,72 +2,83 @@
 #include <cstdio>
 #include <cstdlib>
 #include <cstring>
+#include <vector>
 #define MAXN 2000010
-struct state{
-	int son[26], link, len;
-	inline state(int len = 0){
-		memset(son, 0, sizeof(son));
-		this->link = 0; this->len = len;
-	}
-	inline state(const state &source, int newlen = 0){
-		memcpy(son, source.son, sizeof(son));
-		this->link = source.link; this->len = newlen;
-	}
-	inline int& operator [] (int index) { return son[index]; }
-}sam[MAXN];
+int son[MAXN][26], link[MAXN], len[MAXN], pos[MAXN], size[MAXN];
 int pre = 1, cnt = 1;
-inline void insert(int val){
-	int p = ++cnt; sam[p] = state(sam[pre].link + 1);
-	int q = pre, s; pre = cnt;
-	for(;q && !sam[q][val];q = sam[q].link)sam[q][val] = p;
-	if(!q)return sam[p].link = 1, void();
-	if(sam[s = sam[q][val]].len == sam[q].len + 1)return sam[p].link = s, void();
-	int c = ++cnt; sam[c] = state(sam[s], sam[q].len + 1);
-	for(;q && sam[q][val] == s;q = sam[q].link)sam[q][val] = c;
-	sam[p].link = sam[s].link = c;
+inline int state(int _len = 0, int _pos = 0) {
+    ++cnt;
+    memset(son[cnt], 0, sizeof(son[cnt]));
+    link[cnt] = 0, len[cnt] = _len, pos[cnt] = _pos;
+    return cnt;
+}
+inline int clone(int pre, int _len = 0) {
+    ++cnt;
+    memcpy(son[cnt], son[pre], sizeof(son[cnt]));
+    link[cnt] = link[pre], pos[cnt] = pos[pre], len[cnt] = _len;
+    return cnt;
+}
+char buf[200010];
+inline void insert(int val, int pos) {
+    int p = state(len[pre] + 1, pos), q = pre, s;
+    pre = cnt, size[p] = 1;
+    for (; q && !son[q][val]; q = link[q]) son[q][val] = p;
+    if (!q) return link[p] = 1, void();
+    if (len[s = son[q][val]] == len[q] + 1) return link[p] = s, void();
+    int c = clone(s, len[q] + 1);
+    for (; q && son[q][val] == s; q = link[q]) son[q][val] = c;
+    link[p] = link[s] = c;
 }
 
-int pa[MAXN], fa[MAXN][20], deep[MAXN];
-long long pos[MAXN], last[MAXN];
-void dfs(int x) {
-    pos[x] = last[x] = last[fa[x][0]] + deep[x] * max[x];
-    for (int i = 0; i < 26; i++) {
-        if (!son[x][i]) continue;
-        pa[son[x][i]] = i;
-        fa[son[x][i]][0] = x;
-        deep[son[x][i]] = deep[x] + 1;
-        dfs(son[x][i]);
-        last[x] = std::max(last[x], last[son[x][i]]);
+std::vector<int> tr[MAXN];
+
+inline void build() {
+    for (int i = 2; i <= cnt; i++) {
+        tr[link[i]].push_back(i);
     }
+    for (int i = 1; i <= cnt; i++)
+        std::sort(tr[i].begin(), tr[i].end(), [](int a, int b) {
+            return buf[pos[a] + len[link[a]]] < buf[pos[b] + len[link[b]]];
+        });
 }
 
-std::pair<int, int> val[MAXN];
+int dfn[MAXN], nfd[MAXN], time;
+inline void dfs(int x) {
+    nfd[dfn[x] = ++time] = x;
+    for (auto i : tr[x]) dfs(i), size[x] += size[i];
+}
+long long val[MAXN];
+inline long long sum(int l, int r) { return 1LL * (l + r) * (r - l + 1) / 2; }
 
 int n, q, p, m, g, k;
-char buf[200010];
 int main() {
-    scanf("%s", buf);
-    n = strlen(buf);
-    for (int i = 0; i < n; i++) insert(buf + i);
-    dfs(1);
-    for(int d = 1;d < 20;d++){
-        for(int i = 1;i <= cnt;i++){
-            fa[i][d] = fa[fa[i][d - 1]][d - 1];
-        }
-    }
-    for (int i = 1; i <= cnt; i++) val[i] = {pos[i], i};
-    std::sort(val + 1, val + cnt + 1);
-    // print(1);
+    scanf("%s", buf + 1);
+    n = strlen(buf + 1);
+    for (int i = n; i; i--) insert(buf[i] - 'a', i);
+    build(), dfs(1);
+    for (int i = 1; i <= cnt; i++)
+        val[i] = val[i - 1] + sum(len[link[nfd[i]]] + 1, len[nfd[i]]);
     scanf("%d", &q);
     while (q--) {
         scanf("%d%d", &p, &m);
         k = 1LL * p * g % m + 1;
-        int res = std::lower_bound(val + 1, val + cnt + 1, std::make_pair(k, 0))->second;
-        int delta = pos[res] - k;
-        int top = deep[res];
-        delta %= top;
-        for(int i = 0;i < 20;i++)if((delta >> i) & 1)res = fa[res][i];
-        printf("%c\n", 'a' + pa[res]);
-        g += pa[res] + 'a';
+        printf("FUCKING %d\n", k);
+        int res = std::lower_bound(val + 1, val + cnt + 1, k) - val;
+        printf("%d is fucked all the day.", res);
+        register int l = len[link[nfd[res]]] + 1, r = len[nfd[res]], ans = -1;
+        printf("%d is fucking %d\n", l, r);
+        k -= val[res - 1];
+        while (l <= r) {
+            int mid = (l + r) >> 1;
+            if (1LL * size[nfd[res]] * sum(len[link[nfd[res]]] + 1, mid) >= k)
+                ans = mid, r = mid - 1;
+            else
+                l = mid + 1;
+        }
+        k -= 1LL * size[nfd[res]] * sum(len[link[nfd[res]]] + 1, ans - 1);
+        k = (k - 1) % ans + 1;
+        ans = buf[pos[res] + k - 1];
+        printf("%c\n", ans);
+        g += ans;
     }
 }
