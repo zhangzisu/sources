@@ -1,0 +1,22 @@
+{
+	"version": "2.0.0",
+	"tasks": [
+		{
+			"label": "Build current source file",
+			"type": "shell",
+			"command": "g++",
+			"args": [
+				"-g",
+				"${file}",
+				"-o",
+				"${fileDirname}/${fileBasenameNoExtension}",
+				"-Wall",
+				"-DDEBUG"
+			],
+			"group": {
+				"kind": "build",
+				"isDefault": true
+			}
+		}
+	]
+}
