@@ -6,29 +6,13 @@
 #define MOD 1000000007
 #define _ long long
 _ n, m, a[MAXN], ans;
-_ frc[MAXN], inv[MAXN];
-_ sx[MAXN], sy[MAXN], ex[MAXN], ey[MAXN];
-inline _ fuck(_ x, _ p){
-	register _ y = 1;
-	while(p){
-		if(p & 1)y = y * x % MOD;
-		x = x * x % MOD;
-		p >>= 1;
+_ C[MAXN];
+void prepare(int n){
+	if(!n){
+		//
+	}else{
+		//
 	}
-	return y;
-}
-inline _ C(_ n, _ m){
-	if(n < m)return 0;
-	return frc[n] * inv[m] % MOD * inv[n - m] % MOD;
-}
-inline _ LUCAS(long long n, long long m){
-	if(n < MOD && m < MOD)return C(n, m);
-	return C(n % MOD, m % MOD) * C(n / MOD, m / MOD);
-}
-inline _ calc(long long x0, long long y0, long long x1, long long y1){
-	long long N = x1 - x0; if(N < 0)return 0;
-	long long M = y1 - y0; if(M < 0)return 0;
-	return LUCAS(N + M, N);
 }
 int main(){
 #ifndef DEBUG
