@@ -18,8 +18,8 @@ struct Matrix {
         return ret;
     }
 };
-char buf[1024];
-int n[1024], N;
+char buf[102400];
+int n[102400], N;
 
 int main() {
 #ifndef DEBUG
