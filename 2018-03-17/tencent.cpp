@@ -1,62 +1,65 @@
-#include<cstdio>
-#include<cstdlib>
-#include<cstring>
-#include<algorithm>
-#define MAXN 110
-#define MOD 1000000007
+#include <algorithm>
+#include <cstdio>
+#include <cstdlib>
+#include <cstring>
+#define MAXN 5010
 #define _ long long
-_ n, m, a[MAXN], ans;
-_ frc[MAXN], inv[MAXN];
-_ sx[MAXN], sy[MAXN], ex[MAXN], ey[MAXN];
-inline _ fuck(_ x, _ p){
-	register _ y = 1;
-	while(p){
-		if(p & 1)y = y * x % MOD;
-		x = x * x % MOD;
-		p >>= 1;
-	}
-	return y;
+_ n, m, k, MOD, a[MAXN], C[MAXN], ans;
+_ Matrix[MAXN][MAXN];
+void prepare(_ m) {
+    if (!m) {
+        memset(C, 0, sizeof(C));
+        C[0] = 1;
+    } else {
+        if ((m & 1) == 1) {
+            prepare(m - 1);
+            for (int i = k; i; i--) {
+                (C[i] += C[i - 1]) %= MOD;
+            }
+        } else {
+            prepare(m >> 1);
+            for (int i = k; i; i--) {
+                for (int j = 0; j < i; j++) {
+                    (C[i] += C[i - j] * C[j] % MOD) %= MOD;
+                }
+            }
+        }
+    }
 }
-inline _ C(_ n, _ m){
-	if(n < m)return 0;
-	return frc[n] * inv[m] % MOD * inv[n - m] % MOD;
-}
-inline _ LUCAS(long long n, long long m){
-	if(n < MOD && m < MOD)return C(n, m);
-	return C(n % MOD, m % MOD) * C(n / MOD, m / MOD);
-}
-inline _ calc(long long x0, long long y0, long long x1, long long y1){
-	long long N = x1 - x0; if(N < 0)return 0;
-	long long M = y1 - y0; if(M < 0)return 0;
-	return LUCAS(N + M, N);
-}
-int main(){
-#ifndef DEBUG
-	freopen("tencent.in" , "r", stdin );
-	freopen("tencent.out", "w", stdout);
-#endif
-	frc[0] = 1;
-	for(_ i = 1;i < MAXN;i++)frc[i] = frc[i - 1] * i % MOD;
-	inv[MAXN - 1] = fuck(frc[MAXN - 1], MOD - 2);
-	for(_ i = MAXN - 1;i;i--)inv[i - 1] = inv[i] * i % MOD;
 
-	scanf("%lld%lld%*d", &n, &m);
-	for(_ i = 1;i <= n;i++)scanf("%lld", &a[i]);
-	for(_ i = 1;i <= n;i++){
-		sx[i] = -a[i]; sy[i] = a[i];
-		ex[i] = a[n - i +  1];
-		ey[i] = m - a[n - i + 1];
-	}
-	if(n == 2){
-		ans = calc(sx[1], sy[1], ex[1], ey[1]) * calc(sx[2], sy[2], ex[2], ey[2]) % MOD;
-		ans -= calc(sx[1], sy[1], ex[2], ey[2]) * calc(sx[2], sy[2], ex[1], ey[1]) % MOD;
-		((ans %= MOD) += MOD) %= MOD;
-	}else{
-		ans = (_)"FUCK!";
-	}
-	printf("%lld\n", ans);
+int main() {
 #ifndef DEBUG
-	fclose(stdin);
-	fclose(stdout);
+    freopen("tencent.in", "r", stdin);
+    freopen("tencent.out", "w", stdout);
+#endif
+    scanf("%lld%lld%lld", &n, &m, &MOD);
+    for (_ i = 1; i <= n; i++) scanf("%lld", &a[i]), k = std::max(k, a[i] << 1);
+    prepare(m);
+
+	// for(int i = 0;i < 10;i++)printf("%lld ", C[i]);
+
+    for (_ i = 1; i <= n; i++)
+        for (_ j = 1; j <= n; j++)
+            Matrix[i][j] = C[a[i] + a[n - j + 1]];
+
+    _ ans = 1;
+    for (_ i = 1; i <= n; i++) {
+        for (_ j = i + 1; j <= n; j++) {
+            while (Matrix[j][i] != 0) {
+                _ delta = Matrix[i][i] / Matrix[j][i];
+                for (_ k = 1; k <= n; k++) {
+                    ((Matrix[i][k] -= Matrix[j][k] * delta % MOD) += MOD) %= MOD;
+                    std::swap(Matrix[i][k], Matrix[j][k]);
+                }
+                ans = MOD - ans;
+            }
+        }
+        (ans *= Matrix[i][i]) %= MOD;
+    }
+
+    printf("%lld\n", ans);
+#ifndef DEBUG
+    fclose(stdin);
+    fclose(stdout);
 #endif
 }
