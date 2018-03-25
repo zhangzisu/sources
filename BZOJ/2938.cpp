@@ -16,20 +16,23 @@ inline void insert(const char *s){
 }
 std::queue<int> Q;
 inline void build(){
-    son[0][0] = son[0][1] = 1;
-    Q.push(1);
+    // son[0][0] = son[0][1] = 1;
+    if(son[1][0])Q.push(son[1][0]);
+    if(son[1][1])Q.push(son[1][1]);
+    fail[son[1][0]] = fail[son[1][1]] = 1;
+    fuck[0] = 1;
     while(Q.size()){
         int x = Q.front(); Q.pop();
         for(int i = 0;i < 2;i++){
             int &s = son[x][i];
             if(!s)s = son[fail[x]][i];
-            else fail[s] = son[fail[x]][i], Q.push(s);
+            else fail[s] = son[fail[x]][i], fuck[s] |= fuck[fail[s]], Q.push(s);
         }
     }
 }
 int vis[MAXN], ins[MAXN];
 inline void dfs(int x){
-    if(vis[x] && ins[x])puts("TAK"), exit(0);
+    if(ins[x])puts("TAK"), exit(0);
     if(vis[x])return;
     vis[x] = ins[x] = 1;
     // printf("VIS : %d\n", x);
