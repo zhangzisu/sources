@@ -1,52 +1,45 @@
 #include <cmath>
 #include <cstdio>
-#include <cstring>
-#include <iostream>
-#define eps 1e-6
-using namespace std;
-int n;
-double f[21], a[21][21];
-double sqr(double x) { return x * x; }
-void ini() {
-    scanf("%d", &n);
-    for (int i = 1; i <= n; i++) scanf("%lf", &f[i]);
-    for (int i = 1; i <= n; i++)
-        for (int j = 1; j <= n; j++) {
-            double t;
-            scanf("%lf", &t);
-            a[i][j] = 2 * (t - f[j]);
-            a[i][n + 1] += sqr(t) - sqr(f[j]);
-        }
-}
-bool gauss() {
-    int now = 1, to;
-    double t;
-    for (int i = 1; i <= n; i++) {
-        for (to = now; to <= n; to++)
-            if (fabs(a[to][i]) > eps) break;
-        if (to > n) continue;
-        if (to != now)
-            for (int j = 1; j <= n + 1; j++)
-                swap(a[to][j], a[now][j]);
-        t = a[now][i];
-        for (int j = 1; j <= n + 1; j++) a[now][j] /= t;
-        for (int j = 1; j <= n; j++)
-            if (j != now) {
-                t = a[j][i];
-                for (int k = 1; k <= n + 1; k++)
-                    a[j][k] -= t * a[now][k];
-            }
-        now++;
-    }
-    for (int i = now; i <= n; i++)
-        if (fabs(a[i][n + 1]) > eps) return 0;
-    return 1;
+#include <map>
+#define N 50010
+#define mod 1000000007
+typedef long long ll;
+struct data {
+    int x, y, z;
+    data() {}
+    data(int a, int b, int c) { x = a, y = b, z = c; }
+    bool operator<(const data &a) const { return x == a.x ? y == a.y ? z < a.z : y < a.y : x < a.x; }
+};
+std::map<data, ll> mp;
+int head[N], to[N << 2], val[N << 2], opt[N << 2], next[N << 2], cnt, d[N], id[350], tot;
+char str[5];
+inline void add(int x, int y, int v, int c) {
+    to[++cnt] = y, val[cnt] = v, opt[cnt] = c, next[cnt] = head[x], head[x] = cnt;
 }
 int main() {
-    ini();
-    gauss();
-    for (int i = 1; i <= n - 1; i++)
-        printf("%.3lf ", a[i][n + 1]);
-    printf("%.3lf\n", a[n][n + 1]);
+    int n, m, si, i, j, k, x, y, z, t;
+    ll ans = 0;
+    scanf("%d%d", &n, &m), si = (int)sqrt(m);
+    for (i = 1; i <= m; i++) {
+        scanf("%d%d%d%s", &x, &y, &z, str);
+        t = (str[0] == 'R' ? 1 : str[0] == 'G' ? 2 : 3);
+        add(x, y, z, t), add(y, x, z, t), d[x]++, d[y]++;
+        (mp[data(x, y, t)] += z) %= mod, (mp[data(y, x, t)] += z) %= mod;
+    }
+    for (i = 1; i <= n; i++)
+        if (d[i] >= si)
+            id[++tot] = i;
+    for (i = 1; i <= tot; i++)
+        for (j = 1; j <= tot; j++)
+            for (k = 1; k <= tot; k++)
+                ans = (ans + mp[data(id[i], id[j], 1)] * mp[data(id[i], id[k], 2)] % mod * mp[data(id[j], id[k], 3)]) % mod;
+    for (i = 1; i <= n; i++)
+        if (d[i] < si)
+            for (j = head[i]; j; j = next[j])
+                if (d[to[j]] >= si || to[j] > i)
+                    for (k = next[j]; k; k = next[k])
+                        if (opt[k] != opt[j] && (d[to[k]] >= si || to[k] > i))
+                            ans = (ans + mp[data(to[j], to[k], 6 - opt[j] - opt[k])] * val[j] % mod * val[k]) % mod;
+    printf("%lld\n", ans);
     return 0;
 }
