@@ -115,6 +115,7 @@ int main() {
     while (l <= r) {
         memset(now, 0, sizeof(now));
         memset(dis, 0, sizeof(dis));
+        dis[0] = -INF;
         mid = (l + r) >> 1;
         if (check(dat[mid]))
             ansX = x, ansY = y, l = mid + 1;
