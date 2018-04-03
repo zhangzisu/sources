@@ -1,45 +1,95 @@
-#include <cmath>
+#include <algorithm>
 #include <cstdio>
-#include <map>
-#define N 50010
-#define mod 1000000007
-typedef long long ll;
-struct data {
-    int x, y, z;
-    data() {}
-    data(int a, int b, int c) { x = a, y = b, z = c; }
-    bool operator<(const data &a) const { return x == a.x ? y == a.y ? z < a.z : y < a.y : x < a.x; }
-};
-std::map<data, ll> mp;
-int head[N], to[N << 2], val[N << 2], opt[N << 2], next[N << 2], cnt, d[N], id[350], tot;
-char str[5];
-inline void add(int x, int y, int v, int c) {
-    to[++cnt] = y, val[cnt] = v, opt[cnt] = c, next[cnt] = head[x], head[x] = cnt;
+#include <cstring>
+#include <queue>
+using namespace std;
+#define inf 0x3f3f3f3f
+#define N 1100
+inline int read() {
+    int x = 0, f = 1;
+    char ch = getchar();
+    while (ch < '0' || ch > '9') {
+        if (ch == '-') f = -1;
+        ch = getchar();
+    }
+    while (ch >= '0' && ch <= '9') x = x * 10 + ch - '0', ch = getchar();
+    return x * f;
+}
+int n, k, a[N], l[N], r[N], h[N], num = 1, nn = 0, T = 1001, ans = 0, dis[N], path[N];
+bool inq[N];
+struct edge {
+    int to, next, cap, val;
+} data[5000];
+inline void add(int x, int y, int cap, int val) {
+    data[++num].to = y;
+    data[num].next = h[x];
+    h[x] = num;
+    data[num].cap = cap;
+    data[num].val = val;
+    data[++num].to = x;
+    data[num].next = h[y];
+    h[y] = num;
+    data[num].cap = 0;
+    data[num].val = -val;
+}
+inline bool spfa() {
+    queue<int> q;
+    memset(dis, 128, sizeof(dis));
+    memset(path, 0, sizeof(path));
+    q.push(0);
+    dis[0] = 0;
+    inq[0] = 1;
+    while (!q.empty()) {
+        int x = q.front();
+        q.pop();
+        inq[x] = 0;
+        for (int i = h[x]; i; i = data[i].next) {
+            int y = data[i].to;
+            if (!data[i].cap) continue;
+            if (dis[x] + data[i].val > dis[y]) {
+                dis[y] = dis[x] + data[i].val;
+                path[y] = i;
+                if (!inq[y]) inq[y] = 1, q.push(y);
+            }
+        }
+    }
+    return path[T];
+}
+inline void DebugEdge() {
+    for(int i=1;i<=nn;i++)printf("%d ", path[i]);
+    puts("");
+    puts("✗");
+    for (int i = 2; i <= num; i++) printf("%% %d\n", data[i].cap);
+    puts("✗");
 }
 int main() {
-    int n, m, si, i, j, k, x, y, z, t;
-    ll ans = 0;
-    scanf("%d%d", &n, &m), si = (int)sqrt(m);
-    for (i = 1; i <= m; i++) {
-        scanf("%d%d%d%s", &x, &y, &z, str);
-        t = (str[0] == 'R' ? 1 : str[0] == 'G' ? 2 : 3);
-        add(x, y, z, t), add(y, x, z, t), d[x]++, d[y]++;
-        (mp[data(x, y, t)] += z) %= mod, (mp[data(y, x, t)] += z) %= mod;
+    //	freopen("a.in","r",stdin);
+    n = read();
+    k = read();
+    for (int i = 1; i <= n; ++i) {
+        a[++nn] = l[i] = read(), a[++nn] = r[i] = read();
+        if (l[i] > r[i]) swap(l[i], r[i]);
     }
-    for (i = 1; i <= n; i++)
-        if (d[i] >= si)
-            id[++tot] = i;
-    for (i = 1; i <= tot; i++)
-        for (j = 1; j <= tot; j++)
-            for (k = 1; k <= tot; k++)
-                ans = (ans + mp[data(id[i], id[j], 1)] * mp[data(id[i], id[k], 2)] % mod * mp[data(id[j], id[k], 3)]) % mod;
-    for (i = 1; i <= n; i++)
-        if (d[i] < si)
-            for (j = head[i]; j; j = next[j])
-                if (d[to[j]] >= si || to[j] > i)
-                    for (k = next[j]; k; k = next[k])
-                        if (opt[k] != opt[j] && (d[to[k]] >= si || to[k] > i))
-                            ans = (ans + mp[data(to[j], to[k], 6 - opt[j] - opt[k])] * val[j] % mod * val[k]) % mod;
-    printf("%lld\n", ans);
+    sort(a + 1, a + nn + 1);
+    nn = unique(a + 1, a + nn + 1) - a - 1;
+    add(0, 1, k, 0);
+    add(nn, T, inf, 0);
+    for (int i = 1; i <= n; ++i) {
+        int x = lower_bound(a + 1, a + nn + 1, l[i]) - a;
+        int y = lower_bound(a + 1, a + nn + 1, r[i]) - a;
+        add(x, y, 1, r[i] - l[i]);
+    }
+    for (int i = 1; i < nn; ++i) add(i, i + 1, inf, 0);
+    DebugEdge();
+    while (spfa()) {
+        int low = inf, now = T;
+        while (path[now]) low = min(low, data[path[now]].cap), now = data[path[now] ^ 1].to;
+        printf("➜  ~ %d\n", ans += low * dis[T]);
+        printf("INFO ➜ %d\n", low);
+        now = T;
+        while (path[now]) data[path[now]].cap -= low, data[path[now] ^ 1].cap += low, now = data[path[now] ^ 1].to;
+        DebugEdge();
+    }
+    printf("%d\n", ans);
     return 0;
 }
