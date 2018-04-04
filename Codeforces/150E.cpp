@@ -1,12 +1,20 @@
 #include <algorithm>
+#include <cctype>
 #include <cstdio>
 #include <cstdlib>
 #include <cstring>
 #include <deque>
-#define MAXN 110
+#define MAXN 100010
 #define INF 0x3F3F3F3F
+inline int $() {
+    register int x = 0;
+    register char ch = getchar();
+    while (!isdigit(ch)) ch = getchar();
+    for (; isdigit(ch); ch = getchar()) x = (x << 1) + (x << 3) + (ch ^ 48);
+    return x;
+}
 int head[MAXN], to[MAXN << 1], pa[MAXN << 1], val[MAXN << 1], next[MAXN << 1], tot = 0;
-inline void $(int u, int v, int w) {
+inline void $(int w, int u, int v) {
     next[tot] = head[u], to[tot] = v, pa[tot] = w, head[u] = tot++;
     next[tot] = head[v], to[tot] = u, pa[tot] = w, head[v] = tot++;
 }
@@ -25,22 +33,23 @@ int Process(int x, int fa, int n) {
 }
 std::deque<int> Q, P;
 inline void Initialization() { Q.clear(), P.clear(); }
-int n, m, l, r, x, y, dat[MAXN], now[MAXN];
+int n, m, l, r, x, y, dat[MAXN], now[MAXN], boom;
 bool bfs(int rt) {
     Initialization();
     Q.push_back(rt);
     deep[rt] = 1;
-    int boom = MAXN - 1;
+    int boom = ::boom;
     while (Q.size()) {
         int x = Q.front();
         Q.pop_front();
+        ::boom = std::max(::boom, deep[x]);
         if (deep[x] > r) break;
         if (deep[x] <= l)
             while (boom >= l - deep[x]) {
                 while (P.size() && dis[P.back()] <= dis[now[boom]]) P.pop_back();
                 P.push_back(now[boom--]);
             }
-        while (P.size() && dis[P.front()] > r - deep[x]) P.pop_front();
+        while (P.size() && deep[P.front()] > r - deep[x]) P.pop_front();
         if (P.size() && dis[P.front()] + dis[x] >= 0) {
             ::x = x;
             ::y = P.front();
@@ -54,6 +63,7 @@ bool bfs(int rt) {
             Q.push_back(to[i]);
         }
     }
+    Q.push_back(rt);
     while (Q.size()) {
         int x = Q.front();
         Q.pop_front();
@@ -88,7 +98,7 @@ bool Solve(int x, int n) {
         if (!vis[to[i]] && (dis[to[i]] = val[i], flag |= bfs(to[i]))) break;
     for (int i = head[x]; ~i; i = next[i])
         if (!vis[to[i]]) clear(to[i]);
-    now[0] = 0;
+    now[0] = boom = 0;
     if (flag) return 1;
     for (int i = head[x]; ~i; i = next[i]) {
         if (!vis[to[i]]) {
@@ -103,10 +113,9 @@ inline bool check(int mid) {
     return Solve(Process(1, 0, n), n);
 }
 int main() {
-    freopen("in.txt", "r", stdin);
     memset(head, -1, sizeof(head)), f[0] = INF, dis[0] = -INF;
-    scanf("%d%d%d", &n, &l, &r);
-    for (int i = 1, u, v, w; i < n; i++) scanf("%d%d%d", &u, &v, &w), $(u, v, w), dat[++m] = w;
+    n = $(), l = $(), r = $();
+    for (int i = 1; i < n; i++) $(dat[++m] = $(), $(), $());
     dat[++m] = 0;
     std::sort(dat + 1, dat + m + 1);
     m = std::unique(dat + 1, dat + m + 1) - dat - 1;
@@ -116,6 +125,7 @@ int main() {
         memset(now, 0, sizeof(now));
         memset(dis, 0, sizeof(dis));
         dis[0] = -INF;
+        boom = 0;
         mid = (l + r) >> 1;
         if (check(dat[mid]))
             ansX = x, ansY = y, l = mid + 1;
