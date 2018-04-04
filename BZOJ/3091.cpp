@@ -12,12 +12,6 @@ inline int $() {
     return x;
 }
 long long gcd(long long a, long long b) { return b ? gcd(b, a % b) : a; }
-template <typename T>
-void swap(T &a, T &b) {
-    T c = a;
-    a = b;
-    b = c;
-}
 struct splay {
     splay *l, *r, *f;
     int size, val, rev, tag;
@@ -48,7 +42,7 @@ inline void splay::pushUp() {
     sumr = r->sumr + (r->size + 1LL) * val + l->sumr + (r->size + 1LL) * l->sum;
     ans = l->ans + r->ans + (r->size + 1LL) * l->suml + (l->size + 1LL) * r->sumr + (l->size + 1LL) * (r->size + 1LL) * val;
 }
-inline void splay::reverse() { swap(l, r), swap(suml, sumr), rev ^= 1; }
+inline void splay::reverse() { std::swap(l, r), std::swap(suml, sumr), rev ^= 1; }
 inline void splay::add(int x) {
     if (this == null) return;
     val += x, tag += x;

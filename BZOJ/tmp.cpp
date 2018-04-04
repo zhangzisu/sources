@@ -1,7 +1,8 @@
 #include <algorithm>
+#include <cctype>
 #include <cstdio>
+#include <cstdlib>
 #include <cstring>
-#include <iostream>
 #define MAXN 50010
 #define _ unsigned long long
 inline int $() {
@@ -92,20 +93,16 @@ inline void ss(splay *x) {
     x->pushUp();
 }
 inline void access(splay *x) {
-    for (splay *t = null; x != null; x = x->f)
-        ss(x), x->r = t, x->pushUp(), t = x;
+    for (splay *t = null; x != null; x = x->f) ss(x), x->r = t, x->pushUp(), t = x;
 }
 inline void set(splay *x) {
-    access(x);
-    ss(x);
-    x->reverse();
+    access(x), ss(x), x->reverse();
 }
-splay *symbol(splay *x) {
-    while (x->f != null)
-        x = x->f;
+inline splay *symbol(splay *x) {
+    while (x->f != null) x = x->f;
     return x;
 }
-_ gcd(_ a, _ b) { return b ? gcd(b, a % b) : a; }
+inline _ gcd(_ a, _ b) { return b ? gcd(b, a % b) : a; }
 inline void link(splay *x, splay *y) {
     if (symbol(x) == symbol(y)) return;
     set(x), x->f = y;
@@ -124,8 +121,7 @@ inline void add(splay *x, splay *y) {
 inline void query(splay *x, splay *y) {
     if (symbol(x) != symbol(y)) return puts("-1"), void();
     set(x), access(y), ss(y);
-    _ a = y->ans;
-    _ b = y->size;
+    _ a = y->ans, b = y->size;
     b = b * (b + 1) >> 1;
     _ g = gcd(a, b);
     printf("%lld/%lld\n", a / g, b / g);
@@ -134,7 +130,7 @@ int main() {
     int n = $(), m = $();
     for (int i = 1; i <= n; i++) node[i] = new splay($());
     for (int i = 1; i < n; i++) link(node[$()], node[$()]);
-    for (int i = 1; i <= m; i++) {
+    while (m--) {
         int p = $(), x = $(), y = $();
         switch (p) {
             case 1:
@@ -151,4 +147,5 @@ int main() {
                 break;
         }
     }
+    return 0;
 }
