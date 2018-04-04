@@ -2,19 +2,18 @@
 #include <cstdio>
 #include <cstdlib>
 #include <cstring>
-#define MAXN 200010
-#define MAXM 500010
-int n, rn, m, q, h[MAXN], g[MAXN], p[MAXN], dat[MAXM], N;
+#define MAXN 500010
+int n, rn, m, q, h[MAXN], g[MAXN], p[MAXN], dat[MAXN], N;
 inline int GetCGC(int x) { return std::upper_bound(dat + 1, dat + N + 1, x) - dat - 1; }
 inline int find(int x) { return p[x] == x ? x : p[x] = find(p[x]); }
 struct edge {
     int u, v, w;
     inline friend bool operator<(const edge &a, const edge &b) { return a.w < b.w; }
-} e[MAXM];
+} e[MAXN];
 int head[MAXN], to[MAXN], next[MAXN], tot = 0;
 inline void $(int u, int v) { next[tot] = head[u], to[tot] = v, head[u] = tot++; }
 int fsa[MAXN], fsb[MAXN], fa[MAXN][22], dfsclk;
-int root[MAXN], L[5000000], R[5000000], sum[5000000], cnt = 0;
+int root[MAXN], L[8000010], R[8000010], sum[8000010], cnt = 0;
 inline void copy(int x, int y) { L[x] = L[y], R[x] = R[y], sum[x] = sum[y]; }
 void insert(int &n, int N, int l, int r, int v) {
     copy(n = ++cnt, N);
