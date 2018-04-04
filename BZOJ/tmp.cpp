@@ -1,95 +1,222 @@
 #include <algorithm>
 #include <cstdio>
 #include <cstring>
-#include <queue>
+#include <iostream>
+#define M 50500
 using namespace std;
-#define inf 0x3f3f3f3f
-#define N 1100
-inline int read() {
-    int x = 0, f = 1;
-    char ch = getchar();
-    while (ch < '0' || ch > '9') {
-        if (ch == '-') f = -1;
-        ch = getchar();
+typedef unsigned long long ll;
+struct abcd {
+    abcd *ls, *rs, *fa;
+    ll num, size;
+    ll sum, lsum, rsum, exp;
+    bool rev_mark;
+    ll add_mark;
+    abcd(int x);
+    void Push_Up();
+    void Push_Down();
+    void Reverse();
+    void Add(ll x);
+} *null = new abcd(0), *tree[M];
+abcd ::abcd(int x) {
+    ls = rs = fa = null;
+    num = x;
+    size = null ? 1 : 0;
+    sum = lsum = rsum = exp = x;
+    rev_mark = false;
+    add_mark = 0;
+}
+void abcd ::Push_Up() {
+    size = ls->size + rs->size + 1;
+    sum = ls->sum + rs->sum + num;
+    lsum = ls->lsum + num * (ls->size + 1) + rs->lsum + rs->sum * (ls->size + 1);
+    rsum = rs->rsum + num * (rs->size + 1) + ls->rsum + ls->sum * (rs->size + 1);
+    exp = ls->exp + rs->exp + (rs->size + 1) * ls->lsum + (ls->size + 1) * rs->rsum + (ls->size + 1) * (rs->size + 1) * num;
+}
+void abcd ::Push_Down() {
+    if (fa->ls == this || fa->rs == this)
+        fa->Push_Down();
+    if (rev_mark) {
+        ls->Reverse();
+        rs->Reverse();
+        rev_mark = 0;
     }
-    while (ch >= '0' && ch <= '9') x = x * 10 + ch - '0', ch = getchar();
-    return x * f;
+    if (add_mark) {
+        ls->Add(add_mark);
+        rs->Add(add_mark);
+        add_mark = 0;
+    }
 }
-int n, k, a[N], l[N], r[N], h[N], num = 1, nn = 0, T = 1001, ans = 0, dis[N], path[N];
-bool inq[N];
-struct edge {
-    int to, next, cap, val;
-} data[5000];
-inline void add(int x, int y, int cap, int val) {
-    data[++num].to = y;
-    data[num].next = h[x];
-    h[x] = num;
-    data[num].cap = cap;
-    data[num].val = val;
-    data[++num].to = x;
-    data[num].next = h[y];
-    h[y] = num;
-    data[num].cap = 0;
-    data[num].val = -val;
+void abcd ::Reverse() {
+    swap(lsum, rsum);
+    swap(ls, rs);
+    rev_mark ^= 1;
 }
-inline bool spfa() {
-    queue<int> q;
-    memset(dis, 128, sizeof(dis));
-    memset(path, 0, sizeof(path));
-    q.push(0);
-    dis[0] = 0;
-    inq[0] = 1;
-    while (!q.empty()) {
-        int x = q.front();
-        q.pop();
-        inq[x] = 0;
-        for (int i = h[x]; i; i = data[i].next) {
-            int y = data[i].to;
-            if (!data[i].cap) continue;
-            if (dis[x] + data[i].val > dis[y]) {
-                dis[y] = dis[x] + data[i].val;
-                path[y] = i;
-                if (!inq[y]) inq[y] = 1, q.push(y);
-            }
+void abcd ::Add(ll x) {
+    if (this == null)
+        return;
+    num += x;
+    sum += x * size;
+    lsum += x * size * (size + 1) / 2;
+    rsum += x * size * (size + 1) / 2;
+    exp += x * size * (size + 1) * (size + 2) / 6;
+    add_mark += x;
+}
+void Zig(abcd *x) {
+    abcd *y = x->fa;
+    y->ls = x->rs;
+    x->rs->fa = y;
+    x->rs = y;
+    x->fa = y->fa;
+    if (y == y->fa->ls)
+        y->fa->ls = x;
+    else if (y == y->fa->rs)
+        y->fa->rs = x;
+    y->fa = x;
+    y->Push_Up();
+}
+void Zag(abcd *x) {
+    abcd *y = x->fa;
+    y->rs = x->ls;
+    x->ls->fa = y;
+    x->ls = y;
+    x->fa = y->fa;
+    if (y == y->fa->ls)
+        y->fa->ls = x;
+    else if (y == y->fa->rs)
+        y->fa->rs = x;
+    y->fa = x;
+    y->Push_Up();
+}
+void Splay(abcd *x) {
+    x->Push_Down();
+    while (x->fa->ls == x || x->fa->rs == x) {
+        abcd *y = x->fa, *z = y->fa;
+        if (x == y->ls) {
+            if (y == z->ls)
+                Zig(y);
+            Zig(x);
+        } else {
+            if (y == z->rs)
+                Zag(y);
+            Zag(x);
         }
     }
-    return path[T];
+    x->Push_Up();
 }
-inline void DebugEdge() {
-    for(int i=1;i<=nn;i++)printf("%d ", path[i]);
-    puts("");
-    puts("✗");
-    for (int i = 2; i <= num; i++) printf("%% %d\n", data[i].cap);
-    puts("✗");
+void Access(abcd *x) {
+    abcd *y = null;
+    while (x != null) {
+        Splay(x);
+        x->rs = y;
+        x->Push_Up();
+        y = x;
+        x = x->fa;
+    }
+}
+void Move_To_Root(abcd *x) {
+    Access(x);
+    Splay(x);
+    x->Reverse();
+}
+abcd *Find_Root(abcd *x) {
+    while (x->fa != null)
+        x = x->fa;
+    return x;
+}
+void Link(abcd *x, abcd *y) {
+    if (Find_Root(x) == Find_Root(y))
+        return;
+    Move_To_Root(x);
+    x->fa = y;
+}
+void Cut(abcd *x, abcd *y) {
+    if (x == y || Find_Root(x) != Find_Root(y))
+        return;
+    Move_To_Root(x);
+    Access(y);
+    Splay(y);
+    if (y->ls == x && x->rs == null) {
+        x->fa = null;
+        y->ls = null;
+        y->Push_Up();
+    }
+}
+struct edge {
+    int to, next;
+} table[M << 1];
+int head[M], tot;
+int n, m;
+void Add(int x, int y) {
+    table[++tot].to = y;
+    table[tot].next = head[x];
+    head[x] = tot;
+}
+void DFS(int x, int from) {
+    int i;
+    if (from) tree[x]->fa = tree[from];
+    for (i = head[x]; i; i = table[i].next) {
+        if (table[i].to == from)
+            continue;
+        DFS(table[i].to, x);
+    }
+}
+void Modify(abcd *x, abcd *y) {
+    int z;
+    scanf("%d", &z);
+    if (Find_Root(x) != Find_Root(y))
+        return;
+    Move_To_Root(x);
+    Access(y);
+    Splay(y);
+    y->Add(z);
+}
+ll GCD(ll x, ll y) {
+    return y ? GCD(y, x % y) : x;
+}
+void Query(abcd *x, abcd *y) {
+    if (Find_Root(x) != Find_Root(y)) {
+        puts("-1");
+        return;
+    }
+    Move_To_Root(x);
+    Access(y);
+    Splay(y);
+    ll a = y->exp;
+    ll b = y->size * (y->size + 1) >> 1;
+    ll gcd = GCD(a, b);
+    //cout<<(a/gcd)<<'/'<<(b/gcd)<<endl;
+    //不能写cout 否则RE TM一上午就卡在这了
+    printf("%lld/%lld\n", a / gcd, b / gcd);
 }
 int main() {
-    //	freopen("a.in","r",stdin);
-    n = read();
-    k = read();
-    for (int i = 1; i <= n; ++i) {
-        a[++nn] = l[i] = read(), a[++nn] = r[i] = read();
-        if (l[i] > r[i]) swap(l[i], r[i]);
+    ///freopen("travel.in","r",stdin);
+    ///freopen("travel.out","w",stdout);
+
+    int i, p, x, y;
+    cin >> n >> m;
+    for (i = 1; i <= n; i++)
+        scanf("%d", &x), tree[i] = new abcd(x);
+    for (i = 1; i < n; i++) {
+        scanf("%d%d", &x, &y);
+        Add(x, y);
+        Add(y, x);
     }
-    sort(a + 1, a + nn + 1);
-    nn = unique(a + 1, a + nn + 1) - a - 1;
-    add(0, 1, k, 0);
-    add(nn, T, inf, 0);
-    for (int i = 1; i <= n; ++i) {
-        int x = lower_bound(a + 1, a + nn + 1, l[i]) - a;
-        int y = lower_bound(a + 1, a + nn + 1, r[i]) - a;
-        add(x, y, 1, r[i] - l[i]);
+    DFS(1, 0);
+    for (i = 1; i <= m; i++) {
+        scanf("%d%d%d", &p, &x, &y);
+        switch (p) {
+            case 1:
+                Cut(tree[x], tree[y]);
+                break;
+            case 2:
+                Link(tree[x], tree[y]);
+                break;
+            case 3:
+                Modify(tree[x], tree[y]);
+                break;
+            case 4:
+                Query(tree[x], tree[y]);
+                break;
+        }
     }
-    for (int i = 1; i < nn; ++i) add(i, i + 1, inf, 0);
-    DebugEdge();
-    while (spfa()) {
-        int low = inf, now = T;
-        while (path[now]) low = min(low, data[path[now]].cap), now = data[path[now] ^ 1].to;
-        printf("➜  ~ %d\n", ans += low * dis[T]);
-        printf("INFO ➜ %d\n", low);
-        now = T;
-        while (path[now]) data[path[now]].cap -= low, data[path[now] ^ 1].cap += low, now = data[path[now] ^ 1].to;
-        DebugEdge();
-    }
-    printf("%d\n", ans);
-    return 0;
 }
