@@ -13,7 +13,7 @@ inline int $() {
 }
 long long gcd(long long a, long long b) { return b ? gcd(b, a % b) : a; }
 template <typename T>
-void swap(T a, T b) {
+void swap(T &a, T &b) {
     T c = a;
     a = b;
     b = c;
@@ -36,7 +36,7 @@ inline splay::splay() {
 inline splay::splay(int w) {
     l = r = f = null, size = 1, rev = tag = 0, suml = sumr = sum = val = w;
 }
-inline bool splay::isRoot() { return f == null || f->l == this || f->r == this; }
+inline bool splay::isRoot() { return f == null || (f->l != this && f->r != this); }
 inline void splay::pushDown() {
     if (!isRoot()) f->pushDown();
     if (rev) l->reverse(), r->reverse(), rev ^= 1;
@@ -63,7 +63,7 @@ inline void l(splay *x) {
     if (y->f->l == y) y->f->l = x;
     if (y->f->r == y) y->f->r = x;
     x->f = y->f, y->f = x, x->l = y;
-    y->pushUp(), x->pushUp();
+    y->pushUp();
 }
 inline void r(splay *x) {
     splay *y = x->f;
@@ -71,50 +71,70 @@ inline void r(splay *x) {
     if (y->f->l == y) y->f->l = x;
     if (y->f->r == y) y->f->r = x;
     x->f = y->f, y->f = x, x->r = y;
-    y->pushUp(), x->pushUp();
+    y->pushUp();
 }
 inline void ss(splay *x) {
     x->pushDown();
-    while (!x->isRoot()) {
+    while (!(x->isRoot())) {
         splay *y = x->f;
         if (y->isRoot()) {
-            x == y->l ? r(x) : l(x);
+            if (x == y->l)
+                r(x);
+            else
+                l(x);
         } else {
-            y == y->f->l ? (x == y->l ? r(y), r(x) : l(x), r(x)) : (x == y->l ? r(x), l(x) : l(y), l(x));
+            if (y == y->f->l) {
+                if (x == y->l)
+                    r(y), r(x);
+                else
+                    l(x), r(x);
+            } else {
+                if (x == y->l)
+                    r(x), l(x);
+                else
+                    l(y), l(x);
+            }
         }
     }
+    x->pushUp();
 }
 inline void access(splay *x) {
-    for (splay *t = null; !x->isRoot(); x = x->f) ss(x), x->r = t, x->pushUp(), t = x;
+    for (splay *t = null; x != null; x = x->f)
+        ss(x), x->r = t, x->pushUp(), t = x;
 }
-inline void set(splay *x) { access(x), ss(x), x->reverse(); }
+inline void set(splay *x) {
+    access(x);
+    ss(x);
+    x->reverse();
+}
 inline splay *symbol(splay *x) {
     while (x->f != null) x = x->f;
     return x;
 }
-inline void link(int x, int y) {
-    splay *u = symbol(node[x]), *v = symbol(node[y]);
-    if (u == v) return;
-    set(u), u->f = v;
+inline void link(splay *x, splay *y) {
+    if (symbol(x) == symbol(y)) return;
+    set(x), x->f = y;
 }
-inline void cut(int x, int y) {
-    splay *u = symbol(node[x]), *v = symbol(node[y]);
-    if (u != v) return;
-    set(u), access(v), ss(v);
-    if (v->l == u && u->r == null) v->l = u->f = null, v->pushUp();
+inline void cut(splay *x, splay *y) {
+    if (x == y || symbol(x) != symbol(y)) return;
+    set(x), access(y), ss(y);
+    if (y->l == x && x->r == null) y->l = x->f = null, y->pushUp();
 }
-inline void add(int x, int y, int w) {
-    if (symbol(node[x]) != symbol(node[y])) return;
-    set(node[x]), access(node[y]), ss(node[y]);
-    node[y]->add(w);
+inline void add(splay *x, splay *y, int w) {
+    if (symbol(x) != symbol(y)) return;
+    set(x), access(y), ss(y);
+    y->add(w);
 }
-inline void query(int x, int y) {
-    if (symbol(node[x]) != symbol(node[y])) return puts("-1"), void();
-    set(node[x]), access(node[y]), ss(node[y]);
-    long long a = node[y]->ans;
-    long long b = node[y]->size;
+inline void query(splay *x, splay *y) {
+    if (symbol(x) != symbol(y)) return puts("-1"), void();
+    set(x);
+    access(y);
+    ss(y);
+    long long a = y->ans;
+    long long b = y->size;
     b = b * (b + 1) >> 1;
     long long g = gcd(a, b);
+    printf("%lld %lld\n", a, b);
     printf("%lld/%lld\n", a / g, b / g);
 }
 int n, m, k, u, v;
@@ -122,21 +142,21 @@ int main() {
     freopen("in.txt", "r", stdin);
     n = $(), m = $();
     for (int i = 1; i <= n; i++) node[i] = new splay($());
-    for (int i = 1; i < n; i++) link($(), $());
+    for (int i = 1; i < n; i++) link(node[$()], node[$()]);
     while (m--) {
         k = $(), u = $(), v = $();
         switch (k) {
             case 1:
-                link(u, v);
+                link(node[u], node[v]);
                 break;
             case 2:
-                link(u, v);
+                link(node[u], node[v]);
                 break;
             case 3:
-                add(u, v, $());
+                add(node[u], node[v], $());
                 break;
             case 4:
-                query(u, v);
+                query(node[u], node[v]);
                 break;
         }
     }

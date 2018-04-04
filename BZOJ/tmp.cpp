@@ -2,220 +2,152 @@
 #include <cstdio>
 #include <cstring>
 #include <iostream>
-#define M 50500
-using namespace std;
-typedef unsigned long long ll;
-struct abcd {
-    abcd *ls, *rs, *fa;
-    ll num, size;
-    ll sum, lsum, rsum, exp;
-    bool rev_mark;
-    ll add_mark;
-    abcd(int x);
-    void Push_Up();
-    void Push_Down();
-    void Reverse();
-    void Add(ll x);
-} *null = new abcd(0), *tree[M];
-abcd ::abcd(int x) {
-    ls = rs = fa = null;
-    num = x;
-    size = null ? 1 : 0;
-    sum = lsum = rsum = exp = x;
-    rev_mark = false;
-    add_mark = 0;
-}
-void abcd ::Push_Up() {
-    size = ls->size + rs->size + 1;
-    sum = ls->sum + rs->sum + num;
-    lsum = ls->lsum + num * (ls->size + 1) + rs->lsum + rs->sum * (ls->size + 1);
-    rsum = rs->rsum + num * (rs->size + 1) + ls->rsum + ls->sum * (rs->size + 1);
-    exp = ls->exp + rs->exp + (rs->size + 1) * ls->lsum + (ls->size + 1) * rs->rsum + (ls->size + 1) * (rs->size + 1) * num;
-}
-void abcd ::Push_Down() {
-    if (fa->ls == this || fa->rs == this)
-        fa->Push_Down();
-    if (rev_mark) {
-        ls->Reverse();
-        rs->Reverse();
-        rev_mark = 0;
-    }
-    if (add_mark) {
-        ls->Add(add_mark);
-        rs->Add(add_mark);
-        add_mark = 0;
-    }
-}
-void abcd ::Reverse() {
-    swap(lsum, rsum);
-    swap(ls, rs);
-    rev_mark ^= 1;
-}
-void abcd ::Add(ll x) {
-    if (this == null)
-        return;
-    num += x;
-    sum += x * size;
-    lsum += x * size * (size + 1) / 2;
-    rsum += x * size * (size + 1) / 2;
-    exp += x * size * (size + 1) * (size + 2) / 6;
-    add_mark += x;
-}
-void Zig(abcd *x) {
-    abcd *y = x->fa;
-    y->ls = x->rs;
-    x->rs->fa = y;
-    x->rs = y;
-    x->fa = y->fa;
-    if (y == y->fa->ls)
-        y->fa->ls = x;
-    else if (y == y->fa->rs)
-        y->fa->rs = x;
-    y->fa = x;
-    y->Push_Up();
-}
-void Zag(abcd *x) {
-    abcd *y = x->fa;
-    y->rs = x->ls;
-    x->ls->fa = y;
-    x->ls = y;
-    x->fa = y->fa;
-    if (y == y->fa->ls)
-        y->fa->ls = x;
-    else if (y == y->fa->rs)
-        y->fa->rs = x;
-    y->fa = x;
-    y->Push_Up();
-}
-void Splay(abcd *x) {
-    x->Push_Down();
-    while (x->fa->ls == x || x->fa->rs == x) {
-        abcd *y = x->fa, *z = y->fa;
-        if (x == y->ls) {
-            if (y == z->ls)
-                Zig(y);
-            Zig(x);
-        } else {
-            if (y == z->rs)
-                Zag(y);
-            Zag(x);
-        }
-    }
-    x->Push_Up();
-}
-void Access(abcd *x) {
-    abcd *y = null;
-    while (x != null) {
-        Splay(x);
-        x->rs = y;
-        x->Push_Up();
-        y = x;
-        x = x->fa;
-    }
-}
-void Move_To_Root(abcd *x) {
-    Access(x);
-    Splay(x);
-    x->Reverse();
-}
-abcd *Find_Root(abcd *x) {
-    while (x->fa != null)
-        x = x->fa;
+#define MAXN 50010
+#define _ unsigned long long
+inline int $() {
+    register int x = 0;
+    register char ch = getchar();
+    while (!isdigit(ch)) ch = getchar();
+    for (; isdigit(ch); ch = getchar()) x = (x << 1) + (x << 3) + (ch ^ 48);
     return x;
 }
-void Link(abcd *x, abcd *y) {
-    if (Find_Root(x) == Find_Root(y))
-        return;
-    Move_To_Root(x);
-    x->fa = y;
+struct splay {
+    splay *l, *r, *f;
+    int size, val, rev, tag;
+    _ suml, sumr, sum, ans;
+    inline splay();
+    inline splay(int);
+    inline bool isRoot();
+    inline void pushDown();
+    inline void pushUp();
+    inline void reverse();
+    inline void add(int);
+} *null = new splay(), *node[MAXN];
+inline splay::splay() {
+    l = r = f = null, size = rev = tag = suml = sumr = sum = val = 0;
 }
-void Cut(abcd *x, abcd *y) {
-    if (x == y || Find_Root(x) != Find_Root(y))
-        return;
-    Move_To_Root(x);
-    Access(y);
-    Splay(y);
-    if (y->ls == x && x->rs == null) {
-        x->fa = null;
-        y->ls = null;
-        y->Push_Up();
+inline splay::splay(int w) {
+    l = r = f = null, size = 1, rev = tag = 0, suml = sumr = sum = val = w;
+}
+inline bool splay::isRoot() { return f == null || (f->l != this && f->r != this); }
+inline void splay::pushDown() {
+    if (!isRoot()) f->pushDown();
+    if (rev) l->reverse(), r->reverse(), rev ^= 1;
+    if (tag) l->add(tag), r->add(tag), tag = 0;
+}
+inline void splay::pushUp() {
+    size = 1 + l->size + r->size, sum = val + l->sum + r->sum;
+    suml = l->suml + (l->size + 1ULL) * val + r->suml + (l->size + 1ULL) * r->sum;
+    sumr = r->sumr + (r->size + 1ULL) * val + l->sumr + (r->size + 1ULL) * l->sum;
+    ans = l->ans + r->ans + (r->size + 1ULL) * l->suml + (l->size + 1ULL) * r->sumr + (l->size + 1ULL) * (r->size + 1ULL) * val;
+}
+inline void splay::reverse() { std::swap(l, r), std::swap(suml, sumr), rev ^= 1; }
+inline void splay::add(int x) {
+    if (this == null) return;
+    val += x, tag += x;
+    sum += 1ULL * x * size;
+    suml += 1ULL * x * size * (size + 1) / 2;
+    sumr += 1ULL * x * size * (size + 1) / 2;
+    ans += 1ULL * x * size * (size + 1) * (size + 2) / 6;
+}
+inline void l(splay *x) {
+    splay *y = x->f;
+    (y->r = x->l)->f = y;
+    if (y->f->l == y) y->f->l = x;
+    if (y->f->r == y) y->f->r = x;
+    x->f = y->f, y->f = x, x->l = y;
+    y->pushUp();
+}
+inline void r(splay *x) {
+    splay *y = x->f;
+    (y->l = x->r)->f = y;
+    if (y->f->l == y) y->f->l = x;
+    if (y->f->r == y) y->f->r = x;
+    x->f = y->f, y->f = x, x->r = y;
+    y->pushUp();
+}
+inline void ss(splay *x) {
+    x->pushDown();
+    while (!(x->isRoot())) {
+        splay *y = x->f;
+        if (y->isRoot()) {
+            if (x == y->l)
+                r(x);
+            else
+                l(x);
+        } else {
+            if (y == y->f->l) {
+                if (x == y->l)
+                    r(y), r(x);
+                else
+                    l(x), r(x);
+            } else {
+                if (x == y->l)
+                    r(x), l(x);
+                else
+                    l(y), l(x);
+            }
+        }
     }
+    x->pushUp();
 }
-struct edge {
-    int to, next;
-} table[M << 1];
-int head[M], tot;
-int n, m;
-void Add(int x, int y) {
-    table[++tot].to = y;
-    table[tot].next = head[x];
-    head[x] = tot;
+inline void access(splay *x) {
+    for (splay *t = null; x != null; x = x->f)
+        ss(x), x->r = t, x->pushUp(), t = x;
 }
-void DFS(int x, int from) {
-    int i;
-    if (from) tree[x]->fa = tree[from];
-    for (i = head[x]; i; i = table[i].next) {
-        if (table[i].to == from)
-            continue;
-        DFS(table[i].to, x);
-    }
+inline void set(splay *x) {
+    access(x);
+    ss(x);
+    x->reverse();
 }
-void Modify(abcd *x, abcd *y) {
-    int z;
-    scanf("%d", &z);
-    if (Find_Root(x) != Find_Root(y))
-        return;
-    Move_To_Root(x);
-    Access(y);
-    Splay(y);
-    y->Add(z);
+splay *symbol(splay *x) {
+    while (x->f != null)
+        x = x->f;
+    return x;
 }
-ll GCD(ll x, ll y) {
-    return y ? GCD(y, x % y) : x;
+_ gcd(_ a, _ b) { return b ? gcd(b, a % b) : a; }
+inline void link(splay *x, splay *y) {
+    if (symbol(x) == symbol(y)) return;
+    set(x), x->f = y;
 }
-void Query(abcd *x, abcd *y) {
-    if (Find_Root(x) != Find_Root(y)) {
-        puts("-1");
-        return;
-    }
-    Move_To_Root(x);
-    Access(y);
-    Splay(y);
-    ll a = y->exp;
-    ll b = y->size * (y->size + 1) >> 1;
-    ll gcd = GCD(a, b);
-    //cout<<(a/gcd)<<'/'<<(b/gcd)<<endl;
-    //不能写cout 否则RE TM一上午就卡在这了
-    printf("%lld/%lld\n", a / gcd, b / gcd);
+inline void cut(splay *x, splay *y) {
+    if (x == y || symbol(x) != symbol(y)) return;
+    set(x), access(y), ss(y);
+    if (y->l == x && x->r == null) y->l = x->f = null, y->pushUp();
+}
+inline void add(splay *x, splay *y) {
+    int w = $();
+    if (symbol(x) != symbol(y)) return;
+    set(x), access(y), ss(y);
+    y->add(w);
+}
+inline void query(splay *x, splay *y) {
+    if (symbol(x) != symbol(y)) return puts("-1"), void();
+    set(x), access(y), ss(y);
+    _ a = y->ans;
+    _ b = y->size;
+    b = b * (b + 1) >> 1;
+    _ g = gcd(a, b);
+    printf("%lld/%lld\n", a / g, b / g);
 }
 int main() {
-    ///freopen("travel.in","r",stdin);
-    ///freopen("travel.out","w",stdout);
-
-    int i, p, x, y;
-    cin >> n >> m;
-    for (i = 1; i <= n; i++)
-        scanf("%d", &x), tree[i] = new abcd(x);
-    for (i = 1; i < n; i++) {
-        scanf("%d%d", &x, &y);
-        Add(x, y);
-        Add(y, x);
-    }
-    DFS(1, 0);
-    for (i = 1; i <= m; i++) {
-        scanf("%d%d%d", &p, &x, &y);
+    int n = $(), m = $();
+    for (int i = 1; i <= n; i++) node[i] = new splay($());
+    for (int i = 1; i < n; i++) link(node[$()], node[$()]);
+    for (int i = 1; i <= m; i++) {
+        int p = $(), x = $(), y = $();
         switch (p) {
             case 1:
-                Cut(tree[x], tree[y]);
+                cut(node[x], node[y]);
                 break;
             case 2:
-                Link(tree[x], tree[y]);
+                link(node[x], node[y]);
                 break;
             case 3:
-                Modify(tree[x], tree[y]);
+                add(node[x], node[y]);
                 break;
             case 4:
-                Query(tree[x], tree[y]);
+                query(node[x], node[y]);
                 break;
         }
     }
