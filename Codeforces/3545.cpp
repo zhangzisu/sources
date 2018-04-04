@@ -13,8 +13,8 @@ struct edge {
 } e[MAXM];
 int head[MAXN], to[MAXN], next[MAXN], tot = 0;
 inline void $(int u, int v) { next[tot] = head[u], to[tot] = v, head[u] = tot++; }
-int fsa[MAXN], fsb[MAXN], fa[MAXN][20], dfsclk;
-int root[MAXN], L[MAXN << 2], R[MAXN << 2], sum[MAXN << 2], cnt = 0;
+int fsa[MAXN], fsb[MAXN], fa[MAXN][22], dfsclk;
+int root[MAXN], L[5000000], R[5000000], sum[5000000], cnt = 0;
 inline void copy(int x, int y) { L[x] = L[y], R[x] = R[y], sum[x] = sum[y]; }
 void insert(int &n, int N, int l, int r, int v) {
     copy(n = ++cnt, N);
@@ -40,14 +40,14 @@ void dfs(int x) {
     fsb[x] = dfsclk;
 }
 int query(int x, int v, int k) {
-    for (int d = 19; ~d; d--)
+    for (int d = 21; ~d; d--)
         if (g[fa[x][d]] <= v) x = fa[x][d];
     int last = root[fsb[x]], pre = root[fsa[x] - 1];
     if (sum[last] - sum[pre] < k) return 0;
     return query(last, pre, 1, rn, k);
 }
 int main() {
-    freopen("in.txt", "r", stdin);
+    // freopen("in.txt", "r", stdin);
     scanf("%d%d%d", &n, &m, &q), rn = n;
     memset(head, -1, sizeof(head));
     for (int i = 1; i <= n; i++) scanf("%d", &h[i]);
@@ -69,7 +69,7 @@ int main() {
     }
     for (int i = 1; i <= n; i++)
         if (!fsa[i]) dfs(fa[find(i)][0] = find(i));
-    for (int d = 1; d < 20; d++)
+    for (int d = 1; d < 22; d++)
         for (int i = 1; i <= n; i++)
             fa[i][d] = fa[fa[i][d - 1]][d - 1];
     while (q--) {
