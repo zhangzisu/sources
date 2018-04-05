@@ -49,7 +49,7 @@ void insert(node *&o, node *old, int l, int r, int pos) {
 inline int query(int a, int x, int k) {
     int le = 1, ri = tot;
     for (int j = 18; ~j; j--)
-        　　　　if (f[a][j] && val[f[a][j]] <= x) a = f[a][j];
+        if (f[a][j] && val[f[a][j]] <= x) a = f[a][j];
     node *a1 = root[r[a]], *a2 = root[l[a] - 1];
     if (a1->cnt - a2->cnt < k) return -1;
     while (le < ri) {
@@ -98,7 +98,7 @@ int main() {
         if (!l[i]) dfs(find(i));
     while (q--) {
         scanf("%d%d%d", &v, &x, &k);
-        if (ans != -1) v ^= ans, x ^= ans, k ^= ans; /*去掉这句强制在线可以ACbzoj3545*/
+        if (ans != -1) v ^= ans, x ^= ans, k ^= ans;
         printf("%d\n", ans = query(v, x, k));
     }
 }
