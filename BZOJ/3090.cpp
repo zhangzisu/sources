@@ -34,7 +34,7 @@ int main() {
     for (int i = 1; i <= n; i++) scanf("%d", &v[i]);
     for (int i = 1, u, v; i < n; i++) scanf("%d%d", &u, &v), $(u, v);
     dp(1, 0);
-    for (int i = 1; i < n; i++)
+    for (int i = 0; i < n; i++)
         if (f[1][i] >= 0) return printf("%d\n", i), 0;
     return puts("-1"), 0;
 }
