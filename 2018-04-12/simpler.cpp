@@ -1,9 +1,9 @@
-#include<cstdio>
-#include<cstdlib>
-#include<cstring>
-#include<algorithm>
+#include <cstdio>
+const int table[] = {0, 0, 4, 8, 8, 32, 36, 128, 208, 480, 900, 2048, 3808, 8192, 15876, 32516, 64544, 131072, 259776, 524288, 1044352, 2096132, 4186116, 8388608, 16759040, 33553920, 67076100, 134213760, 268369408, 536870912, 1073602044};
 
-int main(){
-    //
-    return 0;
+int main() {
+    int n, ans = 0;
+    scanf("%d", &n);
+    for (int i = 1; i <= n; i++) (ans += table[i]) %= 1000000007;
+    printf("%d\n", ans);
 }

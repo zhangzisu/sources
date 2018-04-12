@@ -21,47 +21,41 @@ inline void $(int u, int v) {
     next[tot] = head[u], to[tot] = v, head[u] = tot++;
     next[tot] = head[v], to[tot] = u, head[v] = tot++;
 }
-int pri[MAXN], isp[MAXN], pnt;
-inline void shai() {
-    for (int i = 2; i <= n; i++) {
-        if (!isp[i]) pri[++pnt] = i;
-        for (int j = 1; j <= pnt; j++) {
-            if (i * pri[j] > n) break;
-            isp[i * pri[j]] = 1;
-            if (!(i % pri[j])) continue;
-        }
-    }
-}
+int dd[MAXN];
+inline int gcd(int a, int b) { return b ? gcd(b, a % b) : a; }
 int main() {
-    shai();
     memset(head, -1, sizeof(head));
     for (int i = 1, u, v; i <= m; i++)
         $(u = $(), v = $()), d[u]++, d[v]++;
-    std::fill(ans + 1, ans + n + 1, 1);
+    std::fill(dd + 1, dd + n + 1, 1);
     for (int i = 1; i <= n; i++)
         if (d[i] == n - 1) {
             vis[i] = 1;
-            for (int j = head[i]; ~j; j = next[j]) boom[j] = boom[j ^ 1] = 1;
+            ans[i] = 1;
+            for (int j = head[i]; ~j; j = next[j]) {
+                boom[j] = boom[j ^ 1] = 1;
+                d[to[j]]--;
+            }
             break;
         }
-    for (int _ = 1; _ <= pnt; _++) {
-        int now = pri[_];
+    d[0] = -1;
+    for (int _ = 2; _ <= n; _++) {
         int max = 0;
         for (int i = 1; i <= n; i++) {
-            if (vis[i]) continue;
+            if (vis[i] || _ % dd[i]) continue;
             if (d[i] > d[max]) max = i;
         }
         assert(max);
-        ans[max] = now;
+        ans[max] = _;
         vis[max] = 1;
         for (int i = head[max]; ~i; i = next[i]) {
             if (boom[i]) continue;
             boom[i] = boom[i ^ 1] = 1;
-            vis[to[i]] = 1;
-            ans[to[i]] *= now;
+            d[to[i]]--;
+            dd[to[i]] = gcd(_, dd[to[i]]) * dd[to[i]];
         }
     }
 
-    for (int i = 1; i <= n; i++) printf("%d\n", ans[i]);
+    for (int i = 1; i <= n; i++) printf("%d%c", ans[i], " \n"[i == n]);
     return 0;
 }
