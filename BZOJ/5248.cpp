@@ -7,7 +7,7 @@
 int n, m, a[MAXN][MAXN], b[MAXN][MAXN], stat[MAXN];
 std::map<long long, int> D;
 inline long long getHashCode(int g) {
-    long long ret = 0;
+    long long ret = 1;
     for (int i = 1; i <= n; i++) ret *= 11, ret += stat[i];
     return ret << g;
 }
@@ -27,19 +27,9 @@ int main() {
 }
 
 int DDD(int deep) {
-    for (int i = 1; i <= n; i++) {
-        printf("DDD ➜ ");
-        for (int j = 1; j <= m; j++)
-            if (j <= stat[i])
-                putchar('#');
-            else
-                putchar('_');
-        puts("");
-    }
-    puts("");
     if (deep > n * m) return 0;
     long long exp = getHashCode(0);
-    //if (D.count(exp)) return D[exp];
+    if (D.count(exp)) return D[exp];
     int ret = 0x80000000;
     for (int i = 1; i <= n; i++) {
         if (!stat[i - 1] && !stat[i]) break;
@@ -52,19 +42,9 @@ int DDD(int deep) {
     return D[exp] = ret;
 }
 int AAA(int deep) {
-    for (int i = 1; i <= n; i++) {
-        printf("AAA ➜ ");
-        for (int j = 1; j <= m; j++)
-            if (j <= stat[i])
-                putchar('#');
-            else
-                putchar('_');
-        puts("");
-    }
-    puts("");
     if (deep > n * m) return 0;
     long long exp = getHashCode(1);
-    //if (D.count(exp)) return D[exp];
+    if (D.count(exp)) return D[exp];
     int ret = 0x7FFFFFFF;
     for (int i = 1; i <= n; i++) {
         if (!stat[i - 1] && !stat[i]) break;
