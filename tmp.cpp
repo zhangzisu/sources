@@ -1,130 +1,100 @@
-#include <bits/stdc++.h>
+#include <algorithm>
+#include <cstdio>
+#include <cstdlib>
+#include <iostream>
+#include <set>
+#define fi first
+#define se second
+
 using namespace std;
 
-template <class T>
-void chmin(T& a, const T& b) {
-    if (a > b) a = b;
+typedef pair<int, int> pii;
+
+const int N = 1000010, P = 1e9 + 7;
+
+inline char nc() {
+    static char buf[100000], *p1 = buf, *p2 = buf;
+    return p1 == p2 && (p2 = (p1 = buf) + fread(buf, 1, 100000, stdin), p1 == p2) ? EOF : *p1++;
 }
-template <class T>
-void chmax(T& a, const T& b) {
-    if (a < b) a = b;
+
+inline void read(int &x) {
+    char c = nc();
+    x = 0;
+    for (; c > '9' || c < '0'; c = nc())
+        ;
+    for (; c >= '0' && c <= '9'; x = x * 10 + c - '0', c = nc())
+        ;
 }
 
-typedef pair<int, int> pi;
+int n, cnt, a[N], b[N], id[N], G[N], t;
+set<pii> S;
 
-const int INF = 5e8;
-const int MAX_N = 500005;
+pii q[N];
 
-struct uf {
-    int par[MAX_N];
-    int size[MAX_N];
-    void init() {
-        memset(par, -1, sizeof(par));
-        for (int i = 1; i < MAX_N; ++i) size[i] = 1;
-    }
-    int root(int a) {
-        if (par[a] == -1) return a;
-        return par[a] = root(par[a]);
-    }
-    void unite(int a, int b) {
-        a = root(a);
-        b = root(b);
-        if (a == b) return;
+struct edge {
+    int t, nx;
+} E[N << 2];
 
-        par[b] = a;
-        size[a] += size[b];
-    }
-    bool same(int a, int b) {
-        return root(a) == root(b);
-    }
-};
-uf u;
-
-int n, q;
-int ar[MAX_N];
-vector<int> keys[MAX_N];
-
-pi query[MAX_N];
-
-bool vis[MAX_N];
-pi memo[MAX_N];
-vector<int> pos[MAX_N];
-bool open(int id, int l, int r) {
-    return (*lower_bound(pos[id].begin(), pos[id].end(), l) <= r);
+inline bool cmp(const int &x, const int &y) {
+    return a[x] < a[y];
 }
-pair<int, pi> rec(int p) {  //(id,(l,r))
-    if (vis[p]) {
-        return {p, {p, p}};
-    }
-    if (memo[p].first >= 0) {
-        return {-1, memo[p]};
-    }
-    if (u.root(p) != p) {
-        return rec(u.root(p));
-    }
-    vis[p] = 1;
-    int l = p, r = p;
-    while (1) {
-        if (l > 0 && open(ar[l - 1], l, r)) {
-            auto range = rec(l - 1);
-            chmin(l, range.second.first);
-            chmax(r, range.second.second);
-            if (range.first >= 0 && range.first != p) {
-                u.unite(range.first, p);
-                vis[p] = false;
-                return {range.first, {l, r}};
-            }
-            continue;
-        }
-        if (r + 1 < n && open(ar[r], l, r)) {
-            auto range = rec(r + 1);
-            chmin(l, range.second.first);
-            chmax(r, range.second.second);
-            if (range.first >= 0 && range.first != p) {
-                u.unite(range.first, p);
-                vis[p] = false;
-                return {range.first, {l, r}};
-            }
-            continue;
-        }
-        break;
-    }
-    vis[p] = 0;
-    return {-1, memo[p] = {l, r}};
+
+inline void addedge(int x, int y) {
+    E[++cnt].t = y;
+    E[cnt].nx = G[x];
+    G[x] = cnt;
+    E[++cnt].t = x;
+    E[cnt].nx = G[y];
+    G[y] = cnt;
 }
+
+int cl[N];
+
+void dfs(int x, int c) {
+    if (cl[x]) {
+        if (cl[x] != c) puts("0"), exit(0);
+        return;
+    }
+    cl[x] = c;
+    for (int i = G[x]; i; i = E[i].nx) dfs(E[i].t, c ^ 1);
+}
+
+int nxt[N];
+
 int main() {
-    u.init();
-    cin >> n;
-    for (int i = 0; i < n - 1; ++i) scanf("%d", &ar[i]), --ar[i];
-    int sum = 0;
-    for (int i = 0; i < n; ++i) {
-        int K;
-        scanf("%d", &K);
-        keys[i].resize(K);
-        sum += K;
-        for (int j = 0; j < K; ++j) {
-            scanf("%d", &keys[i][j]);
-            --keys[i][j];
-            pos[keys[i][j]].push_back(i);
+    read(n);
+    for (int i = 1; i <= n; i++)
+        read(a[i]), read(b[i]), id[i] = i;
+    sort(id + 1, id + 1 + n, cmp);
+    for (int i = 1; i <= n; i++) {
+        while (!S.empty() && S.begin()->fi < a[id[i]]) {
+            int cur = S.begin()->se;
+            S.erase(S.begin());
+            if (nxt[cur]) S.insert(pii(b[nxt[cur]], nxt[cur]));
         }
-    }
-    for (int i = 0; i < n; ++i) pos[i].push_back(INF);
-    memset(memo, -1, sizeof(memo));
-    for (int i = 0; i < n; ++i) rec(i);
-    for (int i = 0; i < n; ++i)
-        if (u.root(i) != i) {
-            memo[i] = memo[u.root(i)];
+        set<pii>::iterator cur = S.insert(pii(b[id[i]], id[i])).fi;
+        t = 0;
+        while (cur != S.begin()) {
+            cur--;
+            q[++t] = *cur;
         }
-    cin >> q;
-    for (int i = 0; i < q; ++i) {
-        int l, r;
-        scanf("%d%d", &l, &r);
-        --l;
-        --r;
-        if (memo[l].first <= r && r <= memo[l].second)
-            puts("YES");
-        else
-            puts("NO");
+        int mx = 1 << 29;
+        for (int j = 1; j <= t; j++)
+            if (a[q[j].se] > mx)
+                return puts("0"), 0;
+            else {
+                mx = min(mx, q[j].fi);
+                addedge(q[j].se, id[i]);
+            }
+        for (int i = 1; i < t; i++) S.erase(q[i]);
+        for (int i = 2; i <= t; i++) nxt[q[i].se] = q[i - 1].se;
     }
+    int ans = 1;
+    for (int i = 1; i <= n; i++)
+        if (!cl[i]) {
+            dfs(i, 2);
+            ans = 2 * ans % P;
+        }
+    printf("%d\n", ans);
     return 0;
 }
