@@ -12,23 +12,24 @@ inline int $() {
 }
 #define MAXN 10010
 #define MAXM 20010
-int head[MAXN], to[MAXM << 1], next[MAXM << 1], tot;
+int head[MAXN], u[MAXM], v[MAXM], to[MAXM << 1], next[MAXM << 1], tot;
 inline void $(int u, int v) {
     next[tot] = head[u], to[tot] = v, head[u] = tot++;
     next[tot] = head[v], to[tot] = u, head[v] = tot++;
 }
-int deep[MAXN], vis[MAXN], use[MAXM << 1], stat;
+int deep[MAXN], vis[MAXN], size[MAXN], use[MAXM << 1], stat, cnt;
 inline void init() {
     memset(head, -1, sizeof(head));
     memset(vis, 0, sizeof(vis));
     memset(use, 0, sizeof(use));
     memset(deep, 0, sizeof(deep));
-    tot = stat = 0;
+    memset(size, 0, sizeof(size));
+    tot = stat = cnt = 0;
 }
 int n, m;
 void dfs(int x) {
     if (stat) return;
-    vis[x] = 1;
+    vis[x] = cnt;
     for (int i = head[x]; ~i; i = next[i]) {
         if (use[i]) continue;
         use[i] = use[i ^ 1] = 1;
@@ -46,9 +47,16 @@ int main() {
     for (int _ = $(); _; _--) {
         init();
         n = $(), m = $();
-        for (int i = 1; i <= m; i++) $($(), $());
+        for (int i = 1; i <= m; i++) $(u[i] = $(), v[i] = $());
         for (int i = 1; i <= n; i++)
-            if (!vis[i]) dfs(i);
+            if (!vis[i]) ++cnt, dfs(i);
+        for (int i = 1; i <= n; i++) size[vis[i]]--;
+        for (int i = 1; i <= m; i++) size[vis[u[i]]]++;
+        for (int i = 1; i <= cnt; i++)
+            if (size[i] >= 2) {
+                stat = 1;
+                break;
+            }
         puts(stat ? "NO" : "YES");
     }
     return 0;
