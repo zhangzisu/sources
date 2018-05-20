@@ -14,7 +14,8 @@ inline int sum(int x) {
     return y;
 }
 inline int l(int x) {
-    int l = 1, r = x - 1, ans = -1, t = sum(x - 1);
+    int l = 1, r = x - 1, ans = 0, t = sum(x - 1);
+    if (!t) return 0;
     while (l <= r) {
         int mid = (l + r) >> 1;
         if (sum(mid) == t)
@@ -73,8 +74,8 @@ inline bool solve(int l, int r) {
 
 inline bool judge() {
     init();
-    printf("K = %d\n", k);
-    for (int i = 1; i <= n; i++) printf("%3d\t%3d\n", L[i], R[i]);
+    // printf("K = %d\n", k);
+    // for (int i = 1; i <= n; i++) printf("%3d\t%3d\n", L[i], R[i]);
     return solve(1, n);
 }
 
