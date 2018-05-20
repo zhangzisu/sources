@@ -5,7 +5,7 @@
 #include <vector>
 #define MAXN 5010
 char buf[MAXN];
-int n, k = 0, m;
+int n, k = 1, m;
 bool f[MAXN][1 << 12];
 std::vector<std::pair<int, int>> a, b;
 std::vector<char> ans;
