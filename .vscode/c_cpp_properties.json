@@ -10,7 +10,6 @@
             },
             "includePath": [
                 "${workspaceFolder}/**",
-                "/usr/include/c++/7",
                 "/usr/include/c++/7"
             ],
             "defines": [],
