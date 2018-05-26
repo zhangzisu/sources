@@ -86,15 +86,12 @@
 		"numeric": "cpp",
 		"optional": "cpp",
 		"string_view": "cpp",
-		"*.ipp": "cpp"
+		"*.ipp": "cpp",
+		"charconv": "cpp"
 	},
 	"editor.mouseWheelZoom": false,
 	"C_Cpp.clang_format_fallbackStyle": "{ BasedOnStyle: Google, IndentWidth: 4, ColumnLimit: 0}",
 	"editor.fontSize": 14,
-	"editor.fontFamily": "consolas,inconsolata",
-	"terminal.integrated.shell.linux": "/bin/zsh",
-	"codeheader.author": "ZhangZisu",
-	"codeheader.copyright": false,
-	"codeheader.email": "admin@zhangzisu.cn",
-	"codeheader.scriptLabel": "Script"
+	"editor.fontFamily": "consolas,inconsolata,monospace",
+	"terminal.integrated.shell.linux": "/bin/zsh"
 }
