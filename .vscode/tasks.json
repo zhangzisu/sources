@@ -17,27 +17,6 @@
 				"kind": "build",
 				"isDefault": true
 			}
-		},
-		{
-			"label": "WSL Build",
-			"type": "shell",
-			"command": "bash",
-			"args": [
-				"-c",
-				"g++",
-				"-g",
-				"${file}",
-				"-o",
-				"${fileDirname}/${fileBasenameNoExtension}",
-				"-Wall",
-				"-DDEBUG"
-			],
-			"group": {
-				"kind": "build"
-			},
-			"problemMatcher": [
-				"$gcc"
-			]
 		}
 	]
 }
