@@ -48,7 +48,7 @@ inline bool judge(double t) {
     memset(can, 0, sizeof(can));
     CDQ(1, n);
     for (int i = 1; i <= n; i++) {
-        if (sb[i].w != maxW && can[i]) {
+        if (sb[i].w != maxW && !can[i]) {
             last = i;
             return 0;
         }
