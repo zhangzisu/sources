@@ -69,7 +69,6 @@ int main() {
     std::sort(a, a + n);
 
     f[0].set(0, 1);
-
     for (int i = 0; i < n; i++) {
         int delta = 0;
         for (int p = 0; p < m; p++) delta += ((a[i] >> p) & 1) * pw[p];
@@ -89,6 +88,7 @@ int main() {
                 tmp += val * val;
             }
             ans = std::max(ans, tmp);
+            if (tmp >= 100) printf("%d => %d\n", i, tmp);
         }
     }
     printf("%d\n", ans);
