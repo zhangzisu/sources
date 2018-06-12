@@ -1,10 +1,18 @@
 #include <algorithm>
+#include <cctype>
 #include <cstdio>
 #include <cstdlib>
 #include <cstring>
 #include <queue>
 #include <vector>
-#define MAXN 100010
+inline int $() {
+    register int x = 0;
+    register char ch = getchar();
+    while (!isdigit(ch)) ch = getchar();
+    for (; isdigit(ch); ch = getchar()) x = (x << 1) + (x << 3) + (ch ^ 48);
+    return x;
+}
+#define MAXN 200010
 int head[MAXN], to[MAXN << 1], next[MAXN << 1], tot = 0;
 inline void $(int u, int v) {
     next[tot] = head[u], to[tot] = v, head[u] = tot++;
@@ -120,28 +128,21 @@ inline void del(int u, int v, int w) {
 int a[MAXN << 2], b[MAXN << 2], c[MAXN << 2];
 int main() {
     memset(head, -1, sizeof(head));
-    scanf("%d%d", &n, &m);
-    for (int i = 1; i < n; i++) {
-        int u, v;
-        scanf("%d%d", &u, &v);
-        $(u, v);
-    }
-    s(1);
-    d(1);
+    n = $(), m = $();
+    for (int i = 1; i < n; i++) $($(), $());
+    s(n);
+    d(n);
     build(1, 1, n);
     for (int i = 1; i <= m; i++) {
-        int x;
-        scanf("%d", &x);
+        int x = $();
         if (x == 0) {
-            scanf("%d%d%d", &a[i], &b[i], &c[i]);
+            a[i] = $(), b[i] = $(), c[i] = $();
             add(a[i], b[i], c[i]);
         } else if (x == 2) {
-            int x;
-            scanf("%d", &x);
+            int x = $();
             printf("%d\n", query(1, 1, n, dfn[x]));
         } else if (x == 1) {
-            int x;
-            scanf("%d", &x);
+            int x = $();
             del(a[x], b[x], c[x]);
         }
     }

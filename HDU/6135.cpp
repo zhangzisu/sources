@@ -2,14 +2,14 @@
 #include <cstdio>
 #include <cstdlib>
 #include <cstring>
-#define MAXN 21
-const double EPS = 1e-5;
+#define MAXN 100010
+const double EPS = 1e-6;
 int t, n, m, maxW;
 struct man {
     int d, v, w, id;
     double val;
     inline friend bool operator<(const man &a, const man &b) {
-        return a.w < b.w;
+        return a.d < b.d;
     }
 } sb[MAXN], bs[MAXN], tmp[MAXN];
 int can[MAXN];
@@ -26,14 +26,14 @@ void CDQ(int l, int r) {
         if (curR > r || (curL <= mid && bs[curL].w > bs[curR].w)) {
             if (cur != l && tmp[cur - 1].w != bs[curL].w)
                 minL = MinL, maxL = MaxL, minR = MinR, maxR = MaxR;
-            can[bs[curL].id] |= (bs[curL].val > minR) || (bs[curL].val < maxR - m);
+            can[bs[curL].id] |= (bs[curL].val >= minR) || (bs[curL].val <= maxR - m);
             MinL = std::min(MinL, bs[curL].val);
             MaxL = std::max(MaxL, bs[curL].val);
             tmp[cur++] = bs[curL++];
         } else {
             if (cur != l && tmp[cur - 1].w != bs[curR].w)
                 minL = MinL, maxL = MaxL, minR = MinR, maxR = MaxR;
-            can[bs[curR].id] |= (bs[curR].val > minL + m) || (bs[curR].val < maxL);
+            can[bs[curR].id] |= (bs[curR].val >= minL + m) || (bs[curR].val <= maxL);
             MinR = std::min(MinR, bs[curR].val);
             MaxR = std::max(MaxR, bs[curR].val);
             tmp[cur++] = bs[curR++];
@@ -43,9 +43,9 @@ void CDQ(int l, int r) {
 }
 int last = 0;
 inline bool judge(double t) {
-    for (int i = 1; i <= n; i++) bs[i].val = t * bs[i].v + bs[i].d;
-    std::sort(bs + 1, bs + n + 1, [](const man &a, const man &b) { return a.val < b.val; });
+    memcpy(bs, sb, sizeof(bs));
     memset(can, 0, sizeof(can));
+    for (int i = 1; i <= n; i++) bs[i].val = t * bs[i].v + bs[i].d;
     CDQ(1, n);
     for (int i = 1; i <= n; i++) {
         if (sb[i].w != maxW && !can[i]) {
@@ -56,6 +56,13 @@ inline bool judge(double t) {
     return 1;
 }
 
+inline int gcd(int x, int y) { return y ? gcd(y, x % y) : x; }
+void update(man a, man b, int &x, int &y) {
+    if (a.v < b.v) std::swap(a, b);
+    int X = (a.d < b.d ? b.d - a.d : m + b.d - a.d), Y = a.v - b.v;
+    if (1LL * X * y <= 1LL * x * Y) x = X, y = Y;
+}
+
 int main() {
     scanf("%d", &t);
     while (t--) {
@@ -63,14 +70,14 @@ int main() {
         for (int i = 1; i <= n; i++) scanf("%d", &sb[i].d);
         for (int i = 1; i <= n; i++) scanf("%d", &sb[i].v);
         for (int i = 1; i <= n; i++) scanf("%d", &sb[i].w);
+        std::sort(sb + 1, sb + n + 1);
         maxW = 0x80000000;
+        last = 0;
         for (int i = 1; i <= n; i++) {
             sb[i].id = i;
             maxW = std::max(maxW, sb[i].w);
         }
-        memcpy(bs, sb, sizeof(bs));
-
-        double l = 0, r = 1e5;
+        double l = 0, r = m;
         while (r - l > EPS) {
             double mid = (l + r) / 2;
             if (judge(mid)) {
@@ -79,7 +86,15 @@ int main() {
                 l = mid;
             }
         }
-        printf("%lf\n", (l + r) / 2);
+        if (!last) {
+            puts("0");
+            continue;
+        }
+        int x = 0, y = 0;
+        for (int i = 1; i <= n; i++)
+            if (sb[i].w > sb[last].w) update(sb[i], sb[last], x, y);
+        int g = gcd(x, y);
+        printf("%d/%d\n", x / g, y / g);
     }
     return 0;
 }
