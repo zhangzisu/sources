@@ -1,0 +1,23 @@
+{
+  "name": "sources",
+  "version": "1.0.0",
+  "description": "",
+  "main": "clear.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/ZhangZisu/sources.git"
+  },
+  "author": "",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/ZhangZisu/sources/issues"
+  },
+  "homepage": "https://github.com/ZhangZisu/sources#readme",
+  "dependencies": {
+    "fs": "0.0.1-security",
+    "path": "^0.12.7"
+  }
+}
