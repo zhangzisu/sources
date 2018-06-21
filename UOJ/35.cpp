@@ -36,7 +36,7 @@ int main() {
     build_sa();
     for (int i = 1; i <= n; i++) printf("%d ", sa[i]);
     puts("");
-    for (int i = 1; i <= n; i++) printf("%d ", h[i]);
+    for (int i = 2; i <= n; i++) printf("%d ", h[i]);
     puts("");
     return 0;
 }

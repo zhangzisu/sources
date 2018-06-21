@@ -1,91 +1,43 @@
-#include <algorithm>
-#include <cctype>
-#include <cstdio>
-#define lc (x << 1)
-#define rc (x << 1 | 1)
-#define eps 1e-8
+#include <bits/stdc++.h>
 using namespace std;
-const int N = 500050;
-inline int read() {
-    int x = 0, f = 1;
-    char ch = getchar();
-    while (!isdigit(ch)) {
-        if (ch == '-') f = -1;
-        ch = getchar();
+
+const int N = 1e5 + 10, MOD = 1e9 + 7;
+int n, K, head[N], nxt[N * 2], to[N * 2], num = 0, sz[N], f[N][105][2][2], g[105][2][2];
+inline void link(int x, int y) {
+    nxt[++num] = head[x];
+    to[num] = y;
+    head[x] = num;
+}
+inline void upd(int &x, int y) {
+    if ((x += y) >= MOD) x -= MOD;
+}
+inline void dfs(int x) {
+    sz[x] = f[x][1][1][0] = f[x][0][0][0] = 1;
+    for (int P = head[x], y; P; P = nxt[P]) {
+        if (sz[y = to[P]]) continue;
+        dfs(y);
+        memcpy(g, f[x], sizeof(g));
+        memset(f[x], 0, sizeof(f[x]));
+        for (int j = min(sz[x], K); j >= 0; j--)
+            for (int k = min(sz[y], K - j); k >= 0; k--) {
+                int sum = (0LL + f[y][k][0][0] + f[y][k][0][1] + f[y][k][1][0] + f[y][k][1][1]) % MOD;
+                upd(f[x][j + k][1][0],(1ll * g[j][1][0] * (f[y][k][0][0] + f[y][k][0][1]) % MOD));
+                upd(f[x][j + k][1][1],(1ll * g[j][1][1] * sum + 1ll * g[j][1][0] * (f[y][k][1][0] + f[y][k][1][1]) % MOD));
+                upd(f[x][j + k][0][1],(1ll * g[j][0][0] * f[y][k][1][1] + 1ll * g[j][0][1] * (f[y][k][1][1] + f[y][k][0][1]) % MOD));
+                upd(f[x][j + k][0][0],(1ll * g[j][0][0] * f[y][k][0][1] % MOD));
+            }
+        sz[x] += sz[y];
     }
-    while (isdigit(ch)) x = x * 10 + ch - '0', ch = getchar();
-    return x * f;
 }
-struct node {
-    int mn, tag;
-} tree[N << 2];
-inline void update(int x) { tree[x].mn = min(tree[lc].mn, tree[rc].mn); }
-inline void build(int x, int l, int r) {
-    if (l == r) {
-        tree[x].mn = l;
-        return;
-    }
-    int mid = l + r >> 1;
-    build(lc, l, mid);
-    build(rc, mid + 1, r);
-    update(x);
-}
-inline void pushdown(int x) {
-    if (!tree[x].tag) return;
-    static int tag;
-    tag = tree[x].tag;
-    tree[x].tag = 0;
-    tree[lc].mn += tag;
-    tree[lc].tag += tag;
-    tree[rc].mn += tag;
-    tree[rc].tag += tag;
-}
-inline void modify(int x, int l, int r, int l1, int r1, int v) {
-    if (l1 <= l && r1 >= r) {
-        tree[x].mn += v;
-        tree[x].tag += v;
-        return;
-    }
-    int mid = l + r >> 1;
-    pushdown(x);
-    if (l1 <= mid) modify(lc, l, mid, l1, r1, v);
-    if (r1 > mid) modify(rc, mid + 1, r, l1, r1, v);
-    update(x);
-}
-inline int query(int x, int l, int r, int p) {
-    if (l == r) return tree[x].mn >= p ? l : l + 1;
-    int mid = l + r >> 1;
-    pushdown(x);
-    if (p <= tree[rc].mn)
-        return query(lc, l, mid, p);
-    else
-        return query(rc, mid + 1, r, p);
-}
-inline bool cmp(const int &a, const int &b) { return a > b; }
-int n, d[N], size[N], cnt[N], fa[N], ans[N];
-double k;
 int main() {
-    n = read();
-    scanf("%lf", &k);
-    for (int i = n; i; --i) d[i] = read(), fa[i] = i / k + eps, ++size[i], size[fa[i]] += size[i];
-    sort(d + 1, d + n + 1, cmp);
-    build(1, 1, n);
-    for (int i = n - 1; i; --i)
-        if (d[i] == d[i + 1]) cnt[i] = cnt[i + 1] + 1;
-    for (int i = 1; i <= n; ++i) {
-        if (fa[i] && fa[i - 1] != fa[i]) {
-            modify(1, 1, n, ans[fa[i]], n, size[fa[i]] - 1);
-            printf("MDF %d %d %d\n", ans[fa[i]], n, size[fa[i]] - 1);
-        }
-        int x = query(1, 1, n, size[i]);
-        printf("D! %d\n", x);
-        x += cnt[x];
-        ++cnt[x];
-        x -= (cnt[x] - 1);
-        ans[i] = x;
-        modify(1, 1, n, x, n, -size[i]);
-        printf("MDF %d %d %d\n", x, n, -size[i]);
+    int x, y;
+    cin >> n >> K;
+    for (int i = 1; i < n; i++) {
+        cin >> x >> y;
+        link(x, y);
+        link(y, x);
     }
-    for (int i = 1; i <= n; ++i) printf("%d ", d[ans[i]]);
+    dfs(1);
+    printf("%d\n", (f[1][K][0][1] + f[1][K][1][1]) % MOD);
     return 0;
 }
