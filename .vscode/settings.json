@@ -90,7 +90,7 @@
 		"charconv": "cpp"
 	},
 	"editor.mouseWheelZoom": false,
-	"C_Cpp.clang_format_fallbackStyle": "{ BasedOnStyle: Google, IndentWidth: 4, ColumnLimit: 0}",
+	"C_Cpp.clang_format_fallbackStyle": "{ BasedOnStyle: Google, IndentWidth: 8, ColumnLimit: 0, UseTab: Always}",
 	"editor.fontSize": 14,
 	"editor.fontFamily": "consolas,inconsolata,monospace",
 	"terminal.integrated.shell.linux": "/bin/zsh",
