@@ -47,6 +47,7 @@ inline void sp(int s, lnt *dis) {
 std::vector<int> pa[MAXN];
 int d[MAXN], vis[MAXN];
 lnt f[MAXN], ans = INFLL;
+<<<<<<< HEAD
 inline void bfs(int s, lnt *dis) {
 	PQ.push({-dis[s], s});
 	while (PQ.size()) {
@@ -64,15 +65,30 @@ inline void bfs(int s, lnt *dis) {
         printf("%d\n", PQ.size());
 	}
 }
+=======
+
+>>>>>>> 12cf9f34dd456bf518270ed8731918f07744af3d
 std::queue<int> Q;
-inline void calc(int s, lnt *dis) {
+inline void calc(int s, lnt *disS, lnt *disT) {
 	memset(d, 0, sizeof(d));
 	memset(vis, 0, sizeof(vis));
 	memset(f, 0x3F, sizeof(f));
 
 	for (int i = 1; i <= n; i++) pa[i].clear();
+<<<<<<< HEAD
 	bfs(s, dis);
 	puts("BFS OK");
+=======
+	for (int i = 0; i < tot; i += 2) {
+		int u = to[i];
+		int v = to[i ^ 1];
+		if (disS[u] > disS[v]) std::swap(u, v);
+		if (disS[u] + disT[v] + val[i] != path) continue;
+		pa[u].push_back(v);
+		d[v]++;
+	}
+
+>>>>>>> 12cf9f34dd456bf518270ed8731918f07744af3d
 	Q.push(s);
 	while (Q.size()) {
 		int x = Q.front();
@@ -83,7 +99,10 @@ inline void calc(int s, lnt *dis) {
 			if (!--d[y]) Q.push(y);
 			f[y] = std::min(f[y], f[x]);
 		}
+<<<<<<< HEAD
 		printf("%d\n", Q.size());
+=======
+>>>>>>> 12cf9f34dd456bf518270ed8731918f07744af3d
 	}
 }
 int main() {
@@ -93,19 +112,27 @@ int main() {
 		u = $(), v = $(), w = $();
 		$(u, v, w);
 	}
+<<<<<<< HEAD
 	printf("%d\n", tot);
 	sp(s, disS);
 	sp(t, disT);
 	puts("OK");
+=======
+	sp(s, disS);
+	sp(t, disT);
+>>>>>>> 12cf9f34dd456bf518270ed8731918f07744af3d
 	assert(disS[t] == disT[s]);
 	path = disS[t];
 	sp(u, disU);
 	sp(v, disV);
+<<<<<<< HEAD
 	puts("OK");
+=======
+>>>>>>> 12cf9f34dd456bf518270ed8731918f07744af3d
 	assert(disU[v] == disV[u]);
 	ans = disU[v];
-	calc(s, disS);
-	calc(t, disT);
+	calc(s, disS, disT);
+	calc(t, disT, disS);
 	printf("%lld\n", ans);
 	return 0;
 }
