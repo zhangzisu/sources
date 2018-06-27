@@ -13,7 +13,8 @@ let extToDel = [
 	"",
 	".exe",
 	".in",
-	".out"
+	".out",
+	".txt"
 ];
 
 function listFile(filePath) {
