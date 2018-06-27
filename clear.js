@@ -10,11 +10,11 @@ let ignore = [
 ];
 
 let extToDel = [
-	"",
-	".exe",
-	".in",
-	".out",
-	".txt"
+	'',
+	'.exe',
+	'.in',
+	'.out',
+	'.txt'
 ];
 
 function listFile(filePath) {
