@@ -55,14 +55,13 @@ inline void bfs(int s, lnt *dis) {
 		int x = d.second;
 		if (-d.first != dis[x]) continue;
 		for (int i = head[x]; ~i; i = next[i]) {
-			if (dis[to[i]] == dis[x] + val[i]) {
+			if (dis[to[i]] == dis[x] + val[i] && disS[to[i]] + disT[to[i]] == path) {
 				PQ.push({-dis[to[i]], to[i]});
-				if (disS[to[i]] + disT[to[i]] == path) {
-					pa[x].push_back(to[i]);
-					::d[to[i]]++;
-				}
+				pa[x].push_back(to[i]);
+				::d[to[i]]++;
 			}
 		}
+        printf("%d\n", PQ.size());
 	}
 }
 std::queue<int> Q;
@@ -73,7 +72,7 @@ inline void calc(int s, lnt *dis) {
 
 	for (int i = 1; i <= n; i++) pa[i].clear();
 	bfs(s, dis);
-    puts("BFS OK");
+	puts("BFS OK");
 	Q.push(s);
 	while (Q.size()) {
 		int x = Q.front();
@@ -84,7 +83,7 @@ inline void calc(int s, lnt *dis) {
 			if (!--d[y]) Q.push(y);
 			f[y] = std::min(f[y], f[x]);
 		}
-        printf("%d\n", Q.size());
+		printf("%d\n", Q.size());
 	}
 }
 int main() {
@@ -94,15 +93,15 @@ int main() {
 		u = $(), v = $(), w = $();
 		$(u, v, w);
 	}
-    printf("%d\n", tot);
+	printf("%d\n", tot);
 	sp(s, disS);
 	sp(t, disT);
-    puts("OK");
+	puts("OK");
 	assert(disS[t] == disT[s]);
 	path = disS[t];
 	sp(u, disU);
 	sp(v, disV);
-    puts("OK");
+	puts("OK");
 	assert(disU[v] == disV[u]);
 	ans = disU[v];
 	calc(s, disS);
