@@ -31,10 +31,8 @@ int main(int argc, char const *argv[]) {
 				int rest = k;
 				int pos = i;
 				while (rest) {
-					printf("GO pos = %d, rest = %d\n", pos, rest);
-
 					int AA, BB;
-					int nearst = std::min(AA = *A.lower_bound(pos), BB = *B.lower_bound(pos));
+					int nearst = std::min(AA = *A.lower_bound(pos), B = *B.lower_bound(pos));
 
 					if (rest - nearst + pos < 0) {
 						A.insert(pos + rest);
@@ -45,55 +43,34 @@ int main(int argc, char const *argv[]) {
 					if (AA == nearst) {
 						int cur = nearst;
 						B.insert(nearst);
-						while (A.find(cur) != A.end()) A.erase(cur++);
+						while (AA == cur) A.erase(A.begin()), cur++;
 						if (B.find(cur) != B.end()) {
-							rest -= nearst - pos;
+							rest -= cur - pos;
 							pos = cur;
 							B.erase(cur);
 							continue;
 						}
-						A.insert(cur);
 						break;
 					} else {
 						int cur = nearst;
 						A.insert(nearst);
-						while (B.find(cur) != B.end()) B.erase(cur++);
-						if (A.find(cur) != A.end()) {
-							rest -= nearst - pos;
+						while (*B.begin() == cur) B.erase(B.begin()), cur++;
+						if (AA == cur) {
+							rest -= cur - pos;
 							pos = cur;
 							A.erase(cur);
 							continue;
 						}
-						B.insert(cur);
 						break;
 					}
 				}
 			}
 		}
 	}
-	A.insert(0);
-	B.insert(0);
-
-	auto it = --A.end();
-	for (int j = *--it; j; j--) {
-		if (j == *it) {
-			it--;
-			printf("1");
-		} else {
-			printf("0");
-		}
+	for (int i = 1; A.size() > 1 && B.size() > 1; i++) {
+		if (*A.begin() != i && *B.begin() != i) putchar('0');
+		if (*A.begin() == i) A.erase(A.begin()), putchar('1');
+		if (*B.begin() == i) B.erase(B.begin()), putchar('1');
 	}
-	printf("\n");
-	it = --B.end();
-	for (int j = *--it; j; j--) {
-		if (j == *it) {
-			it--;
-			printf("1");
-		} else {
-			printf("0");
-		}
-	}
-	printf("\n");
-
 	return 0;
 }
