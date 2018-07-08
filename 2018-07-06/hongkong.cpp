@@ -33,8 +33,9 @@ inline int qry(int k, int x) {
 }
 int inv[MAXN], frc[MAXN];
 inline int C(int n, int m) {
+    if (n >= m) return 1LL * frc[n] * inv[m] % MOD * inv[n - m] % MOD;
+    if (n < 0) return ((m & 1 ? -1LL : 1LL) * frc[m - n - 1] * inv[-n - 1] % MOD * inv[m] % MOD + MOD) % MOD;
     if (n < m) return 0;
-    return 1LL * frc[n] * inv[m] % MOD * inv[n - m] % MOD;
 }
 inline int fuck(int x, int p) {
     int y = 1;
@@ -45,13 +46,7 @@ inline int fuck(int x, int p) {
     }
     return y;
 }
-inline int CC(int n, int m) {
-    int ret = 1;
-    for (int i = n; i >= (n - m + 1); i--)
-        if (!(ret = 1LL * ret * i % MOD)) return 0;
-    return 1LL * ret * inv[m] % MOD;
-}
-std::map<int, int> CCC[MAXK];
+
 int main() {
     frc[0] = 1;
     for (int i = 1; i < MAXN; i++) frc[i] = 1LL * frc[i - 1] * i % MOD;
@@ -61,13 +56,6 @@ int main() {
     n = getInt();
     m = getInt();
     k = getInt();
-
-    for (int i = 0; i <= k; i++) {
-        for (int j = 1; j <= n; j++) {
-            CCC[k - i][k - j] = CC(k - j, k - i);
-            printf("C(%d, %d) = %d\n", k - j, k - i, CCC[k - i][k - j]);
-        }
-    }
 
     while (m--) {
         int op, x, y = 0;
@@ -80,7 +68,7 @@ int main() {
         } else {
             scanf("%d%d", &x, &y);
             for (int j = 0; j <= k; j++) {
-                add(k - j, x, 1LL * CCC[k - j][k - x] * y % MOD);
+                add(k - j, x, 1LL * C(k - x - 1, k - j - 1) * y % MOD);
             }
         }
     }
