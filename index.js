@@ -1,13 +1,52 @@
-function match(gA, gB) {
-    gA.sort((a, b) => { return a.id > b.id; });
-    gB.sort((a, b) => { return a.id > b.id; });
-    let idA = 0, idB = 0;
-    while (idA < gA.length && idB < gB.length) {
-        if (gA[idA].id === gB[idB].id) return true;
-        if (gA[idA].id < gB[idB].id) idA++;
-        else idB++;
-    }
-    return false;
+'use strict'
+
+const fs = require('fs');
+const path = require('path')
+
+let ignore = [
+	'.git',
+	'.vscode',
+	'node_modules'
+];
+
+let extToDel = [
+	'',
+	'.exe',
+	'.in',
+	'.out',
+	'.txt',
+	'.class'
+];
+
+function listFile(filePath) {
+	fs.readdir(filePath, function (err, files) {
+		if (err) {
+			console.warn(err);
+		} else {
+			files.forEach(function (filename) {
+				let file = path.join(filePath, filename);
+				file = path.resolve(file);
+				fs.stat(file, function (eror, stats) {
+					if (eror) {
+						console.warn('Access denied.');
+					} else {
+						let isFile = stats.isFile();
+						let isDir = stats.isDirectory();
+						if (isFile) {
+							if (extToDel.includes(path.extname(file))) {
+								console.log(`${file} will be deleted.`);
+								fs.unlinkSync(file);
+							}
+						}
+						if (isDir) {
+							if (!ignore.includes(filename))
+								listFile(file);
+						}
+					}
+				})
+			});
+		}
+	});
 }
 
-console.log(match([{ id: 2 }, { id: 3 }, { id: 4 }], [{ id: 2 }]));
+listFile('.');
