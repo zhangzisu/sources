@@ -1,0 +1,73 @@
+#include <algorithm>
+#include <cctype>
+#include <cstdio>
+#include <cstdlib>
+#include <cstring>
+#define BUF 1048576
+char _1[BUF], *_3 = _1 + BUF;
+inline char gc() {
+    if (_3 == _1 + BUF) fread(_1, 1, BUF, stdin), _3 = _1;
+    return *_3++;
+}
+inline int $() {
+    int x = 0;
+    char ch = gc();
+    while (!isdigit(ch)) ch = gc();
+    for (; isdigit(ch); ch = gc()) x = (x << 1) + (x << 3) + (ch ^ 48);
+    return x;
+}
+inline char c() {
+    char ch = gc();
+    while (!isalpha(ch)) ch = gc();
+    return ch;
+}
+#define MAXN 300
+#define MAXM 50
+#define MOD 998244353
+int n = $(), m = $(), ans, col[MAXN];
+inline int c2i(char c) { return c == 'r' ? 1 : c == 'b' ? 2 : 0; }
+int f[2][MAXN][MAXM][MAXM][3][MAXM], a[MAXM][MAXN];
+inline int b2i(int a, int b) { return a == b ? 1 : 0; }
+int main() {
+    for (int i0 = 0; i0 < n; i0++) col[i0] = c2i(c());
+    for (int i0 = 0; i0 < m; i0++)
+        for (int i1 = 0; i1 < n; i1++) a[i0][i1] = $();
+    for (int i0 = 0; i0 < n; i0++) {
+        const int nx = 1;
+        for (int i1 = -1; i1 <= 1; i1++) {
+            const int np = (i0 + i1 + n) % n;
+            f[nx][np][1 + b2i(col[i0], 1) + b2i(col[np], 1)][1 + b2i(col[i0], 2) + b2i(col[np], 2)][i1 + 1][1] = 1LL * a[0][i0] * a[1][np] % MOD;
+        }
+    }
+    for (int i0 = 1; i0 < m - 1; i0++) {
+        const int nw = i0 & 1, nx = !nw;
+        for (int i1 = 0; i1 < n; i1++) {
+            for (int i2 = 1; i2 <= m; i2++) {
+                for (int i3 = 1; i3 <= m; i3++) {
+                    for (int i4 = -1; i4 <= 1; i4++) {
+                        for (int i5 = 1; i5 <= m; i5++) {
+                            for (int i6 = -1; i6 <= 1; i6++) {
+                                const int np = (i1 + i6 + n) % n;
+                                const int& now = f[nw][i1][i2][i3][i4 + 1][i5];
+                                if (!now) continue;
+                                if (i6 == i4) {
+                                    (f[nx][np][i2 + b2i(col[np], 1)][i3 + b2i(col[np], 2)][i4 + 1][i5 + 1] += 1LL * now * a[i0 + 1][np] % MOD) %= MOD;
+                                } else {
+                                    (f[nx][np][i2 + b2i(col[np], 1)][i3 + b2i(col[np], 2)][i6 + 1][1] += 1LL * now * a[i0 + 1][np] % MOD * i5 % MOD) %= MOD;
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        }
+    }
+    for (int i0 = 0; i0 < n; i0++)
+        for (int i1 = 1; i1 <= m + 1; i1++)
+            for (int i2 = 1; i2 <= m + 1; i2++)
+                for (int i3 = -1; i3 <= 1; i3++)
+                    for (int i4 = 1; i4 <= m; i4++)
+                        (ans += 1LL * f[!(m & 1)][i0][i1][i2][i3 + 1][i4] * i1 % MOD * i2 % MOD * i4 % MOD) %= MOD;
+    printf("%d\n", ans);
+    return 0;
+}
