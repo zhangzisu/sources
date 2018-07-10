@@ -1,128 +1,127 @@
-#include <algorithm>
-#include <cmath>
-#include <cstdio>
-#include <cstring>
-#include <iostream>
-using namespace std;
-typedef long long int64;
-char ch;
-bool ok;
-void read(int &x) {
-    ok = 0;
-    for (ch = getchar(); !isdigit(ch); ch = getchar())
-        if (ch == '-') ok = 1;
-    for (x = 0; isdigit(ch); x = x * 10 + ch - '0', ch = getchar())
-        ;
-    if (ok) x = -x;
+#include<cstdio>
+#include<cstdlib>
+#include<cstring>
+#include<algorithm>
+#include<cctype>
+inline int $(){
+	register int x = 0; register char ch = getchar();
+	while(!isdigit(ch))ch = getchar();
+	for(;isdigit(ch);ch = getchar())x = (x << 1) + (x << 3) + (ch ^ 48);
+	return x;
 }
-void read(int64 &x) {
-    ok = 0;
-    for (ch = getchar(); !isdigit(ch); ch = getchar())
-        if (ch == '-') ok = 1;
-    for (x = 0; isdigit(ch); x = x * 10 + ch - '0', ch = getchar())
-        ;
-    if (ok) x = -x;
+
+#define MAXN 200010
+#define INFLL 2000000000000000000LL
+int n, m, k;
+long long w[MAXN], pre[MAXN], suf[MAXN], dis[MAXN], t;
+inline long long getDis(int x, int y){
+	if(x > y)std::swap(x, y);
+	return pre[y] - pre[x];
 }
-const int maxn = 100000 + 5;
-const int maxm = maxn * 2;
-int n, m, q, idx;
-int64 N, a, b, list[maxn];
-int root[maxn], from[maxn];
-struct Seg {
-    int tot, siz[maxn * 18], son[maxn * 18][2], root[maxn];
-    void insert(int &k, int p, int l, int r, int v) {
-        k = ++tot, siz[k] = siz[p] + 1;
-        if (l == r) return;
-        int m = (l + r) >> 1;
-        if (v <= m)
-            son[k][1] = son[p][1], insert(son[k][0], son[p][0], l, m, v);
-        else
-            son[k][0] = son[p][0], insert(son[k][1], son[p][1], m + 1, r, v);
-    }
-    void insert(int idx, int v) { insert(root[idx], root[idx - 1], 1, n, v); }
-    int calc(int x, int y, int k) {
-        x = root[x - 1], y = root[y];
-        int l = 1, r = n, m;
-        while (l < r) {
-            m = (l + r) >> 1;
-            if (siz[son[y][0]] - siz[son[x][0]] >= k)
-                r = m, y = son[y][0], x = son[x][0];
-            else
-                l = m + 1, k -= siz[son[y][0]] - siz[son[x][0]], y = son[y][1], x = son[x][1];
-        }
-        return l;
-    }
-} T;
-int dfn[maxn], last[maxn], siz[maxn];
-struct Graph2 {
-    int tot, now[maxn], son[maxm], pre[maxm], fa[maxn][18], dep[maxn];
-    int64 val[maxm], dis[maxn];
-    void put(int a, int b, int64 c) { pre[++tot] = now[a], now[a] = tot, son[tot] = b, val[tot] = c; }
-    void add(int a, int b, int64 c) { put(a, b, c), put(b, a, c); }
-    void dfs(int u) {
-        for (int i = 0; fa[u][i]; i++) fa[u][i + 1] = fa[fa[u][i]][i];
-        for (int p = now[u], v = son[p]; p; p = pre[p], v = son[p])
-            if (v != fa[u][0])
-                fa[v][0] = u, dep[v] = dep[u] + 1, dis[v] = dis[u] + val[p], dfs(v);
-    }
-    void dfs2(int u) {
-        siz[u] = 1, dfn[u] = ++idx, T.insert(idx, u);
-        for (int p = now[u], v = son[p]; p; p = pre[p], v = son[p])
-            if (v != fa[u][0]) dfs2(v), siz[u] += siz[v];
-        last[u] = idx;
-    }
-    void prepare() { dfs(1), dfs2(1); }
-    void swim(int &u, int h) {
-        for (int i = 17; h; i--)
-            if (h >= (1 << i)) h -= (1 << i), u = fa[u][i];
-    }
-    int get_lca(int u, int v) {
-        if (dep[u] < dep[v]) swap(u, v);
-        swim(u, dep[u] - dep[v]);
-        if (u == v) return u;
-        for (int i = 17; i >= 0; i--)
-            if (fa[u][i] != fa[v][i]) u = fa[u][i], v = fa[v][i];
-        return fa[u][0];
-    }
-    int64 get_dist(int u, int v) { return dis[u] + dis[v] - 2 * dis[get_lca(u, v)]; }
-    int find(int u, int v) {
-        swim(u, dep[u] - dep[v] - 1);
-        return u;
-    }
-} G[2];
-int calc(int64 x) { return lower_bound(list + 1, list + idx + 1, x) - list; }
-int main() {
-    read(n), read(m), read(q);
-    for (int i = 1; i < n; i++) read(a), read(b), G[0].add(a, b, 1);
-    G[0].prepare(), N = n, idx = 1, root[1] = 1, list[1] = N;
-    for (int i = 1; i <= m; i++) {
-        read(a), read(b);
-        int t = calc(b), r = root[t], bb = T.calc(dfn[r], last[r], b - list[t - 1]);
-        G[1].add(idx + 1, t, G[0].dis[bb] - G[0].dis[r] + 1);
-        N += siz[a], list[++idx] = N, root[idx] = a, from[idx] = bb;
-    }
-    G[1].dfs(1);
-    for (int i = 1; i <= q; i++) {
-        read(a), read(b);
-        int ta = calc(a), ra = root[ta], aa = T.calc(dfn[ra], last[ra], a - list[ta - 1]);
-        int tb = calc(b), rb = root[tb], bb = T.calc(dfn[rb], last[rb], b - list[tb - 1]);
-        printf("{%d, %d}\n", ta, aa);
-        printf("{%d, %d}\n", tb, bb);
-        int lca = G[1].get_lca(ta, tb);
-        int64 res = G[0].dis[aa] - G[0].dis[ra] + G[0].dis[bb] - G[0].dis[rb] + G[1].get_dist(ta, tb);
-        if (ta == tb)
-            printf("%lld\n", G[0].get_dist(aa, bb));
-        else if (ta == lca) {
-            int frb = from[G[1].find(tb, lca)];
-            printf("%lld\n", res - (G[0].dis[aa] + G[0].dis[frb] - G[0].get_dist(aa, frb) - 2 * G[0].dis[ra]));
-        } else if (tb == lca) {
-            int fra = from[G[1].find(ta, lca)];
-            printf("%lld\n", res - (G[0].dis[bb] + G[0].dis[fra] - G[0].get_dist(bb, fra) - 2 * G[0].dis[rb]));
-        } else {
-            int fra = from[G[1].find(ta, lca)];
-            int frb = from[G[1].find(tb, lca)];
-            printf("%lld\n", res - (G[0].dis[fra] + G[0].dis[frb] - G[0].get_dist(fra, frb) - 2 * G[0].dis[root[lca]]));
-        }
-    }
-    return 0;
+std::pair<int, long long> edge[MAXN];
+long long tag[MAXN << 2], ans;
+inline void pushDown(int);
+inline long long query(long long *a, int n, int l, int r, int L, int R){
+	if(l == L && r == R)return a[n];
+	int mid = (l + r) >> 1; pushDown(n);
+	if(R <= mid)return query(a, n << 1, l, mid, L, R);
+	if(L > mid)return query(a, n << 1 | 1, mid + 1, r, L, R);
+	return std::min(query(a, n << 1, l, mid, L, mid), query(a, n << 1 | 1, mid + 1, r, mid + 1, R));
+}
+inline void modify(long long *a, int n, int l, int r, int p, long long v){
+	if(l == r) return void(a[n] = v);
+	int mid = (l + r) >> 1; pushDown(n);
+	if(p <= mid)modify(a, n << 1, l, mid, p, v);
+	else modify(a, n << 1 | 1, mid + 1, r, p, v);
+	a[n] = std::min(a[n << 1], a[n << 1 | 1]);
+}
+long long min0[MAXN << 2], min1[MAXN << 2];
+inline void reset(){
+	min0[1] = INFLL;
+	min1[1] = INFLL;
+	tag[1] = 1;
+}
+inline void pushDown(int n){
+	if(tag[n]){
+		tag[n << 1] = tag[n << 1 | 1] = 1;
+		min0[n << 1] = min0[n << 1 | 1] = INFLL;
+		min1[n << 1] = min1[n << 1 | 1] = INFLL;
+	}
+	tag[n] = 0;
+}
+inline long long getDisByTime(int pos, int t){
+	if(t <= 0)return INFLL;
+	int L = std::max(1, pos - t + 1);
+	int R = std::min(n, pos + t - 1);
+	return
+		std::min(
+			query(min0, 1, 1, n, pos, R) - pre[pos],
+			query(min1, 1, 1, n, L, pos) - suf[pos]
+		);
+}
+inline long long GDBTL(int pos, int t){
+	if(t <= 0)return INFLL;
+	int L = std::max(1, pos - t + 1);
+	return query(min1, 1, 1, n, L, pos) - suf[pos];
+}
+inline long long GDBTR(int pos, int t){
+	if(t <= 0)return INFLL;
+	int R = std::min(n, pos + t - 1);
+	return query(min0, 1, 1, n, pos, R) - pre[pos];
+}
+int main(){
+	n = $(), m = $();
+	for(int i = 2;i <= n;i++)w[i] = $();
+	for(int i = 1;i <= n;i++)pre[i] = pre[i - 1] + w[i];
+	for(int i = n;i >= 1;i--)suf[i] = suf[i + 1] + w[i + 1];
+
+	while(m--){
+		k = $();
+		for(int i = 1;i <= k;i++)edge[i].first = $(), edge[i].second = $();
+		std::sort(edge + 1, edge + k + 1);
+		ans = 0;
+		reset();
+		for(int i = 1;i <= k;i++){
+			int x = edge[i].first, y = edge[i].second;
+			//printf("MIN0 [%d] = %lld\n", x, y + pre[x]);
+			modify(min0, 1, 1, n, x, y + pre[x]);
+			//printf("MIN1 [%d] = %lld\n", x, y + suf[x]);
+			modify(min1, 1, 1, n, x, y + suf[x]);
+		}
+
+		for(int i = 1;i <= k;i++){
+			int x = edge[i].first, y = edge[i].second, tmp = 0;
+			modify(min0, 1, 1, n, x, INFLL);
+			modify(min1, 1, 1, n, x, INFLL);
+			register int l = 1, r = x - 1, L = x, R = x;
+			while(l <= r){
+				int mid = (l + r) >> 1;
+				int t = x - mid + 1;
+				long long d0 = getDisByTime(mid, t);
+				long long d1 = getDis(mid, x) + y;
+				if(d1 < d0)L = mid, r = mid - 1;
+				else l = mid + 1;
+			}
+			l = x + 1, r = n;
+			while(l <= r){
+				int mid = (l + r) >> 1;
+				int t = mid - x + 1;
+				long long d0 = getDisByTime(mid, t);
+				long long d1 = getDis(mid, x) + y;
+				if(d1 < d0)R = mid, l = mid + 1;
+				else r = mid - 1;
+				if(d1 == d0){
+					long long d2 = getDisByTime(mid, t - 1);
+					if(d2 != d0)tmp++;
+				}
+			}
+			//printf("POS %d RANGE [%d - %d]\n", x, L, R);
+			ans += (R - L + 1);
+			ans += tmp;
+			modify(min0, 1, 1, n, x, y + pre[x]);
+			modify(min1, 1, 1, n, x, y + suf[x]);
+		}
+		printf("%lld\n", ans);
+	}
+	return 0;
 }

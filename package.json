@@ -1,15 +1,8 @@
 {
-<<<<<<< .merge_file_a21548
   "name": "sources",
   "version": "1.0.0",
   "description": "",
   "main": "clear.js",
-=======
-  "name": "sources-origin",
-  "version": "1.0.0",
-  "description": "",
-  "main": "index.js",
->>>>>>> .merge_file_a05640
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1"
   },
@@ -18,21 +11,15 @@
     "url": "git+https://github.com/ZhangZisu/sources.git"
   },
   "author": "",
-<<<<<<< .merge_file_a21548
   "license": "MIT",
-=======
-  "license": "Apache-2.0",
->>>>>>> .merge_file_a05640
   "bugs": {
     "url": "https://github.com/ZhangZisu/sources/issues"
   },
   "homepage": "https://github.com/ZhangZisu/sources#readme",
   "dependencies": {
     "fs": "0.0.1-security",
-<<<<<<< .merge_file_a21548
-=======
     "lodash": "^4.17.10",
->>>>>>> .merge_file_a05640
-    "path": "^0.12.7"
+    "path": "^0.12.7",
+    "randomstring": "^1.1.5"
   }
 }
