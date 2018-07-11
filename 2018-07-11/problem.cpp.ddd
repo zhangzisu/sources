@@ -1,0 +1,181 @@
+#include <algorithm>
+#include <cctype>
+#include <cstdio>
+#include <cstdlib>
+#include <cstring>
+#include <vector>
+#define BUF 65536
+char _1[BUF], _2[BUF], *_3 = _1 + BUF, *_4 = _2;
+inline char _getchar() {
+    if (_3 == _1 + BUF) fread(_1, 1, BUF, stdin), _3 = _1;
+    return *_3++;
+}
+inline int getInt() {
+    register int __ = 0;
+    register char _ = _getchar();
+    while (!isdigit(_)) _ = _getchar();
+    for (; isdigit(_); _ = _getchar()) __ = ((__ << 3) + (__ << 1)) + (_ ^ 48);
+    return __;
+}
+inline long long getInt64() {
+    register long long __ = 0;
+    register char _ = _getchar();
+    while (!isdigit(_)) _ = _getchar();
+    for (; isdigit(_); _ = _getchar()) __ = ((__ << 3) + (__ << 1)) + (_ ^ 48);
+    return __;
+}
+inline void _putchar(char c) {
+    if (_4 == _2 + BUF) fwrite(_2, 1, BUF, stdout), _4 = _2;
+    *_4++ = c;
+}
+int _5[65];
+inline void putInt(int x) {
+    if (x == 0) {
+        _putchar('0');
+        return;
+    }
+    register int _6;
+    for (_6 = 0; x; x /= 10) _5[++_6] = x % 10;
+    while (_6) _putchar(_5[_6--] ^ 48);
+}
+inline void putInt64(long long x) {
+    if (x == 0) {
+        _putchar('0');
+        return;
+    }
+    register int _6;
+    for (_6 = 0; x; x /= 10) _5[++_6] = x % 10;
+    while (_6) _putchar(_5[_6--] ^ 48);
+}
+inline void flush() { fwrite(_2, 1, _4 - _2, stdout); }
+#define MAXN 100010
+#define MAXM 5000010
+typedef long long lnt;
+int n, m, k;
+int head[MAXN], to[MAXN << 1], val[MAXN << 1], next[MAXN << 1], tot = 0;
+inline void $(int u, int v, int w) {
+    next[tot] = head[u], to[tot] = v, val[tot] = w, head[u] = tot++;
+    next[tot] = head[v], to[tot] = u, val[tot] = w, head[v] = tot++;
+}
+int fa[MAXN][17], deep[MAXN], len[MAXN][17];
+inline int lca(int u, int v) {
+    if (deep[u] < deep[v]) std::swap(u, v);
+    int delta = deep[u] - deep[v];
+    for (int i = 16; ~i; i--)
+        if ((delta >> i) & 1) u = fa[u][i];
+    for (int i = 16; ~i; i--)
+        if (fa[u][i] != fa[v][i]) u = fa[u][i], v = fa[v][i];
+    return u == v ? u : fa[u][0];
+}
+inline int mdr(int u, int v) {
+    int ret = ~(0u) >> 1;
+    for (int i = 16; ~i; i--)
+        if (deep[fa[u][i]] >= deep[v]) ret = std::min(ret, len[u][i]), u = fa[u][i];
+    return ret;
+}
+int root[MAXM], L[MAXM], R[MAXM], size[MAXM], cnt = 0;
+lnt sum[MAXM];
+inline void insert(int &n, int N, int l, int r, int p, int v) {
+    n = ++cnt;
+    L[n] = L[N], R[n] = R[N], sum[n] = sum[N], size[n] = size[N];
+    sum[n] += v;
+    size[n]++;
+    if (l == r) return;
+    int mid = (l + r) >> 1;
+    if (p <= mid) return insert(L[n], L[N], l, mid, p, v);
+    return insert(R[n], R[N], mid + 1, r, p, v);
+}
+inline int count(int n0, int n1, int n2, int l, int r, int _l, int _r) {
+    if (l == _l && r == _r) return size[n0] + size[n1] - 2 * size[n2];
+    int mid = (l + r) >> 1;
+    if (_r <= mid) return count(L[n0], L[n1], L[n2], l, mid, _l, _r);
+    if (_l > mid) return count(R[n0], R[n1], R[n2], mid + 1, r, _l, _r);
+    return count(L[n0], L[n1], L[n2], l, mid, _l, mid) + count(R[n0], R[n1], R[n2], mid + 1, r, mid + 1, _r);
+}
+inline lnt sigma(int n0, int n1, int n2, int l, int r, int _l, int _r) {
+    if (l == _l && r == _r) return sum[n0] + sum[n1] - 2 * sum[n2];
+    int mid = (l + r) >> 1;
+    if (_r <= mid) return sigma(L[n0], L[n1], L[n2], l, mid, _l, _r);
+    if (_l > mid) return sigma(R[n0], R[n1], R[n2], mid + 1, r, _l, _r);
+    return sigma(L[n0], L[n1], L[n2], l, mid, _l, mid) + sigma(R[n0], R[n1], R[n2], mid + 1, r, mid + 1, _r);
+}
+std::vector<int> W;
+void build(int x) {
+    if (x != 1) insert(
+        root[x],                                                            // This root
+        root[fa[x][0]],                                                     // Pre root
+        1,                                                                  // Left bound
+        k,                                                                  // Right bound
+        (std::lower_bound(W.begin(), W.end(), len[x][0]) - W.begin()) + 1,  // Position
+        len[x][0]);                                                         // Value
+
+    for (int i = 1; i < 17; i++) {
+        fa[x][i] = fa[fa[x][i - 1]][i - 1];
+        len[x][i] = std::min(len[x][i - 1], len[fa[x][i - 1]][i - 1]);
+    }
+    for (int i = head[x]; ~i; i = next[i]) {
+        if (to[i] == fa[x][0]) continue;
+        fa[to[i]][0] = x;
+        len[to[i]][0] = val[i];
+        deep[to[i]] = deep[x] + 1;
+        build(to[i]);
+    }
+}
+
+int s, t;
+lnt q, a, b;
+int main() {
+    freopen("in", "r", stdin);
+    freopen("ddd", "w", stdout);
+    memset(head, -1, sizeof(head));
+
+    n = getInt();
+    m = getInt();
+
+    for (int i = 1, u, v, w; i < n; i++) {
+        u = getInt();
+        v = getInt();
+        w = getInt();
+
+        $(u, v, w);
+        W.push_back(w);
+    }
+    std::sort(W.begin(), W.end());
+    W.erase(std::unique(W.begin(), W.end()), W.end());
+    k = W.size();
+    build(1);
+    while (m--) {
+        s = getInt();
+        t = getInt();
+        q = getInt64();
+        a = getInt64();
+        b = getInt64();
+
+        int lca = ::lca(s, t);
+        int origin = std::min(::mdr(s, lca), ::mdr(t, lca));
+        int l = (std::lower_bound(W.begin(), W.end(), origin)-W.begin())+1;
+        int r = k;
+        int max = -1, count = 0;
+        lnt sigma = 0, delta = 0;
+        while (l <= r) {
+            int mid = (l + r) >> 1;
+            count = ::count(root[s], root[t], root[lca], 1, k, 1, mid);
+            sigma = ::sigma(root[s], root[t], root[lca], 1, k, 1, mid);
+            delta = (count * W[mid - 1] - sigma) * b;
+            if (delta <= q && delta <= (W[mid - 1] - origin) * a)
+                max = mid, l = mid + 1;
+            else
+                r = mid - 1;
+        }
+        count = ::count(root[s], root[t], root[lca], 1, k, 1, max);
+        sigma = ::sigma(root[s], root[t], root[lca], 1, k, 1, max);
+        delta = (count * W[max - 1] - sigma) * b;
+        lnt price = std::min(a, b * count);
+        lnt rest = q - delta;
+
+        putInt64(W[max - 1] + rest / price);
+        _putchar(10);
+    }
+    flush();
+    return 0;
+}
