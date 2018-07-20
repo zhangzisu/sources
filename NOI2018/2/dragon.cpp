@@ -16,7 +16,7 @@ inline lnt $() {
 }
 lnt t, n, m, a[MAXN], p[MAXN], c[MAXN], g[MAXN], skip[MAXN];
 std::map<lnt, lnt> M;
-lnt pre = 0, ans = 0, MOD, VAL, x, y, d;
+lnt pre, MOD, VAL, x, y, d;
 inline lnt gcd(lnt a, lnt b) { return b ? gcd(b, a % b) : a; }
 inline lnt lcm(lnt a, lnt b) {
 	return a / gcd(a, b) * b;
@@ -38,17 +38,21 @@ inline lnt inv(lnt x, lnt p) {
 }
 inline lnt fmul(lnt a, lnt b, lnt p) {
 	lnt y = 0;
+	lnt flag = 0;
+	if (b < 0) flag = 1, b = -b;
 	for (; b; b >>= 1) {
 		if (b & 1) y = (y + a) % p;
 		a = (a + a) % p;
 	}
-	return y;
+	return flag ? -y : y;
 }
 
 int main() {
-	freopen("C:\\Users\\admin\\Desktop\\day2.tar\\day2\\dragon\\dragon1.in", "r", stdin);
+	// freopen("dragon.in", "r", stdin);
+	// freopen("dragon.out", "w", stdout);
 	t = $();
 	while (t--) {
+		pre = 0;
 		n = $(), m = $();
 		for (int i = 1; i <= n; i++) a[i] = $();
 		for (int i = 1; i <= n; i++) p[i] = $();
@@ -80,9 +84,6 @@ int main() {
 			p[i] /= l;
 			lnt v = inv(g[i], p[i]);
 			if (!v) goto fail;
-			if (g[i] * v % p[i] != 1) {
-				goto fail;
-			}
 			a[i] = fmul(a[i], v, p[i]);
 		}
 		MOD = p[1], VAL = a[1];
@@ -95,7 +96,7 @@ int main() {
 				// fprintf(stderr, "FAILED at line %d\n", __LINE__);
 				goto fail;
 			}
-			x = (VAL - a[i]) / d * x % (p[i] / d);
+			x = fmul((VAL - a[i]) / d, x, p[i] / d);
 			VAL -= MOD * x;
 			MOD = MOD / d * p[i];
 			VAL %= MOD;

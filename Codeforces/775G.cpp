@@ -4,7 +4,7 @@
 #include <cstring>
 #define MOD 998244353
 #define G 3
-#define MAXN 100010
+const int MAXN = 1 << 20;
 inline int fuck(int x, int p) {
 	register int y = 1;
 	for (; p; p >>= 1) {
@@ -14,14 +14,14 @@ inline int fuck(int x, int p) {
 	return y;
 }
 inline void NTT(int *a, int n) {
-	for (int i = 1, j = 0; i < n - 1; i++) {
-		for (int t = n; ~j & t; j ^= t) t >>= 1;
+	for (register int i = 1, j = 0; i < n - 1; i++) {
+		for (register int t = n; ~j & t; j ^= t) t >>= 1;
 		if (i < j) std::swap(a[i], a[j]);
 	}
-	for (int i = 1; i < n; i <<= 1) {
+	for (register int i = 1; i < n; i <<= 1) {
 		int t = i << 1, wn = fuck(G, (MOD - 1) / t);
-		for (int j = 0; j < n; j += t) {
-			for (int k = 0, w = 1; k < i; k++, w = 1LL * w * wn % MOD) {
+		for (register int j = 0; j < n; j += t) {
+			for (register int k = 0, w = 1; k < i; k++, w = 1LL * w * wn % MOD) {
 				int x = a[j + k], y = 1LL * w * a[j + k + i] % MOD;
 				a[j + k] = (x + y) % MOD;
 				a[j + k + i] = (x - y + MOD) % MOD;
@@ -35,28 +35,28 @@ inline void DFT(int *a, int n) {
 inline void IDFT(int *a, int n) {
 	NTT(a, n);
 	std::reverse(a + 1, a + n);
-	for (int i = 0, v = fuck(n, MOD - 2); i < n; i++) a[i] = 1LL * a[i] * v % MOD;
+	for (register int i = 0, v = fuck(n, MOD - 2); i < n; i++) a[i] = 1LL * a[i] * v % MOD;
 }
 inline void INV(int *a, int *b, int n) {
 	memset(b, 0, sizeof(int) * (n << 1));
 	b[0] = fuck(a[0], MOD - 2);
 	static int t[MAXN];
-	for (int i = 2; i <= n; i <<= 1) {
+	for (register int i = 2; i <= n; i <<= 1) {
 		memcpy(t, a, sizeof(int) * i);
 		memset(t + i, 0, sizeof(int) * i);
 		DFT(b, i << 1);
 		DFT(t, i << 1);
-		for (int j = 0; j < (i << 1); j++) b[j] = 1LL * b[j] * (2 - 1LL * t[j] * b[j] % MOD + MOD) % MOD;
+		for (register int j = 0; j < (i << 1); j++) b[j] = 1LL * b[j] * (2 - 1LL * t[j] * b[j] % MOD + MOD) % MOD;
 		IDFT(b, i << 1);
 		memset(b + i, 0, sizeof(int) * i);
 	}
 }
 inline void DRV(int *a, int *b, int n) {
-	for (int i = 1; i < n; i++) b[i - 1] = 1LL * i * a[i] % MOD;
+	for (register int i = 1; i < n; i++) b[i - 1] = 1LL * i * a[i] % MOD;
 	b[n - 1] = 0;
 }
 inline void ITG(int *a, int *b, int n) {
-	for (int i = 1; i < n; i++) b[i] = 1LL * a[i - 1] * fuck(i, MOD - 2) % MOD;
+	for (register int i = 1; i < n; i++) b[i] = 1LL * a[i - 1] * fuck(i, MOD - 2) % MOD;
 	b[0] = 0;
 }
 inline void LN(int *a, int *b, int n) {
@@ -67,7 +67,7 @@ inline void LN(int *a, int *b, int n) {
 	memset(t + n, 0, sizeof(int) * n);
 	DFT(b, n << 1);
 	DFT(t, n << 1);
-	for (int i = 0; i < (n << 1); i++) b[i] = 1LL * b[i] * t[i] % MOD;
+	for (register int i = 0; i < (n << 1); i++) b[i] = 1LL * b[i] * t[i] % MOD;
 	IDFT(b, n << 1);
 	memset(b + n, 0, sizeof(int) * n);
 	memcpy(t, b, sizeof(int) * n);
@@ -77,14 +77,14 @@ inline void EXP(int *a, int *b, int n) {
 	static int t[MAXN];
 	memset(b, 0, sizeof(int) * (n << 1));
 	b[0] = 1;
-	for (int i = 2; i <= n; i <<= 1) {
+	for (register int i = 2; i <= n; i <<= 1) {
 		LN(b, t, i);
 		t[0] = (a[0] + 1 - t[0] + MOD) % MOD;
-		for (int k = 1; k < i; k++) t[k] = (a[k] - t[k] + MOD) % MOD;
+		for (register int k = 1; k < i; k++) t[k] = (a[k] - t[k] + MOD) % MOD;
 		memset(t + i, 0, sizeof(int) * i);
 		DFT(b, i << 1);
 		DFT(t, i << 1);
-		for (int j = 0; j < (i << 1); j++) b[j] = 1LL * b[j] * t[j] % MOD;
+		for (register int j = 0; j < (i << 1); j++) b[j] = 1LL * b[j] * t[j] % MOD;
 		IDFT(b, i << 1);
 		memset(b + i, 0, sizeof(int) * i);
 	}
@@ -94,37 +94,30 @@ inline void SQRT(int *a, int *b, int n) {
 	static int t[MAXN];
 	memset(b, 0, sizeof(int) * (n << 1));
 	b[0] = 1;
-	for (int i = 2; i <= n; i <<= 1) {
+	for (register int i = 2; i <= n; i <<= 1) {
 		INV(b, t, i);
 		DFT(b, i);
-		for (int j = 0; j < i; j++) b[j] = 1LL * b[j] * b[j] % MOD;
+		for (register int j = 0; j < i; j++) b[j] = 1LL * b[j] * b[j] % MOD;
 		IDFT(b, i);
-		for (int j = 0; j < i; j++) b[j] = (b[j] + a[j]) % MOD;
+		for (register int j = 0; j < i; j++) b[j] = (b[j] + a[j]) % MOD;
 		DFT(b, i << 1);
 		DFT(t, i << 1);
-		for (int j = 0; j < (i << 1); j++) b[j] = 1LL * b[j] * t[j] % MOD;
+		for (register int j = 0; j < (i << 1); j++) b[j] = 1LL * b[j] * t[j] % MOD;
 		IDFT(b, i << 1);
-		for (int j = 0; j < i; j++) b[j] = 1LL * b[j] * INV2 % MOD;
+		for (register int j = 0; j < i; j++) b[j] = 1LL * b[j] * INV2 % MOD;
 		memset(b + i, 0, sizeof(int) * i);
 	}
 }
 
-int f[MAXN] = {1, 6, 1}, g[MAXN], h[MAXN] = {1, 1}, l[MAXN];
+int f[MAXN], g[MAXN];
 
 int main() {
-	int n = 1 << 15, a, b;
+	int n = 1 << 8, a, b;
 	scanf("%d%d", &a, &b);
-	SQRT(f, g, n);
-	for (int i = 0; i < n; i++) h[i] = 1LL * INV2 * (h[i] + g[i]) % MOD;
-	LN(h, l, n);
-	for (int i = 0; i < n; i++) l[i] = 1LL * (a + 1) * l[i] % MOD;
-	EXP(l, h, n);
-	INV(g, l, n);
-	DFT(h, n << 1);
-	DFT(l, n << 1);
-	for (int i = 0; i < (n << 1); i++) h[i] = 1LL * h[i] * l[i] % MOD;
-	IDFT(h, n << 1);
-	for (int i = 1; i <= b; i++) printf("%d ", i <= a ? h[i] : 0);
+	while (n <= b) n <<= 1;
+	for (register int i = 0; i <= a; i++) scanf("%d", &f[i]);
+	INV(f, g, n);
+	for (register int i = 0; i < b; i++) printf("%d ", g[i]);
 	puts("");
 	return 0;
 }
