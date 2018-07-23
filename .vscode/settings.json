@@ -87,21 +87,12 @@
 		"optional": "cpp",
 		"string_view": "cpp",
 		"*.ipp": "cpp",
-<<<<<<< .merge_file_a00692
 		"charconv": "cpp"
 	},
 	"editor.mouseWheelZoom": false,
 	"C_Cpp.clang_format_fallbackStyle": "{ BasedOnStyle: Google, IndentWidth: 8, ColumnLimit: 0, UseTab: Always}",
 	"editor.fontSize": 14,
 	"editor.fontFamily": "consolas,inconsolata,monospace",
-=======
-		"unordered_set": "cpp",
-		"charconv": "cpp"
-	},
-	"editor.mouseWheelZoom": false,
-	"C_Cpp.clang_format_fallbackStyle": "{ BasedOnStyle: Google, IndentWidth: 4, ColumnLimit: 0}",
-	"editor.fontSize": 14,
->>>>>>> .merge_file_a16332
 	"terminal.integrated.shell.linux": "/bin/zsh",
 	"C_Cpp.errorSquiggles": "Disabled",
 	"C_Cpp.intelliSenseEngineFallback": "Enabled"

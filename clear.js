@@ -33,7 +33,7 @@ function listFile(filePath) {
 						let isFile = stats.isFile();
 						let isDir = stats.isDirectory();
 						if (isFile) {
-							if (extToDel.includes(path.extname(file))) {
+							if (extToDel.includes(path.extname(file)) || !stats.size) {
 								console.log(`${file} have been deleted.`);
 								fs.unlinkSync(file);
 							}
