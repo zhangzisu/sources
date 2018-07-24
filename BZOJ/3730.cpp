@@ -92,8 +92,8 @@ int main() {
 	for (int i = 1; i <= n; i++) ADD(i, a[i]);
 	for (int lans = 0, op, x, y; m; m--) {
 		scanf("%d%d%d", &op, &x, &y);
-		// x ^= lans;
-		// y ^= lans;
+		x ^= lans;
+		y ^= lans;
 		if (op) {
 			ADD(x, -a[x]);
 			ADD(x, y);
