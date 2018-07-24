@@ -33,40 +33,13 @@ inline void putInt(int x) {
 }
 inline void flush() { fwrite(_2, 1, _4 - _2, stdout); }
 #define MAXN 1000010
-int n, m, q, a[MAXN], p[MAXN], val[MAXN], pos[MAXN];
-inline int find(int x) { return x == p[x] ? x : p[x] = find(p[x]); }
+int n, m, q, a[MAXN], b[MAXN], c[MAXN], p[MAXN];
 int main() {
-    // int start = clock();
-    freopen("sequence.in", "r", stdin);
-    freopen("sequence.out", "w", stdout);
-    n = getInt();
-    m = getInt();
-    q = getInt();
-    for (int i = 1; i <= n; i++) a[i] = getInt();
-    for (int i = 1; i <= m; i++) {
-        p[i] = pos[i] = val[i] = i;
-    }
-    for (int a, b; q; q--) {
-        a = getInt();
-        b = getInt();
-        int x = find(pos[a]);
-        if (!x) continue;
-        int y = find(pos[b]);
-        if (x == y) continue;
-        pos[a] = 0;
-        if (!y) {
-            pos[b] = x;
-            val[x] = b;
-        } else {
-            pos[a] = 0;
-            p[x] = y;
-        }
-    }
-    for (int i = 1; i <= n; i++) {
-        putInt(val[find(a[i])]);
-        _putchar(i == n ? 10 : 32);
-    }
-    flush();
-    // fprintf(stderr, "TIME SPENT: %lf ms\n", 1000. * (clock() - start) / CLOCKS_PER_SEC);
-    return 0;
+    n = getInt(), m = getInt(), q = getInt();
+    for (register int i = 1; i <= n; i++) a[i] = getInt();
+    for (register int i = 1; i <= m; i++) p[i] = i;
+    for (register int i = 1; i <= q; i++) b[i] = getInt(), c[i] = getInt();
+    for (register int i = q; i; i--) p[b[i]] = p[c[i]];
+    for (register int i = 1; i <= n; i++) putInt(p[a[i]]), _putchar(i == n ? 10 : 32);
+    return flush(), 0;
 }

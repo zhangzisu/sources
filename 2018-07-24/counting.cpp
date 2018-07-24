@@ -16,8 +16,8 @@ inline int near(int x, int y) {
 
 int main() {
     int start = clock();
-    freopen("counting.in", "r", stdin);
-    freopen("counting.out", "w", stdout);
+    // freopen("counting.in", "r", stdin);
+    // freopen("counting.out", "w", stdout);
     scanf("%d%d", &n, &k);
     m = (1 << n) - 1;
     f[0][0] = 1;
