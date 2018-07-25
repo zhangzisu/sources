@@ -13,20 +13,18 @@ inline int fuck(int x, int y) {
     return z;
 }
 int main() {
-    scanf("%d%d%d", &n, &m, &p);
-    for (int i = 0; i <= n; i++) scanf("%d", &a[i]);
+    scanf("%d%d", &n, &m);
+    for (int i = 1; i <= n; i++) scanf("%d", &a[i]);
     for (int op, x, y, z, w; m; m--) {
         scanf("%d", &op);
         if (op == 1) {
-            scanf("%d", &x);
+            scanf("%d%d", &x, &y);
             t = 0;
-            for (int i = 0; i <= n; i++) {
-                (t += 1LL * a[i] * fuck(x, i) % p) %= p;
-            }
+            for(int i = x;i <= y;i++)t ^= a[i];
             printf("%d\n", t);
         } else {
-            scanf("%d%d", &x, &y);
-            a[x] = y;
+            scanf("%d%d%d", &x, &y, &z);
+            for(int i = x;i <= y;i++)a[i] ^= z;
         }
         if (m % 100 == 0) fprintf(stderr, "Still have %d cases rest.\n", m);
     }

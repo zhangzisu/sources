@@ -1,0 +1,2 @@
+#include<cstdio>
+int x;int main(){scanf("%d", &x);if(x==1)puts("");if(x==2)puts("");if(x==3)puts("");if(x==4)puts("");if(x==5)puts("");if(x==6)puts("");if(x==7)puts("");if(x==8)puts("");if(x==9)puts("");if(x==10)puts("");if(x==11)puts("");if(x==12)puts("");if(x==13)puts("");if(x==14)puts("");if(x==15)puts("");}

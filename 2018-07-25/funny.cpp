@@ -4,20 +4,22 @@
 #include <cstring>
 #include <ctime>
 #include <vector>
-#define MAXN 51
+#define MAXN 200
 int n, m, a[MAXN], b[MAXN], c[MAXN], l[MAXN], r[MAXN], u[MAXN], v[MAXN], d[MAXN];
 int _data[MAXN][300], *data[MAXN], top[MAXN], stk[MAXN], now, ans = 0;
 struct op {
     int x, type, val;
-    inline op(int x, int type, int val) : x(x), type(type), val(val) {}
-};
-std::vector<op> pre[MAXN];
+    inline op(int x = 0, int type = 0, int val = 0) : x(x), type(type), val(val) {}
+} pre[MAXN][MAXN];
+int pnt[MAXN];
+
 inline void halt() {
     printf("%d\n", ans);
     exit(0);
 }
 inline bool valid(int deep, int val) {
-    for (auto x : pre[deep]) {
+    for (int _x = 1; _x <= pnt[deep]; _x++) {
+        op &x = pre[deep][_x];
         if (x.type) {
             if (stk[x.x] < val + x.val) return 0;
         } else {
@@ -86,7 +88,7 @@ int main() {
         scanf("%d%d%d", &u[i], &v[i], &d[i]);
         bool flag = 0;
         if (u[i] > v[i]) std::swap(u[i], v[i]), d[i] = -d[i], flag = 1;
-        pre[v[i]].push_back(op(u[i], flag, d[i]));
+        pre[v[i]][++pnt[v[i]]] = op(u[i], flag, d[i]);
     }
     if (!m) {
         printf("%d\n", suf[1]);
