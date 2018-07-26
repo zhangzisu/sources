@@ -1,14 +1,16 @@
 const _ = require('lodash');
 const fs = require('fs');
-const dict = fs.readFileSync('dict').toString().split('\r\n');
-const MAX_WORD_SIZE = _.max(dict.map(x => x.length));
-const FILE_NAME = 'gbxf2.in';
+const _dict = fs.readFileSync('dict').toString().split('\r\n');
+const dict = new Set(_dict);
+
+const MAX_WORD_SIZE = _.max(_dict.map(x => x.length));
+const FILE_NAME = 'gbxf10.in';
 
 let content = fs.readFileSync(FILE_NAME).toString();
 
 let numbers = '0123456789１２３４５６７８９０'.split('');
 let english = 'abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ'.split('');
-let operations = ',./;/*-+()&^%$#@!。，；<>‘“’”【】（）{}《》！？￥…— '.split('');
+let operations = ',./;/*-+()&^%$#@!。，；<>‘“’”【】（）{}《》！？￥…— :：'.split('');
 
 function getTypeByWord(str) {
     if (numbers.includes(str)) return 'number';
@@ -26,7 +28,7 @@ let parsers = {
         while (x.length) {
             for (let len = _.min([MAX_WORD_SIZE, x.length]); len >= 1; len--) {
                 let word = x.substr(0, len);
-                if (dict.includes(word) || len == 1) {
+                if (dict.has(word) || len == 1) {
                     x = x.substring(len, x.length);
                     result.push(word);
                     break;
@@ -58,4 +60,4 @@ for (let line of lines) {
     result.push(tokens.join(' '));
 }
 
-fs.writeFileSync('gbxf2.out', result.join('\n'));
+fs.writeFileSync('gbxf10.out', result.join('\n'));
