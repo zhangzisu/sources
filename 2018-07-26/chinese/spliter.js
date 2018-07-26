@@ -4,9 +4,9 @@ const _dict = fs.readFileSync('dict').toString().split('\r\n');
 const dict = new Set(_dict);
 
 const MAX_WORD_SIZE = _.max(_dict.map(x => x.length));
-const FILE_NAME = 'gbxf10.in';
+const CASE_NUM = 10;
 
-let content = fs.readFileSync(FILE_NAME).toString();
+let content = fs.readFileSync(`gbxf${CASE_NUM}.in`).toString();
 
 let numbers = '0123456789１２３４５６７８９０'.split('');
 let english = 'abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ'.split('');
@@ -60,4 +60,4 @@ for (let line of lines) {
     result.push(tokens.join(' '));
 }
 
-fs.writeFileSync('gbxf10.out', result.join('\n'));
+fs.writeFileSync(`gbxf${CASE_NUM}.out`, result.join('\n'));
