@@ -4,7 +4,7 @@
 #include <cstring>
 #define MAXN 4000010
 #define MOD 1000000000
-int n, m, k, p[MAXN], p1[MAXN], x[MAXN], y[MAXN], z[MAXN], ans, all;
+int n, m, k, ans, x[MAXN], y[MAXN], z[MAXN];
 inline int fuck(int x, int p) {
 	register int y = 1;
 	for (; p; p >>= 1) {
@@ -13,34 +13,45 @@ inline int fuck(int x, int p) {
 	}
 	return y;
 }
-inline void find(int *p, int x) { return p[x] == x ? x : p[x] = find(p, p[x]); }
-inline void unite(int *p, int x, int y) {
-	int X = find(p, x);
-	int Y = find(p, y);
-	if (X != Y) p[X] = Y;
+int p[MAXN], v[MAXN];
+inline int find(int x) {
+	if (p[x] == x) return x;
+	find(p[x]);
+	v[x] ^= v[p[x]];
+	return p[x] = p[p[x]];
 }
-inline int get(int x, int y) {
-	return y == 1 ? x : y - 1 + n;
+bool ok[2] = {1, 1};
+inline int calc() {
+	for (int i = 1; i <= n + m; i++) p[i] = i, v[i] = 0;
+	p[n + 1] = 1;
+	for (int i = 1; i <= k; i++) {
+		int X = find(x[i]), Y = find(y[i] + n), t = v[x[i]] ^ v[y[i] + n] ^ z[i];
+		if (X != Y)
+			p[Y] = X, v[Y] = t;
+		else if (t)
+			return 0;
+	}
+	int ans = 0;
+	for (int i = 1; i <= n + m; i++)
+		if (find(i) == i) ans++;
+	return fuck(2, ans - 1);
 }
 int main() {
 	scanf("%d%d%d", &n, &m, &k);
-	for (int i = 1; i <= k; i++) scanf("%d%d%d", &x[i], &y[i], &z[i]);
-	for (int d = 0; d < 2; d++) {
-		for (int i = 0; i < MAXN; i++) p[i] = p1[i] = p2[i] = i;
-		all = n + m - 1;
-		for (int i = 1; i <= k; i++) {
-			int val = (!((i & 1) || (j & 1))) ^ z[i] ^ d;
-			unite(p0, x[i], y[i] + n);
-			unite(p1, x[i] << 1, ((y[i] + n) << 1) ^ val);
-			unite(p1, x[i] << 1 | 1, ((y[i] + n) << 1 | 1) ^ val);
+	for (int i = 1; i <= k; i++) {
+		scanf("%d%d%d", &x[i], &y[i], &z[i]);
+		if (x[i] == 1 && y[i] == 1) {
+			if (z[i])
+				ok[0] = 0;
+			else
+				ok[1] = 0;
+			i--, k--;
 		}
-		for (int i = 1; i <= n; i++)
-			if (find(p1, i << 1) == find(p1, i << 1 | 1)) goto fail;
-		for (int i = 1; i <= m; i++)
-			if (find(p1, (i + n) << 1) == find(p1, (i + n) << 1 | 1)) goto fail;
-		//
-	fail:;
+		if ((~x[i] & 1) && (~y[i] & 1)) z[i] ^= 1;
 	}
+	if (ok[0]) ans = (ans + calc()) % MOD;
+	for (int i = 1; i <= k; i++) z[i] ^= (x[i] > 1 && y[i] > 1);
+	if (ok[1]) ans = (ans + calc()) % MOD;
 	printf("%d\n", ans);
 	return 0;
 }
