@@ -7,7 +7,7 @@
 typedef long long lnt;
 int n, m, a[MAXN];
 std::vector<std::pair<int, int>> fields[MAXN];
-lnt max[MAXN], tag[MAXN];
+lnt max[MAXN << 2], tag[MAXN << 2];
 inline void pushDown(int n) {
     if (tag[n]) {
         tag[n << 1] += tag[n];
@@ -25,7 +25,7 @@ void _modify(int n, int l, int r, int p, lnt v) {
     max[n] = std::max(max[n << 1], max[n << 1 | 1]);
 }
 lnt _query(int n, int l, int r, int p) {
-    if (l == r) return max[p];
+    if (l == r) return max[n];
     int mid = (l + r) >> 1;
     pushDown(n);
     return p <= mid ? _query(n << 1, l, mid, p) : _query(n << 1 | 1, mid + 1, r, p);
@@ -33,6 +33,7 @@ lnt _query(int n, int l, int r, int p) {
 void _add(int n, int l, int r, int L, int R, lnt v) {
     if (l == L && r == R) return max[n] += v, tag[n] += v, void();
     int mid = (l + r) >> 1;
+    pushDown(n);
     if (R <= mid)
         _add(n << 1, l, mid, L, R, v);
     else if (L > mid)
@@ -69,8 +70,6 @@ int main() {
         }
         lnt val = query(i + 1);
         if (val < prv) modify(i + 1, prv);
-        for (int i = 0; i <= n; i++) printf("%lld ", query(i));
-        puts("");
     }
     printf("%lld\n", max[1]);
     return 0;
