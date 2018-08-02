@@ -1,43 +1,31 @@
-#include <bits/stdc++.h>
-using namespace std;
+#include <stdio.h>
 
-const int N = 1e5 + 10, MOD = 1e9 + 7;
-int n, K, head[N], nxt[N * 2], to[N * 2], num = 0, sz[N], f[N][105][2][2], g[105][2][2];
-inline void link(int x, int y) {
-    nxt[++num] = head[x];
-    to[num] = y;
-    head[x] = num;
-}
-inline void upd(int &x, int y) {
-    if ((x += y) >= MOD) x -= MOD;
-}
-inline void dfs(int x) {
-    sz[x] = f[x][1][1][0] = f[x][0][0][0] = 1;
-    for (int P = head[x], y; P; P = nxt[P]) {
-        if (sz[y = to[P]]) continue;
-        dfs(y);
-        memcpy(g, f[x], sizeof(g));
-        memset(f[x], 0, sizeof(f[x]));
-        for (int j = min(sz[x], K); j >= 0; j--)
-            for (int k = min(sz[y], K - j); k >= 0; k--) {
-                int sum = (0LL + f[y][k][0][0] + f[y][k][0][1] + f[y][k][1][0] + f[y][k][1][1]) % MOD;
-                upd(f[x][j + k][1][0],(1ll * g[j][1][0] * (f[y][k][0][0] + f[y][k][0][1]) % MOD));
-                upd(f[x][j + k][1][1],(1ll * g[j][1][1] * sum + 1ll * g[j][1][0] * (f[y][k][1][0] + f[y][k][1][1]) % MOD));
-                upd(f[x][j + k][0][1],(1ll * g[j][0][0] * f[y][k][1][1] + 1ll * g[j][0][1] * (f[y][k][1][1] + f[y][k][0][1]) % MOD));
-                upd(f[x][j + k][0][0],(1ll * g[j][0][0] * f[y][k][0][1] % MOD));
-            }
-        sz[x] += sz[y];
+typedef long long LL;
+const int N=150005;
+
+int prime[N/10],map[N+5],cnt;
+bool not_prime[N];
+int n,x,i,j;
+LL ans=0;
+
+__attribute__((optimize("O2")))
+int main(void) {
+    scanf("%d",&n);
+    for (i=2;i<=n;i++) {
+        if (!not_prime[i]) prime[++cnt]=i;
+        for (j=1;j<=cnt&&i*prime[j]<=n;j++) {
+            not_prime[i*prime[j]]=1;
+            if (i%prime[j]==0) break;
+        }
     }
-}
-int main() {
-    int x, y;
-    cin >> n >> K;
-    for (int i = 1; i < n; i++) {
-        cin >> x >> y;
-        link(x, y);
-        link(y, x);
+    for (i=1;i<=cnt&&(prime[i]<<1)<=n;i++) {
+        for (j=i+1;j<=cnt&&prime[i]+prime[j]<=n;j++) {
+            map[prime[i]+prime[j]]+=2;
+        }
+        map[prime[i]<<1]++;
     }
-    dfs(1);
-    printf("%d\n", (f[1][K][0][1] + f[1][K][1][1]) % MOD);
+    for (i=(n>>1);i;i--) ans+=map[i]*map[n-i]*2;
+    if (!(n&1)) ans-=map[n>>1]*map[n>>1];
+    printf("%lld", ans);
     return 0;
 }
