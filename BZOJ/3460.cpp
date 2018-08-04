@@ -59,7 +59,7 @@ inline T qry(T* BIT, int x) {
 inline void modify(int x) {
 	int X = rk[x];
 	if (vis[x]) {
-		int count = qry(bit0, n) - qry(bit0, X) + 1;
+		int count = qry(bit0, n) - qry(bit0, X);
 		long long pre = qry(bit1, X);
 		add(bit0, X, -1);
 		add(bit1, X, -t[x]);
@@ -69,7 +69,7 @@ inline void modify(int x) {
 	} else {
 		add(bit0, X, 1);
 		add(bit1, X, t[x]);
-		int count = qry(bit0, n) - qry(bit0, X) + 1;
+		int count = qry(bit0, n) - qry(bit0, X);
 		long long pre = qry(bit1, X);
 		ans += 1LL * count * t[x];
 		ans += pre;
@@ -109,9 +109,9 @@ int main() {
 		while (l < query[i].x) modify(pos[l++]);
 		while (r > query[i].y) modify(pos[r--]);
 		int lca = LCA(pos[query[i].x], pos[query[i].y]);
-		if (lca != query[i].x) modify(lca);
+		if (lca != pos[query[i].x]) modify(lca);
 		query[i].ans = ans;
-		if (lca != query[i].x) modify(lca);
+		if (lca != pos[query[i].x]) modify(lca);
 	}
 
 	std::sort(query + 1, query + q + 1, rvt);
