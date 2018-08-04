@@ -19,7 +19,7 @@ inline void $(int u, int v, int i) {
 }
 int p[MAXN], type[MAXN];
 inline int find(int x) { return x == p[x] ? x : p[x] = find(p[x]); }
-int vis[MAXN], stk[MAXN], dfn[MAXN], ins[MAXN], low[MAXN], dfsclk = 0, top = 0;
+int stk[MAXN], dfn[MAXN], ins[MAXN], low[MAXN], dfsclk = 0, top = 0;
 void dfs(int x, int fa) {
 	dfn[x] = low[x] = ++dfsclk;
 	ins[stk[++top] = x] = 1;
@@ -31,7 +31,7 @@ void dfs(int x, int fa) {
 			dfs(to[i], i);
 			low[x] = std::min(low[x], low[to[i]]);
 			if (low[to[i]] > dfn[x])
-				type[id[x]] = 2;
+				type[id[i]] = 2;
 		}
 	}
 	if (low[x] == dfn[x]) {
@@ -55,7 +55,7 @@ int main() {
 				if (u == v) {
 					type[t[k].id] = 1;
 				} else {
-					$(u, v, e[k].id);
+					$(u, v, t[k].id);
 					tmp.push_back(u);
 					tmp.push_back(v);
 				}
@@ -63,7 +63,7 @@ int main() {
 			std::sort(tmp.begin(), tmp.end());
 			tmp.erase(std::unique(tmp.begin(), tmp.end()), tmp.end());
 			for (auto x : tmp)
-				if (!vis[x]) dfs(x, -1);
+				if (!dfn[x]) dfs(x, -1);
 			for (int k = 1; k <= j; k++) {
 				if (!type[t[k].id]) type[t[k].id] = 3;
 				int u = find(t[k].u), v = find(t[k].v);
@@ -75,8 +75,9 @@ int main() {
 				dfn[x] = low[x] = ins[x] = 0;
 			}
 			tot = j = top = dfsclk = 0;
+			tmp.clear();
 		}
 	}
-	for (int i = 1; i <= n; i++) puts(type[i] == 1 ? "none" : type[i] == 2 ? "any" : "at least one");
+	for (int i = 1; i <= m; i++) puts(type[i] == 1 ? "none" : type[i] == 2 ? "any" : "at least one");
 	return 0;
 }
