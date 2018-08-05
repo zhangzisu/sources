@@ -5,7 +5,7 @@
 #include <cstring>
 #include <map>
 #include <vector>
-#define MAXN 1000010
+#define MAXN 5000010
 #define MAXM 8000010
 #define MAXV 10000010
 int pri[664580], pnt = 0;
@@ -22,12 +22,10 @@ inline void shai() {
 }
 int t, n, m, a[MAXN], arb[MAXN];
 int max = 0, mmax = 0, mpos = 0;
-std::vector<int> all;
 std::vector<std::pair<int, int>> val[MAXN];
 std::map<std::pair<int, int>, int> M;
 int HEAD[MAXN], TO[MAXN << 1], NEXT[MAXN << 1], TOT;
 inline void ADD(int u, int v) {
-    // printf("ADD %d %d\n", u, v);
     NEXT[TOT] = HEAD[u], TO[TOT] = v, HEAD[u] = TOT++;
 }
 int ha[MAXN], min;
@@ -51,14 +49,14 @@ inline void add(int u, int v) {
     next[tot] = head[v], to[tot] = u, head[v] = tot++;
 }
 int fill(int x) {
-    int ret = x <= n;
+    int ret = (x <= n);
     arb[x] = 1;
     for (int i = head[x]; ~i; i = next[i]) {
         if (!arb[to[i]]) ret += fill(to[i]);
     }
     return ret;
 }
-int dfn[MAXN], low[MAXN], stk[MAXM], top, dfsclk;
+int dfn[MAXN], low[MAXN], stk[MAXN], top, dfsclk;
 inline void tarjin(int s, int f) {
     dfn[s] = low[s] = ++dfsclk;
     stk[++top] = s;
@@ -83,7 +81,6 @@ int main() {
     shai();
     for (scanf("%d", &t); t; t--) {
         scanf("%d", &n);
-        all.clear();
         m = n;
         M.clear();
         memset(head, -1, sizeof(head));
@@ -102,16 +99,7 @@ int main() {
                 while (a[i] % pri[j] == 0) cnt++, a[i] /= pri[j];
                 if (cnt) {
                     val[i].emplace_back(j, cnt > 1);
-                    all.push_back(j);
                 }
-            }
-        }
-
-        std::sort(all.begin(), all.end());
-        all.erase(std::unique(all.begin(), all.end()), all.end());
-        for (int i = 0; i < (int)all.size(); i++) {
-            for (int j = i; j < (int)all.size(); j++) {
-                M[std::make_pair(all[i], all[j])] = ++m;
             }
         }
 
@@ -122,11 +110,13 @@ int main() {
                 if (val[i][j].second) {
                     int u = i;
                     int v = M[std::make_pair(val[i][j].first, val[i][j].first)];
+                    if (!v) v = M[std::make_pair(val[i][j].first, val[i][j].first)] = ++m;
                     add(u, v);
                 }
                 for (int k = j + 1; k < (int)val[i].size(); k++) {
                     int u = i;
                     int v = M[std::make_pair(val[i][j].first, val[i][k].first)];
+                    if (!v) v = M[std::make_pair(val[i][j].first, val[i][k].first)] = ++m;
                     add(u, v);
                 }
             }
