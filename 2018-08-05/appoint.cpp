@@ -5,7 +5,7 @@
 #include <cstring>
 #include <map>
 #include <vector>
-#define MAXN 5000010
+#define MAXN 8000010
 #define MAXM 8000010
 #define MAXV 10000010
 int pri[664580], pnt = 0;
@@ -33,6 +33,7 @@ void solve(int x) {
     if (x <= n) ha[x] = 1;
     int max = 0;
     for (int i = HEAD[x]; ~i; i = NEXT[i]) {
+        fprintf(stderr, "\t%d %d\n", x, TO[i]);
         solve(TO[i]);
         ha[x] += ha[TO[i]];
         max = std::max(max, ha[TO[i]]);
