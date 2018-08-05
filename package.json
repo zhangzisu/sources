@@ -18,6 +18,8 @@
   "homepage": "https://github.com/ZhangZisu/sources#readme",
   "dependencies": {
     "fs": "0.0.1-security",
-    "path": "^0.12.7"
+    "lodash": "^4.17.10",
+    "path": "^0.12.7",
+    "randomstring": "^1.1.5"
   }
 }
