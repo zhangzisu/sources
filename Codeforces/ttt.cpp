@@ -1,98 +1,68 @@
+#pragma GCC optimize("Ofast")
+#pragma GCC optimize("unroll-loops")
+#pragma GCC target("sse,sse2,sse3,ssse3,sse4,popcnt,abm,mmx,avx,tune=native")
 #include <algorithm>
 #include <cctype>
+#include <cmath>
 #include <cstdio>
 #include <cstdlib>
 #include <cstring>
-#define MAXN 200100
-#define INF 0x3F3F3F3F
+#define BUF 1048576
+char _1[BUF], *_3 = _1 + BUF;
+inline char gc() {
+	if (_3 == _1 + BUF) fread(_1, 1, BUF, stdin), _3 = _1;
+	return *_3++;
+}
 inline int $() {
-    register int x = 0;
-    register char ch = getchar();
-    while (!isdigit(ch)) ch = getchar();
-    for (; isdigit(ch); ch = getchar()) x = (x << 1) + (x << 3) + (ch ^ 48);
-    return x;
+	register int x = 0;
+	register char ch = gc();
+	while (!isdigit(ch)) ch = gc();
+	for (; isdigit(ch); ch = gc()) x = (x << 1) + (x << 3) + (ch ^ 48);
+	return x;
 }
-int head[MAXN], to[MAXN << 1], val[MAXN << 1], next[MAXN << 1], tot = 0;
-int dis[MAXN], vis[MAXN], da[MAXN], pa[MAXN], size[MAXN], ansX, ansY, ans, lim;
-int N, T, L, R, n, root, Q[MAXN], deep[MAXN], last[MAXN], P[MAXN], F[MAXN];
-void $(int k, int x, int y) {
-    next[++tot] = head[x], to[tot] = y, val[tot] = k, head[x] = tot;
-    next[++tot] = head[y], to[tot] = x, val[tot] = k, head[y] = tot;
-    if (k > lim) lim = k;
-}
-void $(int x, int fa) {
-    size[x] = F[x] = 1;
-    for (int k = head[x]; k; k = next[k])
-        if (!vis[to[k]] && to[k] != fa) {
-            $(to[k], x);
-            size[x] += size[to[k]];
-            if (size[to[k]] > F[x]) F[x] = size[to[k]];
-        }
-    if (N - size[x] > F[x]) F[x] = N - size[x];
-    if (F[x] <= F[root]) root = x;
-}
-bool calc(int root, int v) {
-    int now, top = 0;
-    pa[0] = root;
-    for (int j = head[root], l, r; j; j = next[j])
-        if (!vis[to[j]]) {
-            dis[to[j]] = val[j] < v ? -1 : 1;
-            last[Q[l = r = deep[Q[1] = to[j]] = 1]] = ++T;
-            for (; l <= r; l++)
-                for (int k = head[Q[l]]; k; k = next[k])
-                    if (!vis[to[k]] && last[to[k]] < T) {
-                        Q[++r] = to[k];
-                        dis[to[k]] = dis[Q[l]] + (val[k] >= v ? 1 : -1);
-                        deep[to[k]] = deep[Q[l]] + 1;
-                        last[to[k]] = T;
-                    }
-            int _T = r;
-            l = 1, r = 0;
-            now = top;
-            for (int i = 1; i <= _T; i++) {
-                while (now >= 0 && deep[Q[i]] + now >= L) {
-                    while (l <= r && da[P[r]] < da[now]) r--;
-                    P[++r] = now--;
-                }
-                while (l <= r && P[l] + deep[Q[i]] > R) l++;
-                if (l <= r && dis[Q[i]] + da[P[l]] >= 0) {
-                    ansX = Q[i];
-                    ansY = pa[P[l]];
-                    return 1;
-                }
-            }
-            for (int i = top + 1; i <= deep[Q[_T]]; i++) da[i] = -INF;
-            for (int i = 1; i <= _T; i++)
-                if (dis[Q[i]] > da[deep[Q[i]]]) {
-                    da[deep[Q[i]]] = dis[Q[i]];
-                    pa[deep[Q[i]]] = Q[i];
-                }
-            if (deep[Q[_T]] > top) top = deep[Q[_T]];
-        }
-    return 0;
-}
-void solve(int x) {
-    int l = ans, r = lim;
-    vis[x] = 1;
-    while (l <= r) {
-        int mid = (l + r) >> 1;
-        if (calc(x, mid))
-            ans = mid, l = mid + 1;
-        else
-            r = mid - 1;
-    }
-    for (int i = head[x]; i; i = next[i])
-        if (!vis[to[i]]) {
-            root = 0, N = size[to[i]];
-            $(to[i], 0);
-            if (size[to[i]] > L) solve(root);
-        }
-}
+#define MAXN 101
+#define MAXM 5010
+#define EPS 1e-9
+int t, n, k, bit[MAXN];
+inline int lowbit(int x) { return x & -x; }
+double F[MAXN][MAXM], g[MAXN][MAXM], p[MAXN][MAXM], P[MAXN][MAXM];
 int main() {
-    n = $(), L = $(), R = $();
-    F[0] = n + 1, N = n;
-    for (int i = 1; i < n; i++) $($(), $(), $());
-    $(1, 0), solve(root);
-    printf("%d %d\n", ansX, ansY);
-    return 0;
+	p[1][0] = 1;
+	for (register int i = 1; i < MAXN; i++) {
+		const int up = i * (i - 1) / 2;
+		for (register int j = 0; j <= up; j++) {
+			for (register int k = 0; k <= i; k++) {
+				p[i + 1][j + k] += p[i][j] / (i + 1);
+			}
+		}
+	}
+	for (register int i = 1; i < MAXN; i++) {
+		const int up = i * (i - 1) / 2;
+		for (register int j = 0; j <= up; j++) {
+			F[i][j] = F[i][j - 1] + p[i][j] * j;
+			P[i][j] = P[i][j - 1] + p[i][j];
+		}
+	}
+	for (register int i = 1; i < MAXN; i++) {
+		const int up = i * (i - 1) / 2;
+		g[i][0] = F[i][up];
+		for (register int j = 1; j <= up; j++) {
+			register int s = std::min((int)(j + g[i][j - 1]), up);
+			g[i][j] += F[i][s] - F[i][j];
+			g[i][j] -= j * (P[i][s] - P[i][j]);
+			g[i][j] += g[i][j - 1] * (P[i][up] - P[i][s]);
+		}
+	}
+	for (t = $(); t; t--) {
+		n = $(), k = $();
+		memset(bit, 0, sizeof(bit));
+		register int tot = 0;
+		for (register int i = 1, x, y; i <= n; i++) {
+			y = x = $();
+			for (; y <= n; y += lowbit(y)) tot += bit[y];
+			for (; x; x -= lowbit(x)) bit[x]++;
+		}
+		printf("%f\n", std::min((double)std::max(tot - k, 0), g[n][std::min(k - 1, n * (n - 1) / 2)]));
+	}
+	return 0;
 }
