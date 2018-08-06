@@ -7,33 +7,31 @@
 #include <vector>
 #define MAXN 8000010
 #define MAXM 8000010
-#define MAXV 10000010
-int pri[664580], pnt = 0;
-std::bitset<MAXV> vis;
+#define MAXV 100010
+int pri[MAXV], vis[MAXV], pnt = 0;
 inline void shai() {
     for (int i = 2; i < MAXV; i++) {
         if (!vis[i]) pri[++pnt] = i;
         for (int j = 1; j <= pnt; j++) {
             if (i * pri[j] >= MAXV) break;
-            vis.set(i * pri[j]);
+            vis[i * pri[j]] = 1;
             if (i % pri[j] == 0) break;
         }
     }
 }
-int t, n, m, a[MAXN], arb[MAXN];
-int max = 0, mmax = 0, mpos = 0;
+int t, n, m, max, mmax, mpos;
 std::vector<std::pair<int, int>> val[MAXN];
 std::map<std::pair<int, int>, int> M;
 int HEAD[MAXN], TO[MAXN << 1], NEXT[MAXN << 1], TOT;
 inline void ADD(int u, int v) {
     NEXT[TOT] = HEAD[u], TO[TOT] = v, HEAD[u] = TOT++;
 }
-int ha[MAXN], min;
+int ha[MAXN], arb[MAXN], min;
 void solve(int x) {
     if (x <= n) ha[x] = 1;
     int max = 0;
     for (int i = HEAD[x]; ~i; i = NEXT[i]) {
-        fprintf(stderr, "\t%d %d\n", x, TO[i]);
+        // fprintf(stderr, "\t%d %d\n", x, TO[i]);
         solve(TO[i]);
         ha[x] += ha[TO[i]];
         max = std::max(max, ha[TO[i]]);
@@ -70,9 +68,9 @@ inline void tarjin(int s, int f) {
             low[s] = std::min(low[s], low[to[i]]);
             if (low[to[i]] >= dfn[s]) {
                 int z = ++m;
-                while (stk[top] != s) {
-                    ADD(z, stk[top--]);
-                }
+                do {
+                    ADD(z, stk[top]);
+                } while (stk[top--] != to[i]);   //注意
                 ADD(s, z);
             }
         }
@@ -92,14 +90,30 @@ int main() {
         tot = TOT = dfsclk = top = 0;
         max = 0, mmax = 0, mpos = 0;
 
-        for (int i = 1; i <= n; i++) {
-            scanf("%d", &a[i]);
+        for (int i = 1, x; i <= n; i++) {
+            scanf("%d", &x);
             val[i].clear();
-            for (int j = 1; j <= pnt && a[i] && a[i] != 1; j++) {
+            for (int j = 1; j <= pnt && x != 1 && pri[j] * pri[j] <= x; j++) {
                 int cnt = 0;
-                while (a[i] % pri[j] == 0) cnt++, a[i] /= pri[j];
+                while (x % pri[j] == 0) cnt++, x /= pri[j];
                 if (cnt) {
-                    val[i].emplace_back(j, cnt > 1);
+                    val[i].emplace_back(pri[j], cnt > 1);
+                }
+            }
+            if (x != 1) val[i].emplace_back(x, 0);
+        }
+
+        for (int i = 1; i <= n; i++) {
+            for (int j = 0; j < (int)val[i].size(); j++) {
+                if (val[i][j].second) {
+                    int &v = M[std::make_pair(val[i][j].first, val[i][j].first)];
+                    if (!v) v = ++m;
+                    add(i, v);
+                }
+                for (int k = j + 1; k < (int)val[i].size(); k++) {
+                    int &v = M[std::make_pair(val[i][j].first, val[i][k].first)];
+                    if (!v) v = ++m;
+                    add(i, v);
                 }
             }
         }
@@ -107,27 +121,11 @@ int main() {
         fprintf(stderr, "M: %d\n", m);
 
         for (int i = 1; i <= n; i++) {
-            for (int j = 0; j < (int)val[i].size(); j++) {
-                if (val[i][j].second) {
-                    int u = i;
-                    int v = M[std::make_pair(val[i][j].first, val[i][j].first)];
-                    if (!v) v = M[std::make_pair(val[i][j].first, val[i][j].first)] = ++m;
-                    add(u, v);
-                }
-                for (int k = j + 1; k < (int)val[i].size(); k++) {
-                    int u = i;
-                    int v = M[std::make_pair(val[i][j].first, val[i][k].first)];
-                    if (!v) v = M[std::make_pair(val[i][j].first, val[i][k].first)] = ++m;
-                    add(u, v);
-                }
-            }
-        }
-
-        for (int i = 1; i <= n; i++) {
             if (!arb[i]) {
                 int size = fill(i);
                 if (size > max) {
                     mpos = i;
+                    mmax = max;
                     max = size;
                 } else if (size > mmax) {
                     mmax = size;

@@ -69,38 +69,40 @@ void dfs(int x) {
 void tarjan(int x, int fa) {
     dfn[x] = low[x] = ++sc;
     q[++top] = x;
-    for (int i = head[x]; i; i = num[i].next)
-        if (num[i].to != fa)
-            if (!dfn[num[i].to]) {
-                tarjan(num[i].to, x);
-                low[x] = min(low[x], low[num[i].to]);
-                if (dfn[x] <= low[num[i].to]) {
-                    int v = -1;
-                    ++bel_id;
-                    while (v != num[i].to) v = q[top--], Add(bel_id, v);
-                    Add(x, bel_id);
-                }
-            } else
-                low[x] = min(low[x], dfn[num[i].to]);
+    for (int i = head[x]; i; i = num[i].next) {
+        if (num[i].to == fa) continue;
+        if (!dfn[num[i].to]) {
+            tarjan(num[i].to, x);
+            low[x] = min(low[x], low[num[i].to]);
+            if (dfn[x] <= low[num[i].to]) {
+                int v = -1;
+                ++bel_id;
+                while (v != num[i].to) v = q[top--], Add(bel_id, v);
+                Add(x, bel_id);
+            }
+        } else
+            low[x] = min(low[x], dfn[num[i].to]);
+    }
 }
-void dfs2(int x, int fa) {
-    if (x <= n) mm[x] = 0;
-    for (int i = Head[x]; i; i = e[i].next)
-        if (e[i].to != fa) {
-            fprintf(stderr, "\t%d %d\n", x, e[i].to);
-            dfs2(e[i].to, x);
-            size[x] += size[e[i].to];
-            if (x <= n) mm[x] = max(mm[x], size[e[i].to]);
-        }
+void dfs2(int x) {
+    size[x] = (x <= n);
+    int dddd = 0;
+    for (int i = Head[x]; i; i = e[i].next) {
+        // fprintf(stderr, "\t%d %d\n", x, e[i].to);
+        dfs2(e[i].to);
+        size[x] += size[e[i].to];
+        dddd = max(dddd, size[e[i].to]);
+    }
     if (x > n) return;
-    mm[x] = max(mm[x], sum - size[x]);
-    Max = min(Max, mm[x]);
+    dddd = max(dddd, sum - size[x]);
+    Max = min(Max, dddd);
 }
 void solve() {
     scanf("%d", &n);
     for (int i = 1; i <= n; i++) scanf("%d", &a[i]), size[i] = 1;
     bel_id = n;
     build();
+    fprintf(stderr, "DDD %d\n", bel_id);
     Max = cMax = sc = 0;
     for (int i = 1; i <= n; i++)
         if (!vis[i]) {
@@ -115,7 +117,7 @@ void solve() {
     sum = Max;
     fprintf(stderr, "> %d %d %d %d\n", Max, cMax, pos, Max);
     tarjan(pos, -1);
-    dfs2(pos, -1);
+    dfs2(pos);
     fprintf(stderr, "> %d %d %d %d\n", Max, cMax, pos, Max);
     printf("%d\n", max(Max, cMax));
     for (int i = 1; i <= bel_id; i++) size[i] = Head[i] = head[i] = 0;
