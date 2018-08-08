@@ -13,7 +13,6 @@ int point[MAXN][2], pos[MAXN];
 void build(int n, int l, int r) {
 	point[n][0] = ++all;
 	point[n][1] = ++all;
-	printf("%d - %d: %d\n", l, r, all);
 	if (l == r) return pos[l] = point[n][0], $(point[n][1], point[n][0], 0);
 	int mid = (l + r) >> 1;
 	build(n << 1, l, mid);
@@ -33,7 +32,7 @@ void query(int n, int l, int r, int L, int R, int v) {
 	query(n << 1 | 1, mid + 1, r, mid + 1, R, v);
 }
 int dis[MAXN];
-std::priority_queue<std::pair<int, int>> Q;
+std::priority_queue<std::pair<int, int> > Q;
 inline void bfs() {
 	memset(dis, 0x3F, sizeof(dis));
 	Q.push(std::make_pair(dis[pos[p]] = 0, pos[p]));
@@ -52,17 +51,24 @@ int main() {
 	memset(head, -1, sizeof(head));
 	scanf("%d%d%d", &n, &m, &p);
 	build(1, 1, n);
-	for (int a, b, c, d; m; m--) {
+	for (int a, b, c, d, tmp; m; m--) {
 		scanf("%d%d%d%d", &a, &b, &c, &d);
+
 		count[0] = count[1] = 0;
 		query(1, 1, n, a, b, 0);
 		query(1, 1, n, c, d, 1);
-		int tmp = ++all;
+		tmp = ++all;
+		for (int i = 1; i <= count[0]; i++) $(points[i][0], tmp, 1);
+		for (int i = 1; i <= count[1]; i++) $(tmp, points[i][1], 0);
+
+		count[0] = count[1] = 0;
+		query(1, 1, n, c, d, 0);
+		query(1, 1, n, a, b, 1);
+		tmp = ++all;
 		for (int i = 1; i <= count[0]; i++) $(points[i][0], tmp, 1);
 		for (int i = 1; i <= count[1]; i++) $(tmp, points[i][1], 0);
 	}
 	bfs();
-    for(int i=1;i<=all;i++)printf("dis[%d] = %d\n", i, dis[i]);
 	for (int i = 1; i <= n; i++) printf("%d\n", dis[pos[i]]);
 	return 0;
 }
