@@ -1,10 +1,24 @@
 #include <algorithm>
+#include <cctype>
 #include <cstdio>
 #include <cstdlib>
 #include <cstring>
 #include <queue>
-#define MAXN 5000010
-#define MAXM 5000010
+#define BUF 1048576
+char _1[BUF], *_3 = _1 + BUF;
+inline char gc() {
+	if (_3 == _1 + BUF) fread(_1, 1, BUF, stdin), _3 = _1;
+	return *_3++;
+}
+inline int $() {
+	register int x = 0;
+	register char ch = gc();
+	while (!isdigit(ch)) ch = gc();
+	for (; isdigit(ch); ch = gc()) x = (x << 1) + (x << 3) + (ch ^ 48);
+	return x;
+}
+#define MAXN 3000000
+#define MAXM 11000000
 int n, m, p, all = 0, head[MAXN], to[MAXM], val[MAXM], next[MAXM], tot = 0;
 inline void $(int u, int v, int w) {
 	next[tot] = head[u], val[tot] = w, to[tot] = v, head[u] = tot++;
@@ -49,10 +63,10 @@ inline void bfs() {
 }
 int main() {
 	memset(head, -1, sizeof(head));
-	scanf("%d%d%d", &n, &m, &p);
+	n = $(), m = $(), p = $();
 	build(1, 1, n);
 	for (int a, b, c, d, tmp; m; m--) {
-		scanf("%d%d%d%d", &a, &b, &c, &d);
+		a = $(), b = $(), c = $(), d = $();
 
 		count[0] = count[1] = 0;
 		query(1, 1, n, a, b, 0);
