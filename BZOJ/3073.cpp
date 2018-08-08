@@ -13,11 +13,14 @@ int point[MAXN][2], pos[MAXN];
 void build(int n, int l, int r) {
 	point[n][0] = ++all;
 	point[n][1] = ++all;
+	printf("%d - %d: %d\n", l, r, all);
 	if (l == r) return pos[l] = point[n][0], $(point[n][1], point[n][0], 0);
 	int mid = (l + r) >> 1;
 	build(n << 1, l, mid);
 	build(n << 1 | 1, mid + 1, r);
 	$(point[n << 1][0], point[n][0], 0);
+	$(point[n << 1 | 1][0], point[n][0], 0);
+	$(point[n][1], point[n << 1][1], 0);
 	$(point[n][1], point[n << 1 | 1][1], 0);
 }
 int points[MAXN][2], count[2];
@@ -59,6 +62,7 @@ int main() {
 		for (int i = 1; i <= count[1]; i++) $(tmp, points[i][1], 0);
 	}
 	bfs();
+    for(int i=1;i<=all;i++)printf("dis[%d] = %d\n", i, dis[i]);
 	for (int i = 1; i <= n; i++) printf("%d\n", dis[pos[i]]);
 	return 0;
 }
