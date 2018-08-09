@@ -5,6 +5,8 @@
 #define MAXN 510
 int n, k, a[MAXN], f[MAXN][MAXN];
 int main(int argc, char const *argv[]) {
+    freopen("queue.in", "r", stdin);
+    freopen("queue.out", "w", stdout);
     scanf("%d%d", &n, &k);
     for (int i = 1; i <= n; i++) scanf("%d", &a[i]);
     std::sort(a + 1, a + n + 1);

@@ -110,6 +110,7 @@ inline void query(int u, int v) {
     }
     printf("%d\n", ans);
 }
+char buf[3];
 int main() {
     memset(head, -1, sizeof(head));
     scanf("%d%d%d", &n, &m, &q);
@@ -131,10 +132,10 @@ int main() {
             rm[x] = std::max(rm[x], bfn[to[i]]);
         }
     }
-    for(int i = 1;i <= n;i++)changeVal(i, val[i]);
-    for (int op, x, y; q; q--) {
-        scanf("%d%d%d", &op, &x, &y);
-        if (op == 1) {
+    for (int i = 1; i <= n; i++) changeVal(i, val[i]);
+    for (int x, y; q; q--) {
+        scanf("%s%d%d", buf, &x, &y);
+        if (buf[0] == 'C') {
             changeVal(x, y);
         } else {
             query(x, y);
