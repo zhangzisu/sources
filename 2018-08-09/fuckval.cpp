@@ -13,42 +13,42 @@ inline int fuck(int x, int p) {
     return y;
 }
 int x[MAXN][MAXN];
-inline int Gauss(int n) {
-    int ret = 1;
-    for (int i = 0; i < n; i++)
-        for (int j = 0; j < n; j++)
-            if (x[i][j] < 0) x[i][j] += MOD;
+inline void up(int &x, int y) {
+    if ((x += y) >= MOD) x -= MOD;
+}
+inline void Gauss(int n) {
     for (int i = 0; i < n; i++) {
         int p = i;
         while (p < n && !x[p][i]) p++;
-        if (p >= n) return 0;
         if (p != i) {
-            for (int j = i; j < n; j++) std::swap(x[i][j], x[p][j]);
-            ret = MOD - ret;
+            for (int j = i; j <= n; j++) std::swap(x[i][j], x[p][j]);
         }
-        ret = 1LL * ret * x[i][i] % MOD;
         int inv = fuck(x[i][i], MOD - 2);
         for (p = i + 1; p < n; p++) {
             if (!x[p][i]) continue;
             int tmp = 1LL * x[p][i] * inv % MOD;
-            for (int j = i; j < n; j++)
+            for (int j = i; j <= n; j++)
                 x[p][j] = (MOD - 1LL * x[i][j] * tmp % MOD + x[p][j]) % MOD;
         }
     }
-    return ret;
 }
 int n;
 int main(int argc, char const *argv[]) {
     scanf("%d", &n);
     for (int i = 0; i <= n; i++) {
-        int tmp = 0;
-        for (int j = 0, t = 1; j <= n; j++, t = 1LL * t * i % MOD) {
-            x[i][j] = t;
-            (tmp += fuck(j, i)) %= MOD;
-        }
-        x[i][n + 1] = tmp;
+        for (int j = 0; j <= n; j++) x[i][j] = fuck(i, j);
+        for (int j = 1; j <= i; j++) up(x[i][n + 1], fuck(j, n));
+    }
+    for (int i = 0; i <= n; i++) {
+        for (int j = 0; j <= n + 1; j++) printf("%d ", x[i][j]);
+        puts("");
     }
     Gauss(n + 1);
-    //
+    puts("---");
+    for (int i = 0; i <= n; i++) {
+        for (int j = 0; j <= n + 1; j++) printf("%d ", x[i][j]);
+        puts("");
+    }
+    for (int i = 0; i <= n; i++) printf("%lld\n", 1LL * x[i][n + 1] * fuck(x[i][i], MOD - 2) % MOD);
     return 0;
 }
