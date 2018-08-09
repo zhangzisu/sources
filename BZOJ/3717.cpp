@@ -27,7 +27,7 @@ int main() {
 				if (tmp <= b[g[i]]) {
 					up(i | (1 << j), tmp, g[i]);
 				} else {
-					tmp -= b[g[i]];
+					tmp = a[j];
 					if (tmp <= b[g[i] + 1]) {
 						up(i | (1 << j), tmp, g[i] + 1);
 					}
