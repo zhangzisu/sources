@@ -87,7 +87,9 @@
 		"optional": "cpp",
 		"string_view": "cpp",
 		"*.ipp": "cpp",
-		"charconv": "cpp"
+		"charconv": "cpp",
+		"forward_list": "cpp",
+		"unordered_set": "cpp"
 	},
 	"editor.mouseWheelZoom": false,
 	"C_Cpp.clang_format_fallbackStyle": "{ BasedOnStyle: Google, IndentWidth: 8, ColumnLimit: 0, UseTab: Always}",
