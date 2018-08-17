@@ -25,7 +25,7 @@ inline int lowbit(int x) { return x & -x; }
 lnt ans = 0, tmp;
 int main() {
     freopen("inversions.in", "r", stdin);
-    freopen("inversion.out", "w", stdout);
+    freopen("inversions.out", "w", stdout);
     scanf("%d%d", &n, &q);
     for (int i = 1; i <= n; i++) scanf("%d", &a[i]), v[++m] = a[i];
     std::sort(v + 1, v + m + 1);
