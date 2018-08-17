@@ -1,7 +1,21 @@
 #include <algorithm>
+#include <cctype>
 #include <cstdio>
 #include <cstdlib>
 #include <cstring>
+#define BUF 1048576
+char _1[BUF], *_3 = _1 + BUF;
+inline char gc() {
+    if (_3 == _1 + BUF) fread(_1, 1, BUF, stdin), _3 = _1;
+    return *_3++;
+}
+inline int $() {
+    register int x = 0;
+    register char ch = gc();
+    while (!isdigit(ch)) ch = gc();
+    for (; isdigit(ch); ch = gc()) x = (x << 1) + (x << 3) + (ch ^ 48);
+    return x;
+}
 #define MAXN 200010
 #define MAXM 5000010
 typedef long long lnt;
@@ -24,10 +38,8 @@ inline int query(int n, int m, int l, int r, int _l, int _r) {
 inline int lowbit(int x) { return x & -x; }
 lnt ans = 0, tmp;
 int main() {
-    freopen("inversions.in", "r", stdin);
-    freopen("inversions.out", "w", stdout);
-    scanf("%d%d", &n, &q);
-    for (int i = 1; i <= n; i++) scanf("%d", &a[i]), v[++m] = a[i];
+    n = $(), q = $();
+    for (int i = 1; i <= n; i++) v[++m] = a[i] = $();
     std::sort(v + 1, v + m + 1);
     m = std::unique(v + 1, v + m + 1) - v - 1;
     for (int i = 1; i <= n; i++) {
@@ -37,7 +49,7 @@ int main() {
         for (int x = a[i]; x >= 1; x -= lowbit(x)) b[x]++;
     }
     for (int x, y; q; q--) {
-        scanf("%d%d", &x, &y);
+        x = $(), y = $();
         if (x > y) std::swap(x, y);
         if (x == y) {
             printf("%lld\n", ans);
