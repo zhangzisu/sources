@@ -48,17 +48,17 @@ inline void del(int val, int pos) {
 int n, m, a[MAXN], id[SQRT][MAXN], val[SQRT][MAXN];
 inline int find(int x, int *p) { return x == p[x] ? x : p[x] = find(p[x], p); }
 inline void bomb(int b) {
-	fprintf(stderr, "PASS %d\n", __LINE__);
+	// fprintf(stderr, "PASS %d\n", __LINE__);
 	for (int i = left(b); i <= right(b); i++) {
 		int x = a[i];
-		int y = find(x, p[b]);
+		int y = val[i][id[i][a[i]]];
 		if (x == y) continue;
 		del(x, i);
 		add(y, i);
 	}
 }
 inline void modify() {
-	fprintf(stderr, "PASS %d\n", __LINE__);
+	// fprintf(stderr, "PASS %d\n", __LINE__);
 	int l = $(), r = $(), x = $(), y = $();
 	int L = belong(l), R = belong(r);
 	if (L == R) {
@@ -95,7 +95,7 @@ inline void modify() {
 }
 int tg[SQRT], tf[MAXN];
 inline void query() {
-	fprintf(stderr, "PASS %d\n", __LINE__);
+	// fprintf(stderr, "PASS %d\n", __LINE__);
 	int l = $(), r = $(), k = $();
 	int L = belong(l), R = belong(r);
 	if (L == R) {
@@ -131,12 +131,11 @@ inline void query() {
 	for (int i = l; i <= right(L); i++) tg[belong(a[i])]--, tf[a[i]]--;
 }
 int main() {
-	freopen("in", "r", stdin);
 	for (int t = $(); t; t--) {
 		n = $(), m = $();
-		for (int i = 1; left(i) <= n; i++) g[i].clear(), memset(p[i], 0, sizeof(p[i]));
+		for (int i = 1; left(i) <= n; i++) g[i].clear();
 		for (int i = 1; i <= n; i++) f[i].clear();
-		for (int i = 1; i <= n; i++) add(a[i] = $(), i), p[belong(i)][a[i]] = a[i];
+		for (int i = 1; i <= n; i++) add(a[i] = $(), i), val[belong(i)][id[belong(i)][a[i]] = a[i]] = a[i];
 		for (int i = 1; i <= m; i++) $() == 1 ? modify() : query();
 	}
 	return 0;
