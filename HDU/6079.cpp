@@ -45,7 +45,7 @@ inline void del(int val, int pos) {
 	g[belong(val)].add(belong(pos), -1);
 	f[val].add(belong(pos), -1);
 }
-int n, m, a[MAXN], p[SQRT][MAXN];
+int n, m, a[MAXN], id[SQRT][MAXN], val[SQRT][MAXN];
 inline int find(int x, int *p) { return x == p[x] ? x : p[x] = find(p[x], p); }
 inline void bomb(int b) {
 	fprintf(stderr, "PASS %d\n", __LINE__);
@@ -85,7 +85,8 @@ inline void modify() {
 	for (int i = L + 1; i < R; i++) {
 		int count = f[x].get(i) - f[x].get(i - 1);
 		if (!count) continue;
-		p[i][x] = y;
+		val[i][id[i][x]] = y;
+		id[i][y] = id[i][x];
 		g[belong(x)].add(belong(i), -count);
 		f[x].add(belong(i), -count);
 		g[belong(y)].add(belong(i), count);
