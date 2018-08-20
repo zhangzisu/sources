@@ -19,6 +19,7 @@ inline int $() {
 }
 #define MAXN 100010
 #define MAXM 300010
+const int INF = 0x3F3F3F3F;
 int head[MAXN], to[MAXN << 1], next[MAXN << 1], tot = 0;
 inline void $(int u, int v) {
     next[tot] = head[u], to[tot] = v, head[u] = tot++;
@@ -144,7 +145,11 @@ inline void solve() {
     if (v != l) rr.emplace_back(dfn[l] + 1, dfn[v]);
     std::reverse(rr.begin(), rr.end());
     gcc_t ansR = query(1, 1, n, rr.front().first, rr.front().second);
-    for (int i = 1; i < (int)rr.size(); i++) ansR = ansR + query(1, 1, n, rr[i].first, rr[i].second);
+    for (int i = 1; i < (int)rr.size(); i++) {
+        auto x = query(1, 1, n, rr[i].first, rr[i].second);
+        ansR = ansR + x;
+    }
+
     int ans = 0;
     for (int i = 0; i < 2; i++) {
         for (int j = 0; j < 2; j++) {
@@ -171,7 +176,7 @@ int main() {
     dfs(1);
     split(1);
     for (int i = 1; i <= m; i++) {
-        if (deep[u[i]] > deep[v[i]]) std::swap(deep[u[i]], deep[v[i]]);
+        if (deep[u[i]] > deep[v[i]]) std::swap(u[i], v[i]);
         Val[v[i]].push_back(c[i]);
     }
     for (int i = 2, x = 0; i <= n; i++) {
@@ -184,10 +189,11 @@ int main() {
         } else if (count == 2) {
             v.key[0][0] = v.key[1][0] = Val[i][0];
             v.key[0][1] = v.key[1][1] = Val[i][1];
+            v.val[0][1] = v.val[1][0] = -INF;
         } else {
             v.key[0][0] = v.key[0][1] = v.key[1][0] = v.key[1][1] = Val[i][0];
         }
-        modify(1, 1, n, i, v);
+        modify(1, 1, n, dfn[i], v);
     }
     for (q = $(); q; q--) solve();
     return 0;
