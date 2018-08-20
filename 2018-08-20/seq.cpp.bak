@@ -1,0 +1,39 @@
+#include <algorithm>
+#include <cstdio>
+#include <cstdlib>
+#include <cstring>
+#define MAXN 40
+const int INF = 0x7FFFFFFF;
+int t, n, x, a[MAXN], b[MAXN];
+char buf[MAXN];
+int main() {
+    for (scanf("%d", &t); t; t--) {
+        scanf("%s", buf + 1);
+        n = strlen(buf + 1);
+        scanf("%d", &x);
+        int ans = INF;
+        for (int i = 1; i <= n; i++) a[i] = buf[i] == '1';
+        for (int d = 0; d < (1 << (n - 2)); d++) {
+            b[1] = 1;
+            b[n] = 0;
+            for (int i = 2; i < n; i++) b[i] = (d >> (i - 2)) & 1;
+            int f = 0, g = 0, k = 0;
+            for (int i = 1; i <= n; i++) {
+                if (b[i] == 1) {
+                    f += g + 1;
+                } else {
+                    g += f;
+                }
+                k += a[i] != b[i];
+                if (g > x) break;
+            }
+            if (g == x) ans = std::min(ans, k);
+        }
+        if (ans == INF) {
+            puts("NO");
+        } else {
+            printf("YES\n%d\n", ans);
+        }
+    }
+    return 0;
+}
