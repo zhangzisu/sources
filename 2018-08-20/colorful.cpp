@@ -73,7 +73,7 @@ struct gcc_t {
             for (int j = 0; j < 2; j++) {
                 for (int k = 0; k < 2; k++) {
                     for (int l = 0; l < 2; l++) {
-                        umax(c.val[i][j], a.val[i][k] + b.val[l][j] + (a.key[1][k] != b.key[0][l]));
+                        umax(c.val[i][l], a.val[i][j] + b.val[k][l] + (a.key[1][j] != b.key[0][k]));
                     }
                 }
             }
