@@ -120,8 +120,6 @@ int main() {
 
 	memset(id, -1, sizeof id);
 	memset(fa, -1, sizeof fa);
-	s.insert(0);
-	id[0] = 0;
 
 	for (int i = n; i; --i)
 		if (x1[i] == x2[i])
