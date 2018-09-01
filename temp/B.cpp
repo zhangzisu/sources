@@ -1,59 +1,84 @@
 #include <algorithm>
-#include <cstdio>
-#include <cstdlib>
-#include <cstring>
-#include <queue>
-#define MAXN 100010
-int n, m, d[MAXN];
-int head[MAXN], next[MAXN], to[MAXN], col[MAXN], tot = 0;
-inline void $(int u, int v, int w) {
-	next[tot] = head[u], to[tot] = v, col[tot] = w, head[u] = tot++;
-	d[v]++;
+#include <cmath>
+#include <iostream>
+#define MAXN 100005
+using namespace std;
+
+struct node_t {
+	int left, right, mid;
+	int lx, rx, mx;
+	int dist() { return right - left + 1; }
+} node[MAXN << 2];
+
+int val[MAXN], a, b;
+
+void pushUp(int root) {
+	int lChild = root * 2;
+	int rChild = lChild + 1;
+	node[root].lx = node[lChild].lx + ((node[lChild].lx == node[lChild].dist() && val[node[rChild].left] > val[node[lChild].right]) ? node[rChild].lx : 0);
+	node[root].rx = node[rChild].rx + ((node[rChild].rx == node[rChild].dist() && val[node[rChild].left] > val[node[lChild].right]) ? node[lChild].rx : 0);
+	node[root].mx = max(max(node[lChild].mx, node[rChild].mx), val[node[rChild].left] > val[node[lChild].right] ? (node[lChild].rx + node[rChild].lx) : 0);
 }
-unsigned f[MAXN], g[MAXN], h[MAXN], ans = 0;
-char buf[3];
-std::queue<int> Q;
-inline void sol() {
-	while (Q.size()) {
-		int x = Q.front();
-		Q.pop();
-		ans += h[x];
-		g[x] += 1;
-		// printf("%d: f = %d, g = %d, h = %d\n", x, f[x], g[x], h[x]);
-		for (int i = head[x]; ~i; i = next[i]) {
-			if (col[i] == 0) {
-				g[to[i]] += g[x];
-				h[to[i]] += h[x];
-				f[to[i]] += f[x];
-			} else if (col[i] == 1) {
-				h[to[i]] += f[x];
-			} else if (col[i] == 2) {
-				f[to[i]] += g[x];
-			} else {
-				f[to[i]] += f[x];
-			}
-			if (!--d[to[i]]) Q.push(to[i]);
-		}
+
+void build(int root, int l, int r) {
+	node[root].left = l;
+	node[root].right = r;
+	node[root].mid = (l + r) / 2;
+	if (l == r) {
+		node[root].lx = node[root].rx = node[root].mx = 1;
+		return;
+	}
+
+	build(root * 2, l, (l + r) / 2);
+	build(root * 2 + 1, (l + r) / 2 + 1, r);
+
+	pushUp(root);
+}
+
+void update(int root, int pos) {
+	if (node[root].left == node[root].right) {
+		node[root].lx = node[root].rx = node[root].mx = 1;
+		return;
+	}
+
+	if (pos <= node[root].mid)
+		update(root * 2, pos);
+	else
+		update(root * 2 + 1, pos);
+
+	pushUp(root);
+}
+
+int query(int root, int l, int r) {
+	if (node[root].left == l && node[root].right == r)
+		return node[root].mx;
+
+	if (r <= node[root].mid)
+		return query(root * 2, l, r);
+	else if (l > node[root].mid)
+		return query(root * 2 + 1, l, r);
+	else {
+		int lSum = query(root * 2, l, node[root].mid);
+		int rSum = query(root * 2 + 1, node[root].mid + 1, r);
+
+		int mSum = 0;
+		if (val[node[root * 2 + 1].left] > val[node[root * 2].right])
+			mSum = min(node[root * 2].rx, node[root].mid - l + 1) + min(node[root * 2 + 1].lx, r - node[root].mid);
+
+		return max(max(lSum, rSum), mSum);
 	}
 }
+int n, m;
 int main() {
 	scanf("%d%d", &n, &m);
-	memset(head, -1, sizeof(head));
-	for (int i = 1, x, y; i <= m; i++) {
-		scanf("%d%d%s", &x, &y, buf);
-		if (buf[0] == '_')
-			$(x, y, 0);
-		else if (buf[0] == '.')
-			$(x, y, 1);
-		else if (buf[0] >= 'A' && buf[0] <= 'Z')
-			$(x, y, 2);
-		else
-			$(x, y, 3);
+	for (int i = 1; i <= n; i++) scanf("%d", &val[i]);
+	build(1, 1, n);
+	printf("%d\n", query(1, 1, n));
+	for (int i = 1; i <= m; i++) {
+		scanf("%d%d", &a, &b);
+		val[a] = b;
+		update(1, a);
+		printf("%d\n", query(1, 1, n));
 	}
-	for (int i = 1; i <= n; i++) {
-		if (!d[i]) Q.push(i);
-	}
-	sol();
-	printf("%u\n", ans);
 	return 0;
 }
