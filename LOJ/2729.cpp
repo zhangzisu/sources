@@ -31,13 +31,13 @@ int main() {
 	std::sort(v.begin(), v.end());
 	v.erase(std::unique(v.begin(), v.end()), v.end());
 	k = (int)v.size();
-	for (int i = 1; i <= n; i++) p[i].x = std::lower_bound(v.begin(), v.end(), p[i].x) - v.begin();
-	for (int i = 1; i <= m; i++) q[i].x = std::lower_bound(v.begin(), v.end(), q[i].x) - v.begin();
+	for (int i = 1; i <= n; i++) p[i].x = std::lower_bound(v.begin(), v.end(), p[i].x) - v.begin() + 1;
+	for (int i = 1; i <= m; i++) q[i].x = std::lower_bound(v.begin(), v.end(), q[i].x) - v.begin() + 1;
 	std::sort(p + 1, p + n + 1, [](point_t a, point_t b) { return a.y == b.y ? a.x < b.x : a.y < b.y; });
 	std::sort(q + 1, q + m + 1, [](query_t a, query_t b) { return a.y == b.y ? a.x < b.x : a.y < b.y; });
 	for (int i = 1, j = 1; i <= m; i++) {
-		for (; j <= n && p[j].y <= q[i].y; j++) gao(p[i].x, qry(p[i].x + 1) + 1);
-		ans[q[i].id] = qry(q[i].x + 1);
+		for (; j <= n && p[j].y <= q[i].y; j++) gao(p[j].x, qry(p[j].x + 1) + 1);
+		ans[q[i].id] = qry(q[i].x);
 	}
 	for (int i = 1; i <= m; i++) printf("%d\n", ans[i]);
 	return 0;
