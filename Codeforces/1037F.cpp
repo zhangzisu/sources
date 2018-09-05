@@ -7,12 +7,7 @@
 const int INF = (~0U) >> 1;
 typedef long long lnt;
 lnt n, k, t, ans, a[MAXN], l[MAXN], r[MAXN], s[MAXN];
-inline void up(lnt &x, lnt y) {
-	if ((x += y) >= MOD) x -= MOD;
-}
-inline void down(lnt &x, lnt y) {
-	if ((x -= y) < 0) x += MOD;
-}
+const lnt inv2 = 500000004;
 int main() {
 	scanf("%lld%lld", &n, &k);
 	for (int i = 1; i <= n; i++) scanf("%lld", &a[i]);
@@ -25,22 +20,29 @@ int main() {
 	}
 	s[t = 0] = n + 1;
 	for (int i = n; i >= 1; i--) {
-		while (t && a[s[t]] < a[i]) t--;
+		while (t && a[s[t]] <= a[i]) t--;
 		r[i] = s[t] - 1;
 		s[++t] = i;
 	}
+	--k;
 	for (int i = 1; i <= n; i++) {
 		lnt count = 0;
 		lnt len = r[i] - l[i] + 1;
-		lnt limit = len / k;
-		lnt split = (r[i] - i + 1) / k;
-		up(count, split * i % MOD);
-		up(count, (r[i] - k * (split + 1) + 1 + r[i] - k * limit + 1) * (limit - split) / 2 % MOD);
-		split = (i - l[i] + 1) / k;
-		down(count, (i - k + 1 + i - split * k + 1) * (split) / 2 % MOD);
-		down(count, (limit - split) * l[i] % MOD);
-        up(count, limit);
-		up(ans, count * a[i] % MOD);
+		lnt limit = (len - 1) / k;
+
+		lnt split = (r[i] - i + k - 1) / k;
+		(count += (split - 1) * i % MOD) %= MOD;
+		(count += MOD) %= MOD;
+		(count += (r[i] - k * split % MOD + r[i] - limit * k % MOD) * (limit - split + 1) % MOD * inv2 % MOD) %= MOD;
+		(count += MOD) %= MOD;
+
+		split = (i - l[i]) / k;
+		(count -= (i - k + i - split * k % MOD) * split % MOD * inv2 % MOD) %= MOD;
+		(count += MOD) %= MOD;
+		(count -= (limit - split) * l[i] % MOD) %= MOD;
+		(count += MOD) %= MOD;
+		(count += limit) %= MOD;
+		(ans += count * a[i] % MOD) %= MOD;
 	}
 	printf("%lld\n", ans);
 	return 0;
