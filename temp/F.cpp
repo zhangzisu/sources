@@ -2,22 +2,18 @@
 #include <cstdio>
 #include <cstdlib>
 #include <cstring>
-inline int gcd(int a, int b) {
-	return b ? gcd(b, a % b) : a;
-}
-int n, m, k;
+#define MAXN 200010
+#define MAXK 2010
+typedef long long lnt;
+int n, k;
+lnt p[MAXN], d[MAXN], f[MAXN][MAXK];
 int main() {
-	scanf("%d%d", &n, &m);
-	for (int i = 1, x; i <= n; i++) {
-		scanf("%d", &x);
-		if (x % m) {
-			x %= m;
-			if (!k)
-				k = x;
-			else
-				k = gcd(x, k);
-		}
+	scanf("%d%d", &n, &k);
+	for (int i = 1; i <= n; i++) scanf("%lld%lld", &p[i], &d[i]);
+	d[1] = 0;
+	for (int i = 1; i <= n; i++) p[i] -= (d[i] += d[i - 1]);
+	for (int i = 1; i <= n; i++) {
+		//
 	}
-	printf("%d\n", k ? (m - 1) / k + 1 : 1);
 	return 0;
 }

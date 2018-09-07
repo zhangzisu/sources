@@ -5,7 +5,7 @@
 #include <vector>
 #define MAXN 1000010
 typedef long long lnt;
-int n, m, k, vis[MAXN], p[MAXN], spc[MAXN];
+int n, m;
 int head[MAXN], to[MAXN << 1], next[MAXN << 1], val[MAXN << 1], tot = 0;
 inline void $(int u, int v, int w) {
 	next[tot] = head[u], to[tot] = v, val[tot] = w, head[u] = tot++;
