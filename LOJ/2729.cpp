@@ -3,7 +3,7 @@
 #include <cstdlib>
 #include <cstring>
 #include <vector>
-#define MAXN 200010
+#define MAXN 500010
 int n, m, k, ans[MAXN], bit[MAXN];
 struct point_t {
 	int x, y;
@@ -33,10 +33,10 @@ int main() {
 	k = (int)v.size();
 	for (int i = 1; i <= n; i++) p[i].x = std::lower_bound(v.begin(), v.end(), p[i].x) - v.begin() + 1;
 	for (int i = 1; i <= m; i++) q[i].x = std::lower_bound(v.begin(), v.end(), q[i].x) - v.begin() + 1;
-	std::sort(p + 1, p + n + 1, [](point_t a, point_t b) { return a.y == b.y ? a.x < b.x : a.y < b.y; });
-	std::sort(q + 1, q + m + 1, [](query_t a, query_t b) { return a.y == b.y ? a.x < b.x : a.y < b.y; });
+	std::sort(p + 1, p + n + 1, [](point_t a, point_t b) { return a.y == b.y ? a.x > b.x : a.y < b.y; });
+	std::sort(q + 1, q + m + 1, [](query_t a, query_t b) { return a.y == b.y ? a.x > b.x : a.y < b.y; });
 	for (int i = 1, j = 1; i <= m; i++) {
-		for (; j <= n && p[j].y <= q[i].y; j++) gao(p[j].x, qry(p[j].x + 1) + 1);
+		for (; j <= n && p[j].y <= q[i].y; j++) gao(p[j].x, qry(p[j].x) + 1);
 		ans[q[i].id] = qry(q[i].x);
 	}
 	for (int i = 1; i <= m; i++) printf("%d\n", ans[i]);
