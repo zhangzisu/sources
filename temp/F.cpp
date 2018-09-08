@@ -12,8 +12,6 @@ int main() {
 	for (int i = 1; i <= n; i++) scanf("%lld%lld", &p[i], &d[i]);
 	d[1] = 0;
 	for (int i = 1; i <= n; i++) p[i] -= (d[i] += d[i - 1]);
-	for (int i = 1; i <= n; i++) {
-		//
-	}
+	
 	return 0;
 }
