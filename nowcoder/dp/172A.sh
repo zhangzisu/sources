@@ -6,9 +6,9 @@ while true; do
     ./172A <172A.in >172A.out
     ./172A_std <172A.in >172A.ans
     if diff 172A.out 172A.ans; then
-        printf Accepted
+        printf "Accepted\n"
     else
-        printf WrongAnswer
+        printf "Wrong Answer\n"
         exit 0
     fi
 done

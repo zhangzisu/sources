@@ -1,71 +1,58 @@
-#include <cstdio>
-#include <cstring>
-#include <algorithm>
-#include <cctype>
-inline int getint()
-{
-    int r = 0,s = 1;char c = getchar();for(;!isdigit(c);c = getchar()) if(c == '-') s = 0;
-    for(;isdigit(c);c = getchar()) r = (((r << 2) + r) << 1) + (c ^ '0');return s ? r : -r;
+//Keep pluggin,this is your only outlet.
+#include<bits/stdc++.h>
+#define max(x,y) (x>y?x:y)
+#define min(x,y) (x<y?x:y)
+#define MM(x,y) memset(x,y,sizeof(x))
+#define MCPY(a,b) memcpy(a,b,sizeof(b))
+#define pb push_back
+#define rep(i,a,b) for(int i=a;i<=b;i++)
+#define per(i,b,a) for(int i=b;i>=a;i--)
+#define fi first
+#define mp make_pair
+#define se second
+using namespace std;
+#define int long long
+
+inline int quickpow(int m,int n,int p){int b=1;while(n){if(n&1)b=b*m%p;n=n>>1;m=m*m%p;}return b;}
+inline int getinv(int x,int p){return quickpow(x,p-2,p);}
+inline int read(void){
+    int x=0,f=1;char ch=getchar();
+    while(!isdigit(ch)){f=ch=='-'?-1:1;ch=getchar();}
+    while(isdigit(ch)){x=(x<<3)+(x<<1)+ch-'0';ch=getchar();}
+    return x * f;
 }
-const int N = 100010;
-int n,l,a[N],b[N],nc,c[N];
-struct SegmentTree
-{
-    int mn[N << 3];
-    inline void init(){memset(mn,0x3f,sizeof(mn));}
-    inline void modify(int k,int l,int r,int p,int v)
-    {
-        if(l == r) {mn[k] = std::min(mn[k],v);return;}
-        int mid = (l + r) >> 1;
-        if(p <= mid) modify(k << 1,l,mid,p,v);
-        else modify(k << 1 | 1,mid + 1,r,p,v);
-        mn[k] = std::min(mn[k << 1],mn[k << 1 | 1]);
-    }
-    inline int query(int k,int l,int r,int L,int R)
-    {
-        if(l == L && r == R) return mn[k];
-        int mid = (l + r) >> 1;
-        if(R <= mid) return query(k << 1,l,mid,L,R);
-        if(L > mid) return query(k << 1 | 1,mid + 1,r,L,R);
-        return std::min(query(k << 1,l,mid,L,mid),query(k << 1 | 1,mid + 1,r,mid + 1,R));
-    }
-}SGT;
-inline int judge(int x)
-{
-    for(int i = 1;i <= n;i++) c[i] = (a[i] >= x) ? 1 : -1;
-    for(int i = 1;i <= n;i++) c[i] += c[i - 1];
-    // puts("----------");
-    // printf("m %d\n",x);
-    // for(int i = 1;i <= n;i++) printf("c %d %d\n",i,c[i]);
-    SGT.init();
-    // for(int i = 1;i <= n;i++) mn[c[i] + n + 1] = std::min(mn[c[i] + n + 1],i);
-    SGT.modify(1,1,n + n + 1,n + 1,0);
-    for(int i = 1;i <= n;i++)
-    {
-        SGT.modify(1,1,n + n + 1,c[i] + n + 1,i);
-    }
-    for(int i = l;i <= n;i++) if((i - SGT.query(1,1,n + n + 1,1,c[i] + n + 1 - 1)) >= l) 
-    {
-        // puts("Y");
-        return 1;
-    }
-    // puts("N");
+const int MAXN = 1e5 + 100;
+int n,len,a[MAXN],col[MAXN],pre[MAXN];
+const int inf = 0x3F3F3F3F;
+inline int isok(int x){
+    //printf("%lld\n",x);
+    rep(i,1,n) col[i] = (x > a[i]);
+    //rep(i,1,n) printf("%lld ",col[i]);
+    //puts("");
+    //system("pause");
+    rep(i,1,n) pre[i] = pre[i-1] + col[i];
+    rep(i,len,n) if ((len)/2 == (pre[i] - pre[i-len])) return 1;
     return 0;
 }
-int main()
-{
-    n = getint(),l = getint();
-    for(int i = 1;i <= n;i++) b[i] = a[i] = getint();
-    std::sort(b + 1,b + n + 1);
-    nc = std::unique(b + 1,b + n + 1) - b - 1;
-    for(int i = 1;i <= n;i++) a[i] = std::lower_bound(b + 1,b + nc + 1,a[i]) - b;
-    int l = 1,r = nc,mid,ans = 1;
-    while(l <= r)
-    {
-        mid = (l + r) >> 1;
-        if(judge(mid)) l = mid + 1,ans = mid;
-        else r = mid - 1;
+///------------------head------------------
+signed main(signed argc, char *argv[]){
+    n = read(),len = read();
+    int L = inf,R = -inf;
+    rep(i,1,n)  a[i] = read(),L = min(L,a[i]),R = max(R,a[i]);
+    while(R - L > 100) {
+        int mid = (L + R) >> 1;
+        if (isok(mid)) L = mid + 1;
+        else R = mid;
     }
-    printf("%d\n",b[ans]);
+    per(i,R,L) if (isok(i)) return printf("%lld\n",i),0;
     return 0;
 }
+
+/* Examples: */
+/*
+
+*/
+
+/*
+
+*/

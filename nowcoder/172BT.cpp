@@ -8,7 +8,7 @@ const int d2[10] = {0, 0, 1, 0, 2, 0, 1, 0, 3, 0};
 const int d3[10] = {0, 0, 0, 1, 0, 0, 1, 0, 0, 2};
 const int d5[10] = {0, 0, 0, 0, 0, 1, 0, 0, 0, 0};
 const int d7[10] = {0, 0, 0, 0, 0, 0, 0, 1, 0, 0};
-lnt f[18][55][37][19][19], g[18][2];
+lnt f[20][60][40][20][20], g[20][2];
 int stk[20];
 lnt dfs(int x, int c2, int c3, int c5, int c7, bool prefix, bool flag) {
 	if (x < 0) return (p2[c2] * p3[c3] * p5[c5] * p7[c7] >= L && p2[c2] * p3[c3] * p5[c5] * p7[c7] <= R) && !prefix;
@@ -42,10 +42,10 @@ lnt calc(lnt x) {
 }
 int main() {
 	p2[0] = p3[0] = p5[0] = p7[0] = 1;
-	for (int i = 1; i < 55; i++) p2[i] = p2[i - 1] * 2;
-	for (int i = 1; i < 37; i++) p3[i] = p3[i - 1] * 3;
-	for (int i = 1; i < 19; i++) p5[i] = p5[i - 1] * 5;
-	for (int i = 1; i < 19; i++) p7[i] = p7[i - 1] * 7;
+	for (int i = 1; i < 60; i++) p2[i] = p2[i - 1] * 2;
+	for (int i = 1; i < 40; i++) p3[i] = p3[i - 1] * 3;
+	for (int i = 1; i < 20; i++) p5[i] = p5[i - 1] * 5;
+	for (int i = 1; i < 20; i++) p7[i] = p7[i - 1] * 7;
 	memset(f, -1, sizeof(f));
 	memset(g, -1, sizeof(g));
 	scanf("%lld%lld%lld%lld", &l, &r, &L, &R);
