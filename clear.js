@@ -15,6 +15,7 @@ let extToDel = [
 	'.in',
 	'.out',
 	'.txt',
+	'.ans',
 	'.class'
 ];
 
