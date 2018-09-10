@@ -4,34 +4,27 @@
 #include <cstring>
 #include <map>
 #include <vector>
-#define MAXN 10
-int stack[MAXN], p[MAXN], n;
-std::map<std::vector<int>, int> M;
-void dfs(int x) {
-	if (x > n) {
-		for (int i = 1; i <= n; i++) p[i] = i;
-		for (int i = 1; i <= n; i++) std::swap(p[i], p[stack[i]]);
-		std::vector<int> v;
-		for (int i = 1; i <= n; i++) v.push_back(p[i]);
-		M[v]++;
-		return;
-	}
-	for (int i = 1; i <= n; i++) {
-		stack[x] = i;
-		dfs(x + 1);
-	}
-}
+#define MAXN 100
+int n, t[MAXN], m;
 int main() {
 	scanf("%d", &n);
-	dfs(1);
-	int min = 1000000000, max = 0;
-	for (auto x : M) {
-		min = std::min(min, x.second);
-		max = std::max(max, x.second);
+	if (n & 1) {
+		for (int i = 2; i <= n / 2; i++) printf("%d ", i);
+		printf("%d ", 1);
+		printf("%d ", (n + 3) / 2);
+		for (int i = n / 2 + 1; i <= n; i++)
+			if (i != (n + 3) / 2) t[++m] = i;
+		for (int i = 2; i <= m; i++) printf("%d ", t[i]);
+		printf("%d ", t[1]);
+		puts("");
+	} else {
+		for (int i = 2; i <= n / 2; i++) printf("%d ", i);
+		printf("%d ", 1);
+		for (int i = n / 2 + 2; i <= n; i++) printf("%d ", i);
+		printf("%d ", n / 2 + 1);
+		puts("");
 	}
-	for (auto x : M) {
-		for (auto y : x.first) printf("%d ", y);
-		printf("%d %s\n", x.second, x.second == max ? "MAX" : x.second == min ? "MIN" : "");
-	}
+	printf("%d ", n);
+	for (int i = 1; i < n; i++) printf("%d%c", i, " \n"[i == n - 1]);
 	return 0;
 }
