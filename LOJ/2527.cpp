@@ -61,7 +61,7 @@ int main() {
 	scanf("%d%d%d", &n, &m, &s);
 	for (int i = 0; i <= m; i++) scanf("%d", &w[i]);
 	frc[0] = frc[1] = ifrc[0] = ifrc[1] = inv[1] = 1;
-	for (int i = 2; i <= n; i++) {
+	for (int i = 2; i < MAXN; i++) {
 		inv[i] = 1LL * (MOD - MOD / i) * inv[MOD % i] % MOD;
 		frc[i] = 1LL * frc[i - 1] * i % MOD;
 		ifrc[i] = 1LL * ifrc[i - 1] * inv[i] % MOD;
@@ -71,23 +71,12 @@ int main() {
 	for (int i = 0; i < max; i++) w[i] = 1LL * w[i] * ifrc[i] % MOD;
 	for (int i = 0; i < max; i++) f[i] = ifrc[i];
 	memset(w + max, 0, sizeof(int) * (m - max + 1));
-	printf("F:");
-	for (int i = 0; i < len; i++) printf("%d ", f[i]);
-	puts("");
 	INV(f, g, len);
 	len <<= 1;
-	printf("G:");
-	for (int i = 0; i < len; i++) printf("%d ", g[i]);
-	puts("");
-	printf("W:");
-	for (int i = 0; i < len; i++) printf("%d ", w[i]);
-	puts("");
 	DFT(g, len), DFT(w, len);
 	for (int i = 0; i < len; i++) f[i] = 1LL * g[i] * w[i] % MOD;
 	IDFT(f, len);
 	for (int i = 0; i < len; i++) f[i] = 1LL * f[i] * frc[i] % MOD;
-	for (int i = 0; i < len; i++) printf("%d ", f[i]);
-	puts("");
 	int ans = 0;
 	for (int i = 0; i < max; i++) up(ans, 1LL * C(m, i) * C(n, i * s) % MOD * frc[i * s] % MOD * fuck(ifrc[s], i) % MOD * f[i] % MOD * fuck(m - i, n - i * s) % MOD);
 	printf("%d\n", ans);
