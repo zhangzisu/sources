@@ -1,40 +1,45 @@
 #include <algorithm>
-#include <cctype>
-#include <cmath>
 #include <cstdio>
+#include <cstdlib>
 #include <cstring>
-#define MAXN 1025
-inline int $() {
-	register char ch = getchar();
-	register int x = 0;
-	while (!isdigit(ch)) ch = getchar();
-	for (; isdigit(ch); ch = getchar()) x = (x << 1) + (x << 3) + (ch ^ 48);
-	return x;
-}
-int n, m, k, a[MAXN], b[MAXN], can[MAXN];
-inline bool judge(int x) {
-	if (__builtin_popcount(x) != k) return 0;
-	for (int i = 1; i < (1 << n); i++) can[i] = (x >> (i - 1)) & 1;
-	for (int i = 1; i <= m; i++)
-		if (!can[a[i]]) return 0;
-	for (int i = 1; i < (1 << n); i++)
-		for (int j = 1; j < (1 << n); j++)
-			if (!can[i | j] && can[i] && can[j]) return 0;
-	for (int i = 0; i < (1 << n); i++) can[i] = !can[i];
-	for (int i = 1; i < (1 << n); i++)
-		for (int j = 1; j < (1 << n); j++)
-			if (!can[i | j] && can[i] && can[j]) return 0;
-	return 1;
+const int MAXN = 18;
+const int MAXM = 10010;
+int n, m, k, val, a[MAXM], dist[MAXN], f[1 << MAXN], g[1 << MAXN], c[1 << MAXN];
+inline int lowbit(int x) { return x & -x; }
+int weigit[MAXN];
+inline int getWeight(int x) {
+	int ans = n;
+	for (int i = 0; i < n; i++)
+		if ((x >> i) & 1) ans = std::min(ans, weigit[i]);
+	return ans;
 }
 int main() {
-	n = $(), m = $(), k = $();
-	for (int i = 1; i <= m; i++) a[i] = $();
-	for (int d = 0, in = (1 << n) - 1, st = (1 << in); d < st; d++) {
-		if (judge(d)) {
-			for (int i = 0; i < in; i++) printf("%d", (d >> i) & 1);
-			puts("");
-			return 0;
+	scanf("%d%d%d", &n, &m, &k);
+	for (int i = 1; i < (1 << n); i++) c[i] = c[i - lowbit(i)] + 1;
+	for (int i = 1; i <= m; i++) scanf("%d", &a[i]);
+	for (int i = 0; i < n; i++)
+		if ((k >> i) & 1) dist[n - i - 1] = 1;
+	f[0] = 1;
+	for (int d = 0; d < (1 << n); d++) {
+		int &val = f[d], pos = c[d];
+		if (!val) continue;
+		for (int i = 0; i < n; i++) {
+			if ((d >> i) & 1) continue;
+			for (int j = 1; j <= m; j++)
+				if (!dist[pos] && ((a[j] >> i) & 1) && !(a[j] & d)) goto fail;
+			f[d + (1 << i)] = 1;
+			g[d + (1 << i)] = i;
+		fail:;
 		}
+	}
+	if (f[(1 << n) - 1]) {
+		for (int x = (1 << n) - 1, i = n - 1; ~i; i--) {
+			weigit[g[x]] = i;
+			x -= 1 << g[x];
+		}
+		for (int i = 1; i < (1 << n); i++) putchar(dist[getWeight(i)] ? 49 : 48);
+		putchar(10);
+		return 0;
 	}
 	puts("-1");
 	return 0;
