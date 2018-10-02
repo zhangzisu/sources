@@ -52,23 +52,20 @@ inline int getHash2(int l, int r) {
     return cb2(hash2[r], MOD2 - 1LL * hash2[l - 1] * pow2[r - l + 1] % MOD2);
 }
 int main() {
-    freopen("lgg.in", "r", stdin);
-    freopen("lgg.out", "w", stdout);
-
     pow1[0] = pow2[0] = 1;
     for (register int i = 1; i < MAXN; i++) pow1[i] = 1LL * pow1[i - 1] * BASE1 % MOD1;
     for (register int i = 1; i < MAXN; i++) pow2[i] = 1LL * pow2[i - 1] * BASE2 % MOD2;
     for (int t = $(); t; t--) {
         n = $();
-        if (n % 2 == 0) {
-            puts("NOT POSSIBLE");
-            continue;
-        }
         m = (n - 1) / 2;
         as = 0;
         for (register int i = 1; i <= n; i++) a[i] = _() - 'A';
-        for (register int i = 1; i <= n; i++) hash1[i] = cb1(1LL * hash1[i - 1] * BASE1, a[i]);
-        for (register int i = 1; i <= n; i++) hash2[i] = cb2(1LL * hash2[i - 1] * BASE2, a[i]);
+        if (n % 2 == 0) {
+            ps("NOT POSSIBLE");
+            continue;
+        }
+        for (register int i = 1; i <= n; i++) hash1[i] = cb1(1LL * hash1[i - 1] * BASE1 % MOD1, a[i]);
+        for (register int i = 1; i <= n; i++) hash2[i] = cb2(1LL * hash2[i - 1] * BASE2 % MOD2, a[i]);
         int HSL1 = getHash1(1, m);
         int HSL2 = getHash2(1, m);
         int HSR1 = getHash1(m + 2, n);

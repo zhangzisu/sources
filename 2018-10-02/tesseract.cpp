@@ -79,8 +79,11 @@ hydra query(int n, int l, int r, int L, int R) {
     return query(n << 1, l, mid, L, mid) + query(n << 1 | 1, mid + 1, r, mid + 1, R);
 }
 const int n = 2000;
-std::pair<int, int> qry[MAXN];
+std::pair<int, int> qry[MAXM];
 int main() {
+    freopen("tesseract.in", "r", stdin);
+    freopen("tesseract.out", "w", stdout);
+
     memset(head, -1, sizeof(head));
     for (int m = $(), p = $(), u, v, w; m; m--) {
         p = $(), u = $(), v = $(), w = $();
