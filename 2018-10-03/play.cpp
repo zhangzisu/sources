@@ -16,6 +16,7 @@ inline int $() {
     for (; isdigit(ch); ch = gc()) x = (x << 1) + (x << 3) + (ch ^ 48);
     return x;
 }
+#include <queue>
 #define MAXN 1010
 #define MAXM 2510
 const int INF = 0x3F3F3F3F;
@@ -48,10 +49,24 @@ int g[MAXN][MAXN];
 inline void up(int &x, int y) {
     if (y < x) x = y;
 }
+int dis[MAXN];
+std::priority_queue<std::pair<int, int>> Q;
+inline void d(int s) {
+    memset(dis, 0x3F, sizeof(dis));
+    dis[s] = 0;
+    Q.emplace(0, s);
+    while (Q.size()) {
+        auto t = Q.top();
+        Q.pop();
+        if (dis[t.second] != -t.first) continue;
+        for (int i = head[t.second]; ~i; i = next[i]) {
+            if (dis[to[i]] > val[i] - t.first) {
+                Q.emplace(-(dis[to[i]] = val[i] - t.first), to[i]);
+            }
+        }
+    }
+}
 int main() {
-    freopen("play.in", "r", stdin);
-    freopen("play.out", "w", stdout);
-
     memset(head, -1, sizeof(head));
     memset(g, 0x3F, sizeof(g));
     n = $(), m = $(), k = $();
@@ -59,24 +74,20 @@ int main() {
     for (int i = 1; i <= n; i++) {
         if (!dfn[i]) tarjan(i);
     }
+    memset(head, -1, sizeof(head));
+    tot = 0;
     for (int i = 1; i <= m; i++) {
         if (bel[u[i]] == bel[v[i]]) continue;
-        up(g[bel[u[i]]][bel[v[i]]], w[i]);
-    }
-    for (int i = 1; i <= scc; i++) g[i][i] = 0;
-    for (int k = 1; k <= scc; k++) {
-        for (int i = 1; i <= scc; i++) {
-            for (int j = 1; j <= scc; j++) {
-                up(g[i][j], g[i][k] + g[k][j]);
-            }
-        }
+        $(bel[u[i]], bel[v[i]], w[i]);
     }
     for (int u, v; k; k--) {
         u = $(), v = $();
-        if (g[bel[u]][bel[v]] == INF) {
+        memset(dis, 0x3F, sizeof(dis));
+        d(bel[u]);
+        if (dis[bel[v]] == INF) {
             puts("No");
         } else {
-            printf("%d\n", g[bel[u]][bel[v]]);
+            printf("%d\n", dis[bel[v]]);
         }
     }
     return 0;
