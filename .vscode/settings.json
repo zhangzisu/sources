@@ -95,7 +95,6 @@
 	"C_Cpp.clang_format_fallbackStyle": "{ BasedOnStyle: Google, IndentWidth: 8, ColumnLimit: 0, UseTab: Always}",
 	"editor.fontSize": 14,
 	"editor.fontFamily": "consolas,inconsolata,monospace",
-	"terminal.integrated.shell.linux": "/bin/zsh",
 	"C_Cpp.errorSquiggles": "Disabled",
 	"C_Cpp.intelliSenseEngineFallback": "Enabled"
 }

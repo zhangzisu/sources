@@ -17,8 +17,6 @@
   },
   "homepage": "https://github.com/ZhangZisu/sources#readme",
   "dependencies": {
-    "axios": "^0.18.0",
-    "fs": "0.0.1-security",
     "lodash": "^4.17.10",
     "path": "^0.12.7",
     "randomstring": "^1.1.5"
