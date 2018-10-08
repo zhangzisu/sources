@@ -6,6 +6,9 @@
 int n, m, a[MAXN][MAXN], b[MAXN];
 double f[MAXN][MAXN], g[MAXN][MAXN], ans;
 int main() {
+    freopen("magic.in", "r", stdin);
+    freopen("magic.out", "w", stdout);
+
     scanf("%d%d", &n, &m);
     for (int i = 1; i <= n; i++) {
         for (int j = 1; j <= m; j++) {

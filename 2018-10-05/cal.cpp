@@ -104,7 +104,7 @@ inline int S(int a, int n) {
         return 1LL * (1 + n) * n / 2 % MOD;
     } else {
         int inv = fuck(a - 1, MOD - 2);
-        return trim(1LL * inv * trim(1LL * trim(fuck(a, n + 1) - fuck(a, 2) + MOD) * inv % MOD - n + 1 + MOD) + 1);
+        return trim(1LL * inv * trim(1LL * trim(fuck(a, n + 1) - fuck(a, 2) + MOD) * inv % MOD - n + 1 + MOD) % MOD + 1);
     }
 }
 std::map<std::pair<int, int>, int> M;
@@ -130,7 +130,7 @@ int main() {
             // fprintf(stderr, "DELTA: %d\n", tr_1::tot - prt);
         } else {
             x1 = $(), y1 = $(), x2 = $(), y2 = $();
-            int origin = 1LL * trim(S(a, x2) - S(a, x1 - 1) + MOD) * b % MOD * trim(S(c, y2) - S(c, y1 - 1) + MOD) * d % MOD;
+            int origin = 1LL * trim(S(a, x2) - S(a, x1 - 1) + MOD) * b % MOD * trim(S(c, y2) - S(c, y1 - 1) + MOD) % MOD * d % MOD;
             int delta = tr_2::qry(root, 1, 1000000000, x1, x2, y1, y2);
             printf("%d\n", trim(origin + delta));
         }
