@@ -4,8 +4,8 @@
 #include <cstring>
 #define MAXN 210
 #define SQRT 15
-#define MAXM 100010
-int n, m, q, k, l, r, u, d, now, a[MAXN][MAXN], v[MAXN * MAXN], ans[MAXN];
+#define MAXQ 100010
+int n, m, q, k, l, r, u, d, now, a[MAXN][MAXN], v[MAXN * MAXN], ans[MAXQ];
 struct query_t {
 	int x1, y1, x2, y2, id;
 	inline int friend operator<(const query_t &a, const query_t &b) {
@@ -20,18 +20,18 @@ struct query_t {
 		} else
 			return a.x1 < b.x1;
 	}
-} query[MAXN];
+} query[MAXQ];
 inline void fuckRow(int c, int t) {
 	for (int i = l; i <= r; i++) {
 		now -= v[a[c][i]] * v[a[c][i]];
-		v[a[c][i]]++;
+		v[a[c][i]] += t;
 		now += v[a[c][i]] * v[a[c][i]];
 	}
 }
 inline void fuckCol(int r, int t) {
 	for (int i = u; i <= d; i++) {
 		now -= v[a[i][r]] * v[a[i][r]];
-		v[a[i][r]]++;
+		v[a[i][r]] += t;
 		now += v[a[i][r]] * v[a[i][r]];
 	}
 }
