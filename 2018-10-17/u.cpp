@@ -45,6 +45,8 @@ int n, q;
 lnt s[MAXN][MAXN], t[MAXN][MAXN], ans;
 int id[MAXN][MAXN], pos[MAXN][MAXN], len[MAXN * 2];
 int main() {
+    freopen("u.in", "r", stdin);
+    freopen("u.out", "w", stdout);
     n = $(), q = $();
     for (int i = 1; i <= n; i++) {
         for (int j = 1; j <= n; j++) {
