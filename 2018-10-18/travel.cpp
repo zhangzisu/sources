@@ -1,3 +1,5 @@
+#pragma GCC optimize("unroll-loops")
+#pragma GCC target("sse,sse2,sse3,ssse3,sse4,popcnt,abm,mmx,avx,tune=native")
 #include <algorithm>
 #include <cctype>
 #include <cstdio>
@@ -39,67 +41,109 @@ inline void $(long long x) {
     for (_6 = 0; x; x /= 10) _5[++_6] = (x % 10) ^ 48;
     while (_6) pc(_5[_6--]);
 }
-#define MAXN 100010
-#define SQRT 320
-int head[MAXN], to[MAXN << 1], next[MAXN << 1], val[MAXN << 1], tot = 0;
-inline void $(int u, int v, int w) {
-    next[tot] = head[u], to[tot] = v, val[tot] = w, head[u] = tot++;
-    next[tot] = head[v], to[tot] = u, val[tot] = w, head[v] = tot++;
+#define MAXN 200010
+#define SQRT 350
+#define LOGN 20
+int head[MAXN], to[MAXN << 1], next[MAXN << 1], tot = 0;
+inline void $(int u, int v) {
+    next[tot] = head[u], to[tot] = v, head[u] = tot++;
+    next[tot] = head[v], to[tot] = u, head[v] = tot++;
 }
-int stk[MAXN], stop, top[MAXN], deep[MAXN];
-int pa[MAXN][SQRT][18], fa[MAXN], size[MAXN];
-void dfs(int x, int len) {
-    for (int i = 1; i <= len; i++) stk[++stop] = x;
-    size[x] = 1;
-    for (int i = 2; i < SQRT; i++) {
-        if (stop - i - 1 <= 0) break;
-        pa[x][i][0] = stk[stop - i];
-        for (int j = 1; j < 18; j++) {
-            pa[x][i][j] = pa[pa[x][i][j - 1]][i][j - 1];
-            if (!pa[x][i][j]) break;
+int fa[MAXN][LOGN], deep[MAXN], son[MAXN], n;
+int pa[MAXN][LOGN], stk[MAXN], stp = 0;
+void dfs(int x) {
+    for (int i = 1; i < LOGN; i++) {
+        fa[x][i] = fa[fa[x][i - 1]][i - 1];
+        if (!fa[x][i]) break;
+    }
+    for (int i = head[x]; ~i; i = next[i]) {
+        if (to[i] == fa[x][0]) continue;
+        fa[to[i]][0] = x;
+        deep[to[i]] = deep[x] + 1;
+        son[x] = to[i];
+        dfs(to[i]);
+    }
+}
+void pre(int x, int b) {
+    stk[++stp] = x;
+    if (x <= n) {
+        if (stp - b > 0) {
+            pa[x][0] = stk[stp - b] <= n ? stk[stp - b] : son[stk[stp - b]];
+            for (int i = 1; i < LOGN; i++) {
+                pa[x][i] = pa[pa[x][i - 1]][i - 1];
+            }
+        } else {
+            memset(pa[x], 0, sizeof(pa[x]));
         }
     }
     for (int i = head[x]; ~i; i = next[i]) {
-        if (to[i] == fa[x]) continue;
-        fa[to[i]] = x;
-        deep[to[i]] = deep[x] + 1;
-        dfs(to[i], val[i]);
-        size[x] += size[to[i]];
+        if (to[i] == fa[x][0]) continue;
+        pre(to[i], b);
     }
-    stop -= len;
-}
-void split(int x) {
-    if (!top[x]) top[x] = x;
-    int max = 0;
-    for (int i = head[x]; ~i; i = next[i])
-        if (to[i] != fa[x] && size[to[i]] > size[max]) max = to[i];
-    if (max) top[max] = top[x], split(max);
-    for (int i = head[x]; ~i; i = next[i])
-        if (to[i] != fa[x] && to[i] != max) split(to[i]);
+    --stp;
 }
 inline int lca(int u, int v) {
-    while (top[u] != top[v]) {
-        if (deep[top[u]] < deep[top[v]]) std::swap(u, v);
-        u = fa[top[u]];
-    }
-    return deep[u] < deep[v] ? u : v;
+    if (deep[u] < deep[v]) std::swap(u, v);
+    int delta = deep[u] - deep[v];
+    for (int i = LOGN - 1; ~i; i--)
+        if ((delta >> i) & 1) u = fa[u][i];
+    if (u == v) return u;
+    for (int i = LOGN - 1; ~i; i--)
+        if (fa[u][i] != fa[v][i]) u = fa[u][i], v = fa[v][i];
+    return fa[u][0];
 }
-int n, m;
+inline int kfa(int u, int k) {
+    for (int i = LOGN - 1; ~i; i--)
+        if ((k >> i) & 1) u = fa[u][i];
+    return u;
+}
+int m, k, tmp1[MAXN], tmp2[MAXN], ans[MAXN];
+struct query_t {
+    int u, v, w, id;
+    inline int friend operator<(const query_t& a, const query_t& b) {
+        return a.w < b.w;
+    }
+} query[MAXN];
 int main() {
-    n = $();
+    k = n = $();
     memset(head, -1, sizeof(head));
-    for (int i = 1, u, v, w; i < n; i++) u = $(), v = $(), w = $(), $(u, v, w);
-    dfs(1, 1);
-    split(1);
-    m = $();
-    for (int u, v, p; m; m--) {
-        u = $(), v = $(), p = $();
-        int l = lca(u, v);
-        if (p >= SQRT) {
-            //
+    for (int i = n - 1, u, v, w; i; i--) {
+        u = $(), v = $(), w = $();
+        if (w == 1) {
+            $(u, v);
         } else {
-            //
+            ++k, $(u, k), $(v, k);
         }
     }
-    return 0;
+    deep[1] = 1, dfs(1);
+    m = $();
+    for (int i = 1; i <= m; i++) query[i].u = $(), query[i].v = $(), query[i].w = $(), query[i].id = i;
+    std::sort(query + 1, query + m + 1);
+    for (int i = 1, last = 0; i <= m; i++) {
+        int &u = query[i].u, &v = query[i].v, &p = query[i].w;
+        int l = lca(u, v), res = 0;
+        if (p < SQRT) {
+            if (last != p) pre(1, p);
+            last = p;
+            for (int i = LOGN - 1; ~i; i--) {
+                if (deep[pa[u][i]] > deep[l]) {
+                    res += 1 << i;
+                    u = pa[u][i];
+                }
+                if (deep[pa[v][i]] > deep[l]) {
+                    res += 1 << i;
+                    v = pa[v][i];
+                }
+            }
+        } else {
+            for (int x = kfa(u, p); deep[x] >= deep[l]; u = (x <= n ? x : son[x]), x = kfa(u, p)) res++;
+            for (int x = kfa(v, p); deep[x] >= deep[l]; v = (x <= n ? x : son[x]), x = kfa(v, p)) res++;
+        }
+        int rest = deep[u] + deep[v] - deep[l] * 2;
+        if (rest) ++res;
+        if (rest > p) ++res;
+        ans[query[i].id] = res;
+    }
+    for (int i = 1; i <= m; i++) $(ans[i]), pc(10);
+    rt();
 }

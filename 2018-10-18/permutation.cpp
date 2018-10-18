@@ -19,6 +19,10 @@ int main() {
     for (int i = 1; i < MAXN; i++) frc[i] = 1LL * frc[i - 1] * i % MOD;
     for (scanf("%d", &T); T; T--) {
         scanf("%d%d", &n, &m);
+        if (n == 1) {
+            puts("1");
+            continue;
+        }
         if (m < n + 1) {
             puts("0");
             continue;
