@@ -16,7 +16,8 @@ let extToDel = [
 	'.out',
 	'.txt',
 	'.class',
-	'.ans'
+	'.ans',
+	'.table'
 ];
 
 function listFile(filePath) {
