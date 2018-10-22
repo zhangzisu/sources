@@ -95,4 +95,5 @@
 	"C_Cpp.clang_format_fallbackStyle": "{ BasedOnStyle: Google, IndentWidth: 4, ColumnLimit: 0}",
 	"editor.fontSize": 14,
 	"terminal.integrated.shell.linux": "/bin/zsh",
+	"editor.fontFamily": "\"source code variable\",consolas,inconsolata,monospace",
 }
