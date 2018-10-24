@@ -39,7 +39,7 @@ inline void $(long long x) {
 inline void $(const char *s) {
     for (; *s; s++) pc(*s);
 }
-#define MAXN 210
+#define MAXN 310
 int T, n, a[MAXN][MAXN], c[MAXN][MAXN], s[MAXN], t[MAXN], vis[MAXN], ans[MAXN];
 inline int lowbit(int x) { return x & -x; }
 inline void add(int *bit, int x, int y) {
@@ -51,8 +51,6 @@ inline int qry(int *bit, int x) {
     return y;
 }
 int main() {
-    freopen("permutation.in", "r", stdin);
-    freopen("permutation.out", "w", stdout);
     for (T = $(); T; T--) {
         n = $();
         memset(c, 0, sizeof(c));

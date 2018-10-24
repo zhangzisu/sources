@@ -41,31 +41,37 @@ inline void $(const char *s) {
 }
 #define MAXN 1000010
 typedef long long lnt;
-int n, q, a[MAXN], b[MAXN], bit[MAXN];
+int n, q, a[MAXN], b[MAXN], c[MAXN];
 lnt ans = 0;
 inline int lowbit(int x) { return x & -x; }
 inline void add(int x, int v) {
-    for (; x <= 2 * n; x += lowbit(x)) bit[x] += v;
+    for (; x <= 2 * n; x += lowbit(x)) c[x] += v;
 }
 inline int qry(int x) {
     int v = 0;
-    for (; x; x -= lowbit(x)) v += bit[x];
+    for (; x; x -= lowbit(x)) v += c[x];
     return v;
 }
 int main() {
-    n = $();
-    for (int i = 1; i <= 2 * n; i++) {
-        a[i] = $();
-        if (b[a[i]]) {
-            ans += std::min(i - b[a[i]], 2 * n + b[a[i]] - i) - 1;
-            add(b[a[i]], -1);
-            ans -= qry(2 * n);
-            ans += qry(b[a[i]]);
-        } else {
-            add(i, 1);
-            b[a[i]] = i;
+    for (int t = $(); t; t--) {
+        n = $();
+        memset(a + 1, 0, sizeof(int) * n * 2);
+        memset(b + 1, 0, sizeof(int) * n * 2);
+        memset(c + 1, 0, sizeof(int) * n * 2);
+        ans = 0;
+        for (int i = 1; i <= 2 * n; i++) {
+            a[i] = $();
+            if (b[a[i]]) {
+                ans += std::min(i - b[a[i]], 2 * n + b[a[i]] - i) - 1;
+                add(b[a[i]], -1);
+                ans -= qry(2 * n);
+                ans += qry(b[a[i]]);
+            } else {
+                add(i, 1);
+                b[a[i]] = i;
+            }
         }
+        $(ans), pc(10);
     }
-    printf("%lld\n", ans);
-    return 0;
+    rt();
 }
