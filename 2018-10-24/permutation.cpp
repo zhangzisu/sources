@@ -40,7 +40,7 @@ inline void $(const char *s) {
     for (; *s; s++) pc(*s);
 }
 #define MAXN 310
-int T, n, a[MAXN][MAXN], c[MAXN][MAXN], s[MAXN], t[MAXN], vis[MAXN], ans[MAXN];
+int T, n, a[MAXN][MAXN], b[MAXN][MAXN], c[MAXN][MAXN], s[MAXN], t[MAXN], vis[MAXN], ans[MAXN];
 inline int lowbit(int x) { return x & -x; }
 inline void add(int *bit, int x, int y) {
     for (; x <= n; x += lowbit(x)) bit[x] += y;
@@ -57,34 +57,38 @@ int main() {
         for (int i = 1; i <= n; i++)
             for (int j = 1; j < n; j++)
                 c[j][a[i][j] = $()]++;
-        memset(s, 0, sizeof(s));
-        memset(t, 0, sizeof(t));
-        memset(vis, 0, sizeof(vis));
-        for (int i = 1; i <= n; i++) add(s, i, 1);
-        for (int x = 1; x <= n; x++) {
-            if (c[1][x] >= n - x && c[1][x - 1] >= x - 1) {
-                vis[ans[1] = x] = 1;
-                add(s, x, -1);
-                add(t, x, 1);
+        for (int z = 1; z <= n; z++) {
+            if ((c[1][z] >= n - z && c[1][z - 1] == z - 1) || (c[1][z] == n - z && c[1][z - 1] >= z - 1)) {
+                memcpy(b, c, sizeof(b));
+                memset(s, 0, sizeof(s));
+                memset(t, 0, sizeof(t));
+                memset(vis, 0, sizeof(vis));
+                for (int i = 1; i <= n; i++) add(s, i, 1);
+                vis[ans[1] = z] = 1;
+                add(s, z, -1);
+                add(t, z, 1);
+                for (int p = 2; p <= n; p++) {
+                    int *d = b[p - 1], y = ans[p - 1];
+                    d[y] -= qry(s, n) - qry(s, y);
+                    d[y - 1] -= qry(s, y - 1);
+                    for (int x = 1; x <= n; x++) {
+                        if (vis[x]) continue;
+                        if (qry(t, n) - qry(t, x) == d[x] && qry(t, x - 1) == d[x - 1]) {
+                            vis[ans[p] = x] = 1;
+                            add(s, x, -1);
+                            add(t, x, 1);
+                            goto succ;
+                        }
+                    }
+                    goto fail;
+                succ:;
+                }
+                for (int i = 1; i <= n; i++) $(ans[i]), pc(32);
+                pc(10);
                 break;
             }
+        fail:;
         }
-        for (int p = 2; p <= n; p++) {
-            int *d = c[p - 1], y = ans[p - 1];
-            d[y] -= qry(s, n) - qry(s, y);
-            d[y - 1] -= qry(s, y - 1);
-            for (int x = 1; x <= n; x++) {
-                if (vis[x]) continue;
-                if (qry(t, n) - qry(t, x) == d[x] && qry(t, x - 1) == d[x - 1]) {
-                    ans[p] = x;
-                    add(s, x, -1);
-                    add(t, x, 1);
-                    break;
-                }
-            }
-        }
-        for (int i = 1; i <= n; i++) $(ans[i]), pc(32);
-        pc(10);
     }
     rt();
 }
