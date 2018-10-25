@@ -70,34 +70,45 @@ class IOX : public IO {
         for (; *s; s++) putchar(*s);
     }
 };
-#define MAXN 2000010
-#define MAXV 1000000
-#define MOD 1000000007
-int n, p[MAXN], bin[MAXN];
-inline int find(int x) { return x == p[x] ? x : p[x] = find(p[x]); }
-inline int trim(int x) { return x >= MOD ? x - MOD : x; }
+typedef long long lnt;
+#define MAXN 100010
+inline int in(int l, int r, int p) { return l <= p && p <= r; }
+int n, q, a[MAXN], query[MAXN];
 int main() {
-    IOX io = IOX(fopen("x.in", "r"), fopen("x.out", "w"));
-    bin[0] = 1;
-    for (int i = 1; i < MAXN; i++) bin[i] = trim(bin[i - 1] << 1);
-    for (int T = io.getint(); T; T--) {
-        n = io.getint();
-        for (int i = 1; i <= MAXV; i++) p[i] = i;
-        for (int i = 1; i <= n; i++) {
-            int t = i + MAXV;
-            p[t] = t;
-            int x = io.getint();
-            for (int j = 2; j * j <= x; j++) {
-                if (x % j) continue;
-                while (x % j == 0) x /= j;
-                p[find(j)] = t;
+    IOX io = IOX(fopen("z.in", "r"), fopen("z.out", "w"));
+    n = io.getint();
+    q = io.getint();
+    for (int i = 1; i <= n; i++) a[i] = io.getint();
+    for (int i = 1; i <= q; i++) query[i] = io.getint();
+    if (q == 0) return 0;
+    if (n <= 1000 && q <= 1000) {
+        for (int t = 1; t <= q; t++) {
+            int l = 0, r = query[t], ans = 0;
+            for (int i = 1; i <= n; i++) {
+                if (in(l, r, a[i])) continue;
+                if (a[i] > r) {
+                    int delta = a[i] - r;
+                    l += delta;
+                    r += delta;
+                    ans += delta;
+                } else {
+                    int delta = l - a[i];
+                    l -= delta;
+                    r -= delta;
+                    ans += delta;
+                }
             }
-            if (x != 1) p[find(x)] = t;
+            io.putint(ans), io.putchar(10);
         }
-        int ans = 0;
-        for (int i = 1; i <= n; i++) ans += (find(i + MAXV) == i + MAXV);
-        io.putint(trim(bin[ans] + MOD - 2));
-        io.putchar(10);
+    } else {
+        std::sort(a + 1, a + n + 1);
+        for (int t = 1; t <= q; t++) {
+            if (a[1] >= 0) {
+                io.putint(std::max(0, a[n] - query[t])), io.putchar(10);
+            } else {
+                io.putint(-a[1] + std::max(0, a[n] - query[t] - a[1])), io.putchar(10);
+            }
+        }
     }
     return 0;
 }

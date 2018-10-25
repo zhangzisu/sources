@@ -70,34 +70,43 @@ class IOX : public IO {
         for (; *s; s++) putchar(*s);
     }
 };
-#define MAXN 2000010
-#define MAXV 1000000
-#define MOD 1000000007
-int n, p[MAXN], bin[MAXN];
-inline int find(int x) { return x == p[x] ? x : p[x] = find(p[x]); }
-inline int trim(int x) { return x >= MOD ? x - MOD : x; }
+#include <bitset>
+#define MAXN 90
+#define MAXM 10010
+#define MAXD 20
+int n, m, k, ans = 0;
+int head[MAXN], to[MAXM << 1], val[MAXM << 1], next[MAXM << 1], tot = 0;
+inline void $(int u, int v, int w) {
+    next[tot] = head[u], to[tot] = v, val[tot] = w, head[u] = tot++;
+    next[tot] = head[v], to[tot] = u, val[tot] = w, head[v] = tot++;
+}
+int f[2][MAXN][1 << MAXD], flag = 1;
 int main() {
-    IOX io = IOX(fopen("x.in", "r"), fopen("x.out", "w"));
-    bin[0] = 1;
-    for (int i = 1; i < MAXN; i++) bin[i] = trim(bin[i - 1] << 1);
-    for (int T = io.getint(); T; T--) {
-        n = io.getint();
-        for (int i = 1; i <= MAXV; i++) p[i] = i;
-        for (int i = 1; i <= n; i++) {
-            int t = i + MAXV;
-            p[t] = t;
-            int x = io.getint();
-            for (int j = 2; j * j <= x; j++) {
-                if (x % j) continue;
-                while (x % j == 0) x /= j;
-                p[find(j)] = t;
-            }
-            if (x != 1) p[find(x)] = t;
-        }
-        int ans = 0;
-        for (int i = 1; i <= n; i++) ans += (find(i + MAXV) == i + MAXV);
-        io.putint(trim(bin[ans] + MOD - 2));
-        io.putchar(10);
+    IOX io = IOX(fopen("y.in", "r"), fopen("y.out", "w"));
+    n = io.getint(), m = io.getint(), k = io.getint();
+    memset(head, -1, sizeof(head));
+    for (int i = 1, u, v, w; i <= m; i++) {
+        u = io.getint() - 1, v = io.getint() - 1, w = io.getint();
+        $(u, v, w);
+        flag &= (w == 0);
     }
+    if (flag) return puts("1"), 0;
+    f[0][0][0] = 1;
+    for (int d = 1; d <= k; d++) {
+        int now = d & 1, pre = now ^ 1;
+        memset(f[now], 0, sizeof(f[now]));
+        for (int p = 0; p < (1 << (d - 1)); p++) {
+            for (int x = 0; x < n; x++) {
+                for (int i = head[x]; ~i; i = next[i]) {
+                    f[now][x][p << 1 | val[i]] |= f[pre][to[i]][p];
+                }
+            }
+        }
+    }
+    for (int i = 0; i < n; i++)
+        for (int p = 0; p < (1 << k); p++)
+            ans += f[k & 1][i][p];
+    io.putint(ans);
+    io.putchar(10);
     return 0;
 }
