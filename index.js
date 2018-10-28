@@ -2,6 +2,7 @@
 
 const fs = require('fs');
 const path = require('path')
+const cfonts = require("cfonts")
 
 let ignore = [
 	'.git',
@@ -50,5 +51,7 @@ function listFile(filePath) {
 		}
 	});
 }
+
+cfonts.say("source-|contest", { colors: ["yellow"] });
 
 listFile('.');
