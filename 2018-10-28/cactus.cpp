@@ -70,76 +70,80 @@ class IOX : public IO {
         for (; *s; s++) putchar(*s);
     }
 };
-#include <queue>
+#define MAXN 5010
+#define MAXM 10010
 #define MOD 1000000007
-#define MAXN 10
-struct trie {
-    int son[2], danger, fail;
-    inline int &operator[](int index) {
-        return son[index];
-    }
-} acm[MAXN];
-int cnt, n, m, p, mask, ans, f[10][1010], g[10][1010];
-inline void init() { cnt = 1, memset(acm, 0, sizeof(acm)); }
-inline void insert(int i) {
-    int q = cnt;
-    for (int d = 0; d < p; d++) {
-        int &next = acm[q][(i >> d) & 1];
-        if (!next) next = ++cnt;
-        q = next;
-    }
-    acm[q].danger = 1;
-}
-std::queue<int> Q;
-inline void build() {
-    Q.push(1);
-    while (Q.size()) {
-        int x = Q.front();
-        Q.pop();
-        for (int i = 0; i < 2; i++) {
-            int &y = acm[x][i];
-            if (y) {
-                acm[y].fail = acm[x].fail ? acm[acm[x].fail][i] : 1;
-                Q.push(y);
-            } else {
-                y = acm[x].fail ? acm[acm[x].fail][i] : 1;
-            }
-            if (acm[x].fail) acm[x].danger |= acm[acm[x].fail].danger;
-        }
-    }
+#define INV 500000004
+typedef long long lnt;
+int head[MAXN], to[MAXM << 1], next[MAXM << 1], d[MAXN], tot = 0;
+inline void $(int u, int v) {
+    next[tot] = head[u], to[tot] = v, head[u] = tot++;
+    next[tot] = head[v], to[tot] = u, head[v] = tot++;
+    d[u]++, d[v]++;
 }
 inline void up(int &x, int y) {
     if ((x += y) >= MOD) x -= MOD;
 }
-int main() {
-    IOX io = IOX(fopen("string.in", "r"), fopen("string.out", "w"));
-    n = io.getint(), m = io.getint(), p = io.getint();
-    if (n < 2 * p) return puts("0"), 0;
-    mask = (1 << p) - 1;
-    for (int i = 0; i < (1 << p); i++) {
-        init(), insert(i), build();
-        memset(f, 0, sizeof(f));
-        f[1][0] = 1;
-        for (int j = p + 1; j <= n; j++) {
-            memset(g, 0, sizeof(g));
-            for (int k = 1; k <= cnt; k++) {
-                for (int l = 0; l <= n; l++) {
-                    if (!f[k][l]) continue;
-                    for (int d = 0; d < 2; d++) {
-                        int next = acm[k][d];
-                        up(g[next][l + acm[next].danger], f[k][l]);
-                    }
-                }
-            }
-            memcpy(f, g, sizeof(g));
-        }
-        for (int j = 1; j <= cnt; j++) {
-            for (int k = m; k <= n; k++) {
-                up(ans, f[j][k]);
-            }
+int n, m, p, ans = 0, deep[MAXN], fa[MAXN], prf[MAXN], spc[MAXN];
+void dfs(int x) {
+    for (int i = head[x]; ~i; i = next[i]) {
+        if (!deep[to[i]]) {
+            deep[to[i]] = deep[x] + 1;
+            fa[to[i]] = fa[x];
+            dfs(to[i]);
+        } else if (deep[to[i]] < deep[x] - 1) {
+            spc[to[i]] = 1;
+            for (int y = x; y != to[i]; y = fa[y]) prf[fa[y]] = y;
         }
     }
-    io.putint(ans);
+}
+int f[MAXN][40], g[MAXN][40], h[40], q[MAXN];
+int pre[MAXN][40], suf[MAXN][40];
+void dp(int x) {
+    f[x][1] = g[x][1] = 1;
+    for (int i = head[x]; ~i; i = next[i]) {
+        if (deep[to[i]] == deep[x] + 1) {
+            dp(to[i]);
+            memset(h, 0, sizeof(h));
+            for (int j = 1; j <= p; j++) {
+                for (int k = 0; k <= p - j; k++) {
+                    up(h[j + k], 1LL * f[x][j] * f[to[i]][k] % MOD);
+                }
+            }
+            memcpy(f[x], h, sizeof(h));
+            if (to[i] == prf[x]) continue;
+            memset(h, 0, sizeof(h));
+            for (int j = 1; j <= p; j++) {
+                for (int k = 0; k <= p - j; k++) {
+                    up(h[j + k], 1LL * g[x][j] * g[to[i]][k] % MOD);
+                }
+            }
+            memcpy(g[x], h, sizeof(h));
+        }
+    }
+    f[x][0] = 1;
+    g[x][0] = 1;
+    if (spc[x]) {
+        int tmp = 0;
+        for (int y = x; y; y = prf[y]) q[++tmp] = y;
+        for (int i = 1; i <= tmp; i++) {
+            memset(sum[next], 0, sizeof(sum[next]));
+            //
+        }
+    }
+}
+int main() {
+    IOX io = IOX();
+    n = io.getint(), m = io.getint(), p = io.getint();
+    memset(head, -1, sizeof(head));
+    for (int i = 1; i <= m; i++) {
+        int u = io.getint(), v = io.getint();
+        $(u, v);
+    }
+    deep[1] = 1;
+    dfs(1, 0);
+    dp(1);
+    io.putint64(ans);
     io.putchar(10);
     return 0;
 }

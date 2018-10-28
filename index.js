@@ -7,6 +7,7 @@ const cfonts = require("cfonts")
 const whitelist = [
 	/^\.[A-Za-z0-9]*$/,
 	/^node_modules$/,
+	/^tmp$/,
 ];
 
 const extToDel = [
@@ -44,8 +45,7 @@ function listFile(filePath) {
 							if (extToDel.includes(path.extname(file))) {
 								console.log(`${file} has been deleted.`);
 								fs.unlinkSync(file);
-							}
-							if (size > size_limit) {
+							} else if (size > size_limit) {
 								console.log(`${file} will be moved to workspace/tmp because of its size`);
 								fs.ensureDirSync(path.join(__dirname, "tmp/"));
 								fs.moveSync(file, path.join(__dirname, "tmp", filename));
