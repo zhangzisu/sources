@@ -17,8 +17,10 @@
   },
   "homepage": "https://github.com/ZhangZisu/sources#readme",
   "dependencies": {
+    "@types/fs-extra": "^5.0.4",
     "cfonts": "^2.2.2",
     "fs": "0.0.1-security",
+    "fs-extra": "^7.0.0",
     "lodash": "^4.17.10",
     "path": "^0.12.7",
     "prho": "^1.0.1",
