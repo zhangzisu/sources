@@ -115,7 +115,7 @@ void dp(int x) {
             memset(h, 0, sizeof(h));
             for (int j = 1; j <= p; j++) {
                 for (int k = 0; k <= p - j; k++) {
-                    up(h[j + k], 1LL * g[x][j] * g[to[i]][k] % MOD);
+                    up(h[j + k], 1LL * g[x][j] * f[to[i]][k] % MOD);
                 }
             }
             memcpy(g[x], h, sizeof(h));
@@ -127,8 +127,25 @@ void dp(int x) {
         int tmp = 0;
         for (int y = x; y; y = prf[y]) q[++tmp] = y;
         for (int i = 1; i <= tmp; i++) {
-            memset(sum[next], 0, sizeof(sum[next]));
-            //
+            memset(pre[i], 0, sizeof(pre[i]));
+            for (int j = 1; j <= p; j++) {
+                for (int k = 1; k <= p - j; k++) {
+                    up(pre[i][j + k], 1LL * pre[i - 1][j] * g[q[i]][k] % MOD);
+                }
+            }
+        }
+        for(int i = 1;i <= tmp;i++){
+            for(int j = 1;j <= p;j++){
+                up(pre[i][j], pre[i - 1][j]);
+            }
+        }
+        for (int i = p; i >= 1; i--) {
+            memset(suf[i], 0, sizeof(suf[i]));
+            for(int j = 1;j <= p;j++){
+                for(int k = 1;k <= p - j;k++){
+                    up(suf[i][j + 1], 1LL * suf[i + 1][j] * g[q[i]][k] % MOD);
+                }
+            }
         }
     }
 }

@@ -7,11 +7,11 @@ const cfonts = require("cfonts")
 const whitelist = [
 	/^\.[A-Za-z0-9]*$/,
 	/^node_modules$/,
-	/^tmp$/,
+	/^bigfiles$/
 ];
 
-const extToDel = [
-	'',
+const extToKeep = [
+	/^c[a-z]*$/,
 	'.exe',
 	'.in',
 	'.out',
@@ -21,7 +21,14 @@ const extToDel = [
 	'.table'
 ];
 
-const size_limit = 10240;
+const size_limit = 50 * 1024;     // 50KB
+
+function match(list, string) {
+	for (let item of list) {
+		if (item.test(string)) return true;
+	}
+	return false;
+}
 
 function listFile(filePath) {
 	fs.readdir(filePath, function (err, files) {
@@ -29,9 +36,7 @@ function listFile(filePath) {
 			console.warn(err);
 		} else {
 			files.forEach(function (filename) {
-				for (let whiteitem of whitelist) {
-					if (whiteitem.test(filename)) return;
-				}
+				if (match(whitelist, filename)) return;
 				let file = path.join(filePath, filename);
 				file = path.resolve(file);
 				fs.stat(file, function (eror, stats) {
@@ -42,13 +47,13 @@ function listFile(filePath) {
 						const isDir = stats.isDirectory();
 						const size = stats.size;
 						if (isFile) {
-							if (extToDel.includes(path.extname(file))) {
+							if (!match(extToKeep, path.extname(file))) {
 								console.log(`${file} has been deleted.`);
 								fs.unlinkSync(file);
 							} else if (size > size_limit) {
-								console.log(`${file} will be moved to workspace/tmp because of its size`);
-								fs.ensureDirSync(path.join(__dirname, "tmp/"));
-								fs.moveSync(file, path.join(__dirname, "tmp", filename));
+								console.log(`${file} will be moved to workspace/bigfiles because of its size`);
+								fs.ensureDirSync(path.join(__dirname, "bigfiles"));
+								fs.moveSync(file, path.join(__dirname, "bigfiles", filename));
 							}
 						}
 						if (isDir) {
