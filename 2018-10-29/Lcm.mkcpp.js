@@ -2,7 +2,7 @@ const fs = require("fs-extra")
 
 let template = fs.readFileSync("Lcm.template.cpp").toString()
 
-let lineTemplate = `if (n == :key) return puts(":value"), 0;`;
+let lineTemplate = `o(:key, ":value")`;
 let inject = [];
 
 fs.readFileSync("Lcm.data")
@@ -11,6 +11,6 @@ fs.readFileSync("Lcm.data")
     .map(x => x.trim())
     .forEach((v, i) => inject.push(lineTemplate.replace(":key", i).replace(":value", v)));
 
-template = template.replace("/* inject */", inject.join('\n'));
+template = template.replace("/* inject */", inject.join(''));
 
 fs.writeFileSync("Lcm.cpp", template);

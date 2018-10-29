@@ -70,9 +70,11 @@ class IOX : public IO {
         for (; *s; s++) putchar(*s);
     }
 };
+#define o(k, s) \
+    if (n == k) return io.puts(s), io.putchar(10), 0;
 int n;
 int main() {
-    IOX io = IOX();
+    IOX io = IOX(fopen("Lcm.in", "r"), fopen("Lcm.out", "w"));
     n = io.getint();
     /* inject */
     puts("Too young too simple, sometimes naive!");
