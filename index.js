@@ -11,14 +11,15 @@ const whitelist = [
 ];
 
 const extToKeep = [
-	/^c[a-z]*$/,
-	'.exe',
-	'.in',
-	'.out',
-	'.txt',
-	'.class',
-	'.ans',
-	'.table'
+	/^\.c(c|pp|xx|s)?$/i,
+	/^\.j(ava|s|son)$/i,
+	/^\.h[a-z]*$/i,
+	/^\.pyo?$/i,
+	/^\.sh?$/i,
+	/^\.bat?$/i,
+	/^\.m(d|arkdown)$/i,
+	/^\.[a-z]+ml$/i,
+	/^\.ps[0-9]?$/i
 ];
 
 const size_limit = 50 * 1024;     // 50KB
