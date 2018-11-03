@@ -11,24 +11,29 @@ inline void up(int &x, int y) {
 }
 int main() {
 	scanf("%d%d", &n, &m);
-	g[2] = 1;
-	for (int i = 4; i <= 2 * n; i += 2) g[i] = 1LL * g[i - 2] * (i - 1) % MOD;
+	g[0] = 1;
+	for (int i = 2; i <= 2 * n; i += 2) g[i] = 1LL * g[i - 2] * (i - 1) % MOD;
+	printf("%d\n", g[18]);
 	for (int i = 1; i <= 2 * n; i++) s[i] = 1;
 	for (int i = 1; i <= m; i++) scanf("%d%d", a + i, b + i), s[a[i]]--, s[b[i]]--;
 	for (int i = 1; i <= 2 * n; i++) s[i] += s[i - 1];
+	// for (int i = 1; i <= 2 * n; i++) printf("%d ", s[i]);
+	// puts("");
 	for (int i = 2 * n; i >= 1; i--) {
 		for (int j = i; j <= 2 * n; j++) {
 			for (int k = 1; k <= m; k++) {
-				if ((i <= a[i] && a[i] <= j) != (i <= b[i] && b[i] <= j)) goto fail;
+				if ((i <= a[k] && a[k] <= j) != (i <= b[k] && b[k] <= j)) goto fail;
 			}
 			in = s[j] - s[i - 1];
-			out = s[n] - in;
-			f[i][j] = 1LL * in * out % MOD;
+			out = s[2 * n] - in;
+			// printf("in %d out %d\n", in, out);
+			f[i][j] = 1LL * g[in] * g[out] % MOD;
 			for (int k = i; k < j; k++) {
 				int rest = s[j] - s[k];
-				up(f[i][j], MOD - 1LL * f[i][k] * rest % MOD * out % MOD);
+				up(f[i][j], MOD - 1LL * f[i][k] * g[rest] % MOD * g[out] % MOD);
 			}
 			up(ans, f[i][j]);
+			// printf("f[%d][%d] = %d\n", i, j, f[i][j]);
 		fail:;
 		}
 	}
