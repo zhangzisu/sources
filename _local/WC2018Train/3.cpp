@@ -85,25 +85,25 @@ int main() {
 			data_t up, down;
 			while (top[x] != top[y]) {
 				if (deep[top[x]] < deep[top[y]]) {
-					down = down + query(1, 1, n, dfn[top[y]], dfn[y]);
-					y = top[y];
+					down = query(1, 1, n, dfn[top[y]], dfn[y]) + down;
+					y = fa[top[y]];
 				} else {
-					up = up + query(1, 1, n, dfn[top[x]], dfn[x]);
-					x = top[x];
+					up = query(1, 1, n, dfn[top[x]], dfn[x]) + up;
+					x = fa[top[x]];
 				}
 			}
 			if (deep[x] < deep[y]) {
-				down = down + query(1, 1, n, dfn[x], dfn[y]);
+				down = query(1, 1, n, dfn[x], dfn[y]) + down;
 			} else {
-				up = up + query(1, 1, n, dfn[y], dfn[x]);
+				up = query(1, 1, n, dfn[y], dfn[x]) + up;
 			}
-			ulnt v0 = (up.l0 & down.r1) | (~up.l0 & down.r0), v1 = (up.l1 & down.r1) | (~up.l1 & down.r0), now = 0, ans = 0;
+			ulnt v0 = (up.r0 & down.l1) | (~up.r0 & down.l0), v1 = (up.r1 & down.l1) | (~up.r1 & down.l0), now = 0, ans = 0;
 			for (int i = k - 1; ~i; i--) {
-				if (((v0 >> i) & 1) || !((v1 >> i) & 1) || (now + (1 << i) > val)) {
-					ans += v0 & (1 << i);
+				if (((v0 >> i) & 1) || !((v1 >> i) & 1) || (now + (1LL << i) > val)) {
+					ans += v0 & (1LL << i);
 				} else {
-					ans += v1 & (1 << i);
-					now += 1 << i;
+					ans += v1 & (1LL << i);
+					now += 1LL << i;
 				}
 			}
 			printf("%llu\n", ans);

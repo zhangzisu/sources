@@ -11,7 +11,8 @@
 				"-o",
 				"${fileDirname}/${fileBasenameNoExtension}",
 				"-Wall",
-				"-DDEBUG"
+				"-DDEBUG",
+				"-Wl,--stack=536870912"
 			],
 			"group": {
 				"kind": "build",
