@@ -1,4 +1,5 @@
 #include <algorithm>
+#include <cassert>
 #include <cstdio>
 #include <cstdlib>
 #include <cstring>
@@ -7,12 +8,13 @@
 #define SQRT 320
 typedef unsigned long long ulnt;
 const int mask = (1 << 16) - 1;
-int b_pre[1 << 16], b_nxt[1 << 16], b_val[1 << 16][31], b_pow[MAXV][31];
+int b_pre[1 << 16], b_nxt[1 << 16];
+unsigned b_val[1 << 16][31], b_pow[MAXV][31];
 inline void init() {
-	for (int i = 0; i < MAXV; i++) {
-		b_pow[i][0] = i;
+	for (int i = 1; i < MAXV; i++) {
+		b_pow[i][0] = 1;
 		for (int j = 1; j < 31; j++) {
-			b_pow[i][j] = b_pow[i][j - 1] * i;
+			b_pow[i][j] = b_pow[i][j - 1] * (unsigned)i;
 		}
 	}
 	for (int i = 0; i < (1 << 16); i++) {
@@ -43,7 +45,6 @@ inline void init() {
 		for (int k = 0; k < 31; k++) {
 			b_val[i][k] += b_pow[p][k];
 		}
-		p = 0;
 	}
 }
 struct bitset {
@@ -120,10 +121,13 @@ int pre(int x) {
 		if (to[i] == fa[x][0]) continue;
 		fa[to[i]][0] = x;
 		deep[to[i]] = deep[x] + 1;
-		max = std::max(max, pre(to[i]));
+		max = std::max(max, pre(to[i]) + 1);
 	}
-	if (max >= SQRT) {
-		bp[x] = ++pnt;
+	if (max >= SQRT) bp[x] = ++pnt, max = 0;
+	return max;
+}
+void build(int x, int last) {
+	if (bp[x]) {
 		pa[x] = last;
 		last = x;
 		for (int y = x; y != pa[x]; y = fa[y][0]) {
@@ -133,9 +137,11 @@ int pre(int x) {
 			data[bp[x]][bp[y]].Or(data[bp[x]][bp[x]]);
 			data[bp[x]][bp[y]].Or(data[bp[pa[x]]][bp[y]]);
 		}
-		max = 0;
 	}
-	return max;
+	for (int i = head[x]; ~i; i = next[i]) {
+		if (to[i] == fa[x][0]) continue;
+		build(to[i], last);
+	}
 }
 inline int lca(int u, int v) {
 	if (deep[u] < deep[v]) std::swap(u, v);
@@ -151,31 +157,34 @@ int main() {
 	memset(head, -1, sizeof(head));
 	scanf("%d%d", &n, &m);
 	for (int i = 1; i <= n; i++) scanf("%d", &a[i]);
-	deep[1] = 1, pre(1, 0);
-	for (int x, k, l; m; m--) {
+	for (int i = 1, u, v; i < n; i++) scanf("%d%d", &u, &v), $(u, v);
+	deep[1] = 1, pre(1), build(1, 0);
+	for (int x, k; m; m--) {
 		scanf("%d", &x);
 		tmp.clear();
 		for (int u, v; x; x--) {
-			scanf("%d%d", &u, &v);
-			u ^= lans;
-			v ^= lans;
+			unsigned U, V;
+			scanf("%u%u", &U, &V);
+			u = U ^ lans;
+			v = V ^ lans;
 			int l = lca(u, v);
-			for (; !bp[u] && u != fa[l][0]; u = fa[u][0]) tmp.set(a[u]);
-			for (; !bp[v] && v != fa[l][0]; v = fa[v][0]) tmp.set(a[v]);
+			for (; !bp[u] && u != l; u = fa[u][0]) tmp.set(a[u]);
+			for (; !bp[v] && v != l; v = fa[v][0]) tmp.set(a[v]);
 			if (bp[u] && deep[pa[u]] >= deep[l]) {
 				int d = u;
 				while (pa[u] && deep[pa[pa[u]]] >= deep[l]) u = pa[u];
-				tmp.Or(data[d][u]);
+				tmp.Or(data[bp[d]][bp[u]]);
 				u = pa[u];
 			}
 			if (bp[v] && deep[pa[v]] >= deep[l]) {
 				int d = v;
 				while (pa[v] && deep[pa[pa[v]]] >= deep[l]) v = pa[v];
-				tmp.Or(data[d][v]);
+				tmp.Or(data[bp[d]][bp[v]]);
 				v = pa[v];
 			}
-			for (; u != fa[l][0]; u = fa[u][0]) tmp.set(a[u]);
-			for (; v != fa[l][0]; v = fa[v][0]) tmp.set(a[v]);
+			for (; u != l; u = fa[u][0]) tmp.set(a[u]);
+			for (; v != l; v = fa[v][0]) tmp.set(a[v]);
+			tmp.set(a[l]);
 		}
 		scanf("%d", &k);
 		printf("%u\n", lans = tmp.calc(k));
