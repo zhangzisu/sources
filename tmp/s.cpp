@@ -68,7 +68,7 @@ int main() {
 	d = 1, u = 2000000000;
 	for (int opt, c, v, lans = 0; q; q--) {
 		scanf("%d%d", &opt, &c);
-		c ^= lans;
+		// c ^= lans;
 		if (opt == 1) {
 			scanf("%d", &v);
 			L.modify(L.root, d, u, std::max(d, c - k), std::min(u, c + k), v, 0);

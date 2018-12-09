@@ -20,9 +20,9 @@ inline void solve31(int n, int offset) {
 	int sum = 0;
 	for (int i = 1; i <= n; i++) sum ^= tmp[i];
 	a[1] = a[2] = sum;
-	for (int i = 2; i <= n; i += 3) a[1] ^= a[i];
-	for (int i = 3; i <= n; i += 3) a[2] ^= a[i];
-	for (int i = 1; i <= n - 2; i++) a[i + 1] = tmp[i] ^ a[i] ^ a[i + 1];
+	for (int i = 2; i <= n; i += 3) a[1] ^= tmp[i];
+	for (int i = 3; i <= n; i += 3) a[2] ^= tmp[i];
+	for (int i = 1; i <= n - 2; i++) a[i + 2] = tmp[i] ^ a[i] ^ a[i + 1];
 }
 inline void solve5(int offset) {
 	int *a = ::a + offset - 1;
@@ -47,13 +47,13 @@ int main() {
 		if (n % 3 == 1) {
 			solve31(n, 1);
 		} else if (n % 3 == 2) {
-			solve31(n / 2, 1);
-			solve31(n / 2, n / 2 + 1);
+			solve31(4, 1);
+			solve31(n - 4, 5);
 		} else {
 			solve5(1);
 			solve31(n - 5, 6);
 		}
-		printf("%d", 2);
+		printf("2");
 		for (int i = 1; i <= n; i++) printf(" %d", a[i]);
 		puts("");
 		fflush(stdout);
