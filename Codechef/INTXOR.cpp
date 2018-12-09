@@ -4,45 +4,41 @@
 #include <cstring>
 #define MAXN 50010
 int T, n, a[MAXN];
-inline int query(int i, int j, int k) {
-	printf("1 %d %d %d\n", i, j, k);
+inline int query(int i, int j, int k, int offset) {
+	printf("1 %d %d %d\n", i + offset - 1, j + offset - 1, k + offset - 1);
 	fflush(stdout);
 	int res;
 	scanf("%d", &res);
 	return res;
 }
-int tmp[MAXN], pre[MAXN][3], nxt[MAXN][3];
+int tmp[MAXN];
 inline void solve31(int n, int offset) {
-	int all = 0;
-	memset(pre, 0, sizeof(pre));
-	memset(nxt, 0, sizeof(nxt));
-	for (int i = 1; i <= n; i++) all ^= (tmp[i] = query(i + offset - 1, i % n + offset, (i + 1) % n + offset));
-	for (int i = 1; i <= n; i++) {
-		memcpy(pre[i], pre[i - 1], sizeof(int) * 3);
-		pre[i][i % 3] ^= tmp[i];
-	}
-	for (int i = n; i >= 1; i--) {
-		memcpy(nxt[i], nxt[i + 1], sizeof(int) * 3);
-		nxt[i][i % 3] ^= tmp[i];
-	}
-	for (int i = 1; i <= n; i++) {
-		a[i + offset - 1] = all ^ pre[i][i % 3] ^ nxt[i][(i + 1) % 3] ^ tmp[i];
-	}
+	int *a = ::a + offset - 1;
+	for (int i = 1; i <= n - 2; i++) tmp[i] = query(i, i + 1, i + 2, offset);
+	tmp[n - 1] = query(1, n - 1, n, offset);
+	tmp[n] = query(1, 2, n, offset);
+	int sum = 0;
+	for (int i = 1; i <= n; i++) sum ^= tmp[i];
+	a[1] = a[2] = sum;
+	for (int i = 2; i <= n; i += 3) a[1] ^= a[i];
+	for (int i = 3; i <= n; i += 3) a[2] ^= a[i];
+	for (int i = 1; i <= n - 2; i++) a[i + 1] = tmp[i] ^ a[i] ^ a[i + 1];
 }
 inline void solve5(int offset) {
-	int x123 = query(offset, offset + 1, offset + 2);
-	int x245 = query(offset + 1, offset + 3, offset + 4);
-	int x345 = query(offset + 2, offset + 3, offset + 4);
-	a[offset] = x123 ^ x245 ^ x345;
-	int x134 = query(offset, offset + 2, offset + 3);
-	int x125 = query(offset, offset + 1, offset + 4);
-	int x23 = x123 ^ a[offset];
-	int x34 = x134 ^ a[offset];
-	int x25 = x125 ^ a[offset];
-	a[offset + 3] = x245 ^ x25;
-	a[offset + 2] = x34 ^ a[offset + 3];
-	a[offset + 1] = x23 ^ a[offset + 2];
-	a[offset + 4] = x25 ^ a[offset + 1];
+	int *a = ::a + offset - 1;
+	int x123 = query(1, 2, 3, offset);
+	int x245 = query(2, 4, 5, offset);
+	int x345 = query(3, 4, 5, offset);
+	a[1] = x123 ^ x245 ^ x345;
+	int x134 = query(1, 3, 4, offset);
+	int x125 = query(1, 2, 5, offset);
+	int x23 = x123 ^ a[1];
+	int x34 = x134 ^ a[1];
+	int x25 = x125 ^ a[1];
+	a[4] = x245 ^ x25;
+	a[3] = x34 ^ a[4];
+	a[2] = x23 ^ a[3];
+	a[5] = x25 ^ a[2];
 }
 int main() {
 	scanf("%d", &T);
