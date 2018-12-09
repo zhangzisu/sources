@@ -71,7 +71,7 @@ class IOX : public IO {
     }
 };
 #define MAXN 310
-#define MAXT 120
+#define MAXT 150
 inline int gcd(int a, int b) { return b ? gcd(b, a % b) : a; }
 int n, k, t[MAXN], id[MAXT], f[MAXN][MAXT], ans;
 inline int fuck0() {
