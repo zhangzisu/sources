@@ -55,25 +55,27 @@ int main() {
 	scanf("%d", &n);
 	for (int i = 1; i <= n; i++) scanf("%d", &a[id[i] = i]);
 	std::sort(id + 1, id + n + 1, [](int x, int y) { return a[x] < a[y]; });
-	bool flag = 1;
-	for (int i = 1; i <= n; i++) flag &= ((a[i] - a[1]) == i - 1);
-	if (flag) return puts("1"), 0;
 	memcpy(v + 1, a + 1, sizeof(int) * n);
 	std::sort(v + 1, v + n + 1);
 	m = std::unique(v + 1, v + n + 1) - v - 1;
 	for (int i = 1; i <= n; i++) a[i] = std::lower_bound(v + 1, v + m + 1, a[i]) - v;
+    bool flag = 1;
+	for (int i = 1; i <= n; i++) flag &= a[i] == i;
+	if (flag) return puts("1"), 0;
 	for (int i = n; i >= 1; i--) all += BIT::qry(a[i]), BIT::add(a[i], 1);
-	for (int i = 1; i <= n; i++) {
-		if (a[i] > upper[u]) mask[upper[++u] = i] = 1;
+	mask[upper[u = 1] = 1] = 1;
+	for (int i = 2; i <= n; i++) {
+		if (a[i] > a[upper[u]]) mask[upper[++u] = i] = 1;
 	}
-	for (int i = n; i >= 1; i--) {
-		if (a[i] < lower[l]) mask[lower[++l] = i] = 1;
+	mask[lower[l = 1] = n] = 1;
+	for (int i = n - 1; i >= 1; i--) {
+		if (a[i] < a[lower[l]]) mask[lower[++l] = i] = 1;
 	}
 	std::reverse(lower + 1, lower + l + 1);
 	for (int i = 1, j = 1, k = 1; i <= l; i++) {
 		for (; j <= n && j < lower[i]; j++)
 			if (!mask[j]) add(j, 1), used[j] = 1;
-		ans = std::max(ans, max[1]);
+		ans = std::max(ans, max[1] * 2 + 1);
 		for (; k < n && a[id[k]] <= a[lower[i + 1]]; k++)
 			if (used[k]) add(k, -1);
 	}
