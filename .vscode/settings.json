@@ -95,5 +95,10 @@
 	"editor.mouseWheelZoom": false,
 	"C_Cpp.clang_format_fallbackStyle": "{ BasedOnStyle: Google, IndentWidth: 4, ColumnLimit: 0}",
 	"editor.fontSize": 14,
-	"terminal.integrated.shell.linux": "/bin/zsh"
+	"terminal.integrated.shell.linux": "/bin/zsh",
+	"workbench.colorCustomizations": {
+		"activityBar.background": "#372D04",
+		"titleBar.activeBackground": "#4E3F06",
+		"titleBar.activeForeground": "#FEFBEE"
+	}
 }
