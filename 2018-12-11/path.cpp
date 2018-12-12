@@ -87,20 +87,19 @@ void dfs(int x) {
     for (int i = head[x]; ~i; i = next[i]) dfs(to[i]);
 }
 std::vector<int> ans, ans1, ans2;
-int pas[MAXN];
 void euler(int x) {
-    pas[x] = 1;
     for (int i = head[x]; ~i; i = next[i]) {
         if (use[i]) continue;
         use[i] = use[i ^ 1] = 1;
+        head[x] = next[i];
         euler(to[i]);
         ans.push_back((i >> 1) + 1);
     }
 }
 int id[3], cnt = 0;
 int main() {
-    IOX io = IOX(fopen("path.in", "r"), fopen("path.out", "w"));
-    n = io.getint(), m = io.getint();
+    IOX io = IOX(fopen("input.txt", "r"), fopen("output.txt", "w"));
+    n = 100000, m = io.getint();
     if (m <= 1) return io.puts("-1"), 0;
     memset(head, -1, sizeof(head));
     for (int i = 1; i <= m; i++) $(io.getint(), io.getint());
@@ -120,35 +119,38 @@ int main() {
         for (int i = 1; i <= n; i++) {
             if (vis[i] == id[1]) {
                 x += d[i] & 1;
-                if (!d[i] || d[i] & 1) y = i;
+                if (!y || d[i] & 1) y = i;
             }
         }
         if (x != 0 && x != 2) return io.puts("-1"), 0;
         euler(y);
-        io.putint((int)ans.size()), io.putchar(10);
-        for (auto i : ans) io.putint(i), io.putchar(32);
-        io.puts("");
-        ans.clear();
+        std::swap(ans, ans1);
         x = 0, y = 0;
         for (int i = 1; i <= n; i++) {
             if (vis[i] == id[2]) {
                 x += d[i] & 1;
-                if (!d[i] || d[i] & 1) y = i;
+                if (!y || d[i] & 1) y = i;
             }
         }
         if (x != 0 && x != 2) return io.puts("-1"), 0;
         euler(y);
-        io.putint((int)ans.size()), io.putchar(10);
-        for (auto i : ans) io.putint(i), io.putchar(32);
+        std::swap(ans, ans2);
+        io.putint((int)ans1.size()), io.putchar(10);
+        for (auto i : ans1) io.putint(i), io.putchar(32);
+        io.puts("");
+        io.putint((int)ans2.size()), io.putchar(10);
+        for (auto i : ans2) io.putint(i), io.putchar(32);
         io.puts("");
         return 0;
     }
     int x = 0;
-    for (int i = 1; i <= n; i++) x += d[i] & 1;
+    for (int i = 1; i <= n; i++)
+        if (vis[i] == id[1])
+            x += d[i] & 1;
     if (x != 0 && x != 2 && x != 4) return io.puts("-1"), 0;
     if (x == 0 || x == 2) {
         for (int i = 1; i <= n; i++) {
-            if (x == 0 || (d[i] & 1)) {
+            if (vis[i] == id[1] && (x == 0 || (d[i] & 1))) {
                 euler(i);
                 io.putint((int)ans.size() - 1), io.putchar(10);
                 for (int i = 1; i < (int)ans.size(); i++) io.putint(ans[i]), io.putchar(32);
@@ -159,24 +161,21 @@ int main() {
             }
         }
     }
-    int fucker = 0;
+    int u = 0, v = 0, w = 0;
     for (int i = 1; i <= n; i++) {
-        if ((d[i] & 1) && !pas[i]) {
-            if (fucker == 0) {
-                euler(i);
-                std::swap(ans, ans1);
-                ++fucker;
-            } else if (fucker == 1) {
-                euler(i);
-                std::swap(ans, ans2);
-                ++fucker;
-            } else if (fucker == 2) {
-                return io.puts("-1"), 0;
-            }
+        if (vis[i] == id[1] && (d[i] & 1)) {
+            (u ? v ? w : v : u) = i;
         }
     }
-    for (int i = 1; i <= n; i++) {
-        if (!pas[i]) return io.puts("-1"), 0;
+    $(u, v);
+    euler(w);
+    w = 0;
+    for (auto x : ans) {
+        if (x > m) {
+            w = 1;
+        } else {
+            (w ? ans1 : ans2).push_back(x);
+        }
     }
     io.putint((int)ans1.size()), io.putchar(10);
     for (auto i : ans1) io.putint(i), io.putchar(32);
