@@ -2,91 +2,65 @@
 #include <cstdio>
 #include <cstdlib>
 #include <cstring>
+#include <deque>
 #include <map>
-#include <set>
 #define MAXN 65
 #define MOD 998244353
 inline void up(int &x, int y) {
     if ((x += y) >= MOD) x -= MOD;
 }
-std::set<int> S;
 int T, n, m, a[MAXN];
-int stk[MAXN];
-std::map<int, int> store;
-int dfs(int l, int r) {
-    if (l == r && store.count(l)) return store[l];
-    if (l >= m && r >= m) return 1;
-    int cur = l + r + 1, ret = 0;
-    if (l < m && (l + 1 > r || a[cur] == stk[l + 1])) {
-        stk[l + 1] = a[cur];
-        up(ret, dfs(l + 1, r));
-    }
-    if (r < m && (r + 1 > l || a[cur] == stk[r + 1])) {
-        stk[r + 1] = a[cur];
-        up(ret, dfs(l, r + 1));
-    }
-    if (l == r) store[l] = ret;
-    return ret;
-}
-// int fsd(int l, int r) {
-//     if (l >= m && r >= m) return 1;
-//     int cur = l + r + 1;
-//     if (l < m && (l + 1 > r || a[cur] == stk[l + 1])) {
-//         stk[l + 1] = a[cur];
-//         if (fsd(l + 1, r)) return 1;
-//     }
-//     if (r < m && (r + 1 > l || a[cur] == stk[r + 1])) {
-//         stk[r + 1] = a[cur];
-//         if (fsd(l, r + 1)) return 1;
-//     }
-//     return 0;
-// }
-// int f[MAXN][MAXN][MAXN];
+std::map<std::deque<int>, int> f1, f2, g;
 int main() {
-    freopen("merge.in", "r", stdin);
-    freopen("merge.out", "w", stdout);
     for (scanf("%d", &T); T; T--) {
         scanf("%d", &n);
-        m = 0;
-        S.clear();
-        store.clear();
-        for (int i = 1; i <= n; i++) {
-            scanf("%d", a + i);
-            if (S.count(a[i])) {
-                S.erase(a[i]);
-            } else {
-                ++m;
-                S.insert(a[i]);
+        m = n / 2;
+        for (int i = 1; i <= n; i++) scanf("%d", a + i);
+        f1.clear();
+        f1[{}] = 1;
+        for (int i = 1; i <= m; i++) {
+            std::swap(f1, g);
+            f1.clear();
+            for (const auto &v : g) {
+                if (v.first.empty()) {
+                    up(f1[{a[i]}], v.second);
+                } else if (a[i] == v.first.front()) {
+                    auto x(v.first);
+                    x.pop_front();
+                    up(f1[x], v.second);
+                }
+                auto x(v.first);
+                x.push_back(a[i]);
+                up(f1[x], v.second);
             }
         }
-        if (m * 2 != n) {
-            puts("0");
-            continue;
+        f2.clear();
+        f2[{}] = 1;
+        for (int i = n; i >= m + 1; i--) {
+            std::swap(f2, g);
+            f2.clear();
+            for (const auto &v : g) {
+                if (v.first.empty()) {
+                    up(f2[{a[i]}], v.second);
+                } else if (a[i] == v.first.back()) {
+                    auto x(v.first);
+                    x.pop_back();
+                    up(f2[x], v.second);
+                }
+                auto x(v.first);
+                x.push_front(a[i]);
+                up(f2[x], v.second);
+            }
         }
-        // if (n <= 60) {
-        printf("%d\n", dfs(0, 0));
-        // } else {
-        //     if (!fsd(0, 0)) {
-        //         puts("0");
-        //         continue;
-        //     }
-        //     memset(f, 0, sizeof(f));
-        //     f[0][0][0] = 1;
-        //     for (int i = 0; i < n; i++) {
-        //         for (int j = 0; j <= m; j++) {
-        //             for (int k = 0; k <= m; k++) {
-        //                 int &x = f[i][j][k];
-        //                 if (!x) continue;
-        //                 if (j < m && a[i + 1] == stk[j + 1]) up(f[i + 1][j + 1][k], x);
-        //                 if (k < m && a[i + 1] == stk[k + 1]) up(f[i + 1][j][k + 1], x);
-        //             }
-        //         }
-        //     }
-        //     if (f[n][m][m]) {
-        //         printf("%d\n", f[n][m][m]);
-        //         continue;
-        //     }
-        // }
+        auto it = f2.begin();
+        int ans = 0;
+        for (const auto &v : f1) {
+            while (it != f2.end() && it->first < v.first) it++;
+            if (it == f2.end()) break;
+            if (it->first == v.first) up(ans, 1LL * v.second * it->second % MOD);
+        }
+        up(ans, 1LL * f1[{}] * f2[{}] % MOD);
+        printf("%d\n", int(499122177LL * ans % MOD));
     }
     return 0;
 }
