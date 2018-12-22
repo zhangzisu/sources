@@ -84,8 +84,11 @@ class IOX : public IO {
 		for (_6 = 0; x; x /= 10) tmp[++_6] = (x % 10) ^ 48;
 		while (_6) putchar(tmp[_6--]);
 	}
-	inline void puts(const char *s) {
+	inline void print(const char *s) {
 		for (; *s; s++) putchar(*s);
+	}
+	inline void puts(const char *s) {
+		print(s);
 		putchar(10);
 	}
 };
