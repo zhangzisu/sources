@@ -5,7 +5,7 @@ const path = require('path')
 const cfonts = require("cfonts")
 
 const whitelist = [
-	/^\.[A-Za-z0-9]*$/,
+	/^\..*$/,
 	/^node_modules$/,
 	/^bigfiles$/
 ];
