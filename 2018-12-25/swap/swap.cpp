@@ -91,37 +91,52 @@ class IOX : public IO {
         print(s);
         putchar(10);
     }
-};
-#define MAXN 5000
-#define MOD 1000000007
-inline void up(int &x, int y) {
-    if ((x += y) >= MOD) x -= MOD;
-}
-inline int fuck(int x, int y) {
-    int z = 1;
-    for (; y; y >>= 1) {
-        if (y & 1) z = 1LL * z * x % MOD;
-        x = 1LL * x * x % MOD;
-    }
-    return z;
-}
-IOX io;
-int n, q, m, f[MAXN][MAXN], ans = 0;
+} io(fopen("swap.in", "r"), fopen("swap.out", "w"));
+#include <queue>
+#include <set>
+#define MAXN 100010
+#define MAXM 25000010
+std::priority_queue<std::pair<int, int> > Q;
+std::set<std::pair<int, int> > S;
+int n, k, a[MAXN], d[MAXN];
+int head[MAXN], to[MAXM], next[MAXM], tot = 0;
+inline void $(int u, int v) { next[tot] = head[u], to[tot] = v, head[u] = tot++, d[v]++; }
 int main() {
-    n = io.getint(), q = io.getint(), m = io.getint();
-    f[0][0] = 1;
-    for (int i = 1; i <= n; i++) {
-        for (int j = 1; j <= i; j++) {
-            f[i][j] = (f[i - 1][j - 1] + f[i - j][j]) % MOD;
+    memset(head, -1, sizeof(head));
+    n = io.getint(), k = io.getint();
+    for (int i = 1; i <= n; i++) a[i] = io.getint();
+    if (n <= 5000) {
+        for (int i = 1; i <= n; i++) {
+            for (int j = 1; j < i; j++) {
+                if (std::abs(a[i] - a[j]) > k) {
+                    $(j, i);
+                }
+            }
+        }
+    } else {
+        for (int i = 1; i <= n; i++) {
+            int pre = 0;
+            std::set<std::pair<int, int> >::iterator it = S.lower_bound(std::make_pair(a[i] + k, i));
+            if (it != S.end()) pre = std::max(pre, it->second);
+            it = S.upper_bound(std::make_pair(a[i] - k, 0));
+            if (it != S.begin()) pre = std::max(pre, (--it)->second);
+            if (pre) $(pre, i);
+            S.insert(std::make_pair(a[i], i));
         }
     }
-    for (int i = 1; i <= n; i++) {
-        int v = fuck(i, m);
-        for (int j = 1; j * i <= n && j <= q; j++) {
-            up(ans, 1LL * f[n - j * i][q - j] * v % MOD);
+    for (int i = 1; i <= n; i++)
+        if (!d[i]) Q.push(std::make_pair(-a[i], i));
+    while (Q.size()) {
+        int x = Q.top().second;
+        Q.pop();
+        io.putint(a[x]);
+        io.putchar(32);
+        for (int i = head[x]; ~i; i = next[i]) {
+            if (!--d[to[i]]) {
+                Q.push(std::make_pair(-a[to[i]], to[i]));
+            }
         }
     }
-    io.putint(ans);
     io.putchar(10);
     return 0;
 }

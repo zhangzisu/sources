@@ -91,7 +91,7 @@ class IOX : public IO {
         print(s);
         putchar(10);
     }
-} io;
+} io(fopen("leaves.in", "r"), fopen("leaves.out", "w"));
 #define MAXN 500010
 typedef long long lnt;
 struct edge_t {
@@ -143,32 +143,21 @@ void clear(int x, int fa) {
     }
     vir.head[x] = -1;
 }
-// fail -> 0, none -> 1, has -> 2, half -> 3, full -> 4
 int dfs(int x, int fa) {
-    int c2 = 0, c3 = 0, all = 0;
+    int has = 0, full = 1, count = 0, all = 0;
     for (int i = vir.head[x]; ~i; i = vir.next[i]) {
-        if (vir.to[i] == fa || vir.to[i] == 0) continue;
+        if (vir.to[i] == fa) continue;
         int y = dfs(vir.to[i], x);
         if (!y) return 0;
-        if (y > 1) {
-            if (y == 4 && VAL(x, vir.to[i]) > 2) y = 3;
-            c2 += y == 2;
-            c3 += y == 3;
-            all++;
-        }
+        if (y == 3 && VAL(x, vir.to[i]) > 2) y = 2;
+        full &= y == 3;
+        has |= y != 1;
+        count += y == 2;
+        all++;
     }
-    if (!all) return vis[x] ? 4 : 1;
-    if (c2) {
-        if (c2 > 1) return 0;
-        if (all > 1) return 0;
-        return 2;
-    }
-    if (c3) {
-        if (c3 > 2) return 0;
-        if (c3 == 2) return 2;
-        return 3;
-    }
-    return all + 1 == dd[x][0] ? 4 : 3;
+    if (!all) return vis[x] ? 3 : 1;
+    if (count > 2) return 0;
+    return full && all + 1 == dd[x][0] ? 3 : has ? 2 : 1;
 }
 inline void slove() {
     // fprintf(stderr, "DDDDDDDDDDDDD\n");
@@ -208,7 +197,7 @@ int main() {
     for (int d = 1; d <= 18; d++) {
         for (int i = 1; i <= n; i++) {
             fa[i][d] = fa[fa[i][d - 1]][d - 1];
-            dd[i][d] = std::max(dd[i][d - 1], dd[fa[i][d - 1]][d - 1]);
+            dd[i][d] = std::min(dd[i][d - 1], dd[fa[i][d - 1]][d - 1]);
         }
     }
     while (m--) slove();

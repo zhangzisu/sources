@@ -105,23 +105,22 @@ inline int fuck(int x, int y) {
     }
     return z;
 }
-IOX io;
-int n, q, m, f[MAXN][MAXN], ans = 0;
+IOX io(fopen("sum.in", "r"), fopen("sum.out", "w"));
+int n, q, m, f[MAXN][MAXN], g[MAXN][MAXN];
 int main() {
     n = io.getint(), q = io.getint(), m = io.getint();
-    f[0][0] = 1;
-    for (int i = 1; i <= n; i++) {
-        for (int j = 1; j <= i; j++) {
-            f[i][j] = (f[i - 1][j - 1] + f[i - j][j]) % MOD;
-        }
-    }
+    g[0][0] = 1;
     for (int i = 1; i <= n; i++) {
         int v = fuck(i, m);
-        for (int j = 1; j * i <= n && j <= q; j++) {
-            up(ans, 1LL * f[n - j * i][q - j] * v % MOD);
+        for (int j = i; j <= n; j++) {
+            for (int k = 1; k <= q; k++) {
+                up(g[j][k], g[j - i][k - 1]);
+                up(f[j][k], f[j - i][k - 1]);
+                up(f[j][k], 1LL * g[j - i][k - 1] * v % MOD);
+            }
         }
     }
-    io.putint(ans);
+    io.putint(f[n][q]);
     io.putchar(10);
     return 0;
 }
