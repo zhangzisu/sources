@@ -94,9 +94,7 @@
 	},
 	"editor.mouseWheelZoom": false,
 	"C_Cpp.clang_format_fallbackStyle": "{ BasedOnStyle: Google, IndentWidth: 8, ColumnLimit: 0, UseTab: Always}",
-	"C_Cpp.errorSquiggles": "Disabled",
 	"C_Cpp.intelliSenseEngineFallback": "Enabled",
-	"editor.fontSize": 15,
 	"workbench.colorCustomizations": {
 		"activityBar.background": "#372D04",
 		"titleBar.activeBackground": "#4E3F06",
