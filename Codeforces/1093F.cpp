@@ -16,25 +16,31 @@ int main() {
 	s[0] = 1;
 	for (int i = 1; i <= n; i++) {
 		for (int j = 1; j <= k; j++) {
-			int limit = std::max(i - l + 1, pre[i] + 1);
-			trim(f[i][j] = s[i - 1] - s[j - 1] + MOD);
-            up(f[i][j], f[j - 1][j]-f[i - 1][j]+MOD);
-		}
-		for (int p = i - 1; p > i - l && p >= 0; p--) {
-			for (int j = 1; j <= k; j++) {
-				bool ok = true;
-				for (int t = p + 1; t <= i; t++)
-					if (a[t] != -1 && a[t] != j) {
-						ok = false;
-						break;
-					}
-				if (!ok) continue;
-				up(f[i][j], s[p] - f[p][j]);
+			int limit = std::max(i - l, pre[i] - 1);
+			up(f[i][j], s[i - 1]);
+			up(f[i][j], MOD - f[i - 1][j]);
+			if (limit >= 0) {
+				up(f[i][j], MOD - s[limit]);
+				up(f[i][j], f[limit][j]);
 			}
 		}
-		for (int j = 1; j <= k; j++) up(s[i], f[i][j]);
+		if (pre[i] >= 0 && pre[i] > i - l + 1) {
+			int limit = std::max(i - l, dif[pre[i]] - 1), &j = a[pre[i]];
+			up(f[i][j], s[pre[i] - 1]);
+			up(f[i][j], MOD - f[pre[i] - 1][j]);
+			if (limit >= 0) {
+				up(f[i][j], MOD - s[limit]);
+				up(f[i][j], f[limit][j]);
+			}
+		}
+		for (int j = 1; j <= k; j++) {
+			up(s[i], f[i][j]);
+			up(f[i][j], f[i - 1][j]);
+		}
+		up(s[i], s[i - 1]);
 	}
-	for (int i = 1; i <= k; i++) up(ans, f[n][i]);
+	ans = s[n];
+	up(ans, MOD - s[n - 1]);
 	printf("%d\n", ans);
 	return 0;
 }
