@@ -91,9 +91,25 @@ class IOX : public IO {
 		print(s);
 		putchar(10);
 	}
-}io;
-
+} io;
+#define MAXN 100010
+#define MOD 1000000007
+inline void up(int &x, int y) {
+	if ((x += y) >= MOD) x -= MOD;
+}
+inline int fuck(int x, int y) {
+	int z = 1;
+	for (; y; y >>= 1) {
+		if (y & 1) z = 1LL * z * x % MOD;
+		x = 1LL * x * x % MOD;
+	}
+	return z;
+}
+int n = io.getint(), m = io.getint(), k = io.getint(), ans = 0, a[MAXN], d[MAXN];
 int main() {
-	//
+	for (int i = 1; i <= n; i++) a[i] = io.getint();
+	for (int i = 1; i <= m; i++) d[io.getint()]++, d[io.getint()]++;
+	for (int i = 1, inv = fuck(2 * m, MOD - 2); i <= n; i++) up(ans, 1LL * a[i] * d[i] % MOD * inv % MOD * k % MOD);
+	printf("%d\n", ans);
 	return 0;
 }

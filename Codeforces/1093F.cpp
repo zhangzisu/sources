@@ -5,9 +5,8 @@
 #define MAXN 100010
 #define MAXK 110
 #define MOD 998244353
-inline void up(int &x, int y) {
-	if ((x += y) >= MOD) x -= MOD;
-}
+inline int trim(int &x) { (x >= MOD) && (x -= MOD); }
+inline void up(int &x, int y) { trim(x += y); }
 int n, k, l, ans, f[MAXN][MAXK], s[MAXN], a[MAXN], pre[MAXN], dif[MAXN];
 int main() {
 	scanf("%d%d%d", &n, &k, &l);
@@ -16,6 +15,11 @@ int main() {
 	for (int i = 1; i <= n; i++) dif[i] = a[i] == a[pre[i - 1]] ? dif[pre[i - 1]] : pre[i - 1];
 	s[0] = 1;
 	for (int i = 1; i <= n; i++) {
+		for (int j = 1; j <= k; j++) {
+			int limit = std::max(i - l + 1, pre[i] + 1);
+			trim(f[i][j] = s[i - 1] - s[j - 1] + MOD);
+            up(f[i][j], f[j - 1][j]-f[i - 1][j]+MOD);
+		}
 		for (int p = i - 1; p > i - l && p >= 0; p--) {
 			for (int j = 1; j <= k; j++) {
 				bool ok = true;
