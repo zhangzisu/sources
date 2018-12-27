@@ -106,7 +106,7 @@ int main() {
 		int i = 1;
 		for (; i <= n; i++) {
 			min[i] = std::min(min[i - 1], b[i] = a[i] - mid * i);
-			if (min[i - k] < b[i]) break;
+			if (i >= k && min[i - k] < b[i]) break;
 		}
 		if (i <= n) {
 			l = mid;
@@ -115,8 +115,8 @@ int main() {
 			r = mid;
 		}
 	}
-	int best = ans - 1;
-	for (int i = ans - 2; i >= 0; i--) {
+	int best = ans - k;
+	for (int i = ans - k - 1; i >= 0; i--) {
 		if ((a[ans] - a[i]) / (ans - i) > (a[ans] - a[best]) / (ans - best)) {
 			best = i;
 		}
