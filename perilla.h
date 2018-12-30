@@ -1,39 +1,30 @@
-#include <algorithm>
+#ifndef PERILLA_HEADER
+#define PERILLA_HEADER
+#include <cassert>
 #include <cctype>
 #include <cstdio>
 #include <cstdlib>
 #include <cstring>
-class IO {
+class Reader {
        protected:
 	static const int BSIZE = 65536;
 	int is;
-	char ib[BSIZE], ob[BSIZE], *ip, *op;
-	FILE *in, *out;
+	char ib[BSIZE], *ip;
+	FILE *in;
 
        public:
-	inline IO(FILE *in = stdin, FILE *out = stdout) {
-		ip = ib + BSIZE, op = ob, is = 0;
+	inline Reader(FILE *in = stdin) {
+		ip = ib + BSIZE, is = 0;
 		this->in = in;
-		this->out = out;
 	}
-	inline ~IO() {
-		fwrite(ob, 1, op - ob, out);
+	inline Reader(const char *filename) {
+		ip = ib + BSIZE, is = 0;
+		this->in = fopen(filename, "r");
 	}
 	inline char getchar() {
 		if (ip == ib + BSIZE) is = fread(ib, 1, BSIZE, in), ip = ib;
 		return ip == ib + is ? 0 : *ip++;
 	}
-	inline void putchar(char c) {
-		if (op == ob + BSIZE) fwrite(ob, 1, BSIZE, out), op = ob;
-		*op++ = c;
-	}
-};
-class IOX : public IO {
-       protected:
-	int tmp[64];
-
-       public:
-	inline IOX(FILE *in = stdin, FILE *out = stdout) : IO(in, out) {}
 	inline int getdigit() {
 		register char ch = getchar();
 		while (!isdigit(ch)) ch = getchar();
@@ -70,33 +61,27 @@ class IOX : public IO {
 		for (; isdigit(ch); ch = getchar()) x = (((x << 2) + x) << 1) + (ch ^ 48);
 		return x;
 	}
-	inline void put(int x) {
-		if (!x) return putchar('0');
-		if (x < 0) putchar(45), x = -x;
-		register int _6;
-		for (_6 = 0; x; x /= 10) tmp[++_6] = (x % 10) ^ 48;
-		while (_6) putchar(tmp[_6--]);
-	}
-	inline void put(long long x) {
-		if (!x) return putchar('0');
-		if (x < 0) putchar(45), x = -x;
-		register int _6;
-		for (_6 = 0; x; x /= 10) tmp[++_6] = (x % 10) ^ 48;
-		while (_6) putchar(tmp[_6--]);
-	}
-	inline void put(const char *s) {
-		for (; *s; s++) putchar(*s);
-	}
-	inline void put(char c) { putchar(c); }
-	template <typename T, typename... Args>
-	inline void put(T first, Args... rest) { put(first), put(rest...); }
-	inline void puts(const char *s) {
-		put(s);
-		putchar(10);
-	}
-} io;
-
-int main() {
-	//
-	return 0;
+} userout, input("input"), output("output"), usercode("usercode");
+enum SolutionResult {
+	WaitingJudge,
+	Judging,
+	Skipped,
+	Accepted,
+	WrongAnswer,
+	TimeLimitExceeded,
+	MemoryLimitExceeded,
+	RuntimeError,
+	CompileError,
+	PresentationError,
+	JudgementFailed,
+	SystemError,
+	OtherError,
+};
+inline void callback(SolutionResult status, double score, const char *message) {
+	assert(score >= 0 && score <= 100);
+	printf("%d\n%f\n", status, score);
+	if (message)
+		printf("%s\n", message);
+	exit(0);
 }
+#endif

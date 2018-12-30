@@ -10,30 +10,7 @@
 #include <cstdlib>
 #include <cassert>
 #include <ctime>
-enum SolutionResult
-{
-    WaitingJudge,        // Wating Judge
-    Judging,             // Judging
-    Skipped,             // Skipped
-    Accepted,            // Accepted
-    WrongAnswer,         // Wrong Answer
-    TimeLimitExceeded,   // Time Limit Exceeded
-    MemoryLimitExceeded, // Memory Limit Exceeded
-    RuntimeError,        // Runtime Error
-    CompileError,        // Compile Error
-    PresentationError,   // Presentation Error
-    JudgementFailed,     // Judgement Failed (Judge program error)
-    SystemError,         // System Error     (Judge framwork & Judge plugin error)
-    OtherError,          // Other Error
-};
-inline void callback(SolutionResult status, double score, const char *message)
-{
-    assert(score >= 0 && score <= 100);
-    printf("%d\n%f\n", status, score);
-    if (message)
-        printf("%s\n", message);
-    exit(0);
-}
+
 
 FILE *out = fopen("output", "r");
 inline bool isWhiteChar(char ch)

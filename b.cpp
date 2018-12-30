@@ -95,8 +95,49 @@ class IOX : public IO {
 		putchar(10);
 	}
 } io;
-
+#define MAXN 200010
+typedef long long lnt;
+lnt m, n, x[MAXN], ans;
+lnt s1[MAXN], s2[MAXN];
 int main() {
-	//
+	m = io.getint64(), n = io.getint64();
+	for (int i = 1; i <= n; i++) x[i] = io.getint64();
+	for (int i = 1; i <= n; i++) {
+		s1[i] = s1[i - 1] + x[i];
+		s2[i] = s2[i - 1] + m - x[i];
+	}
+	ans = std::max(ans, x[n]);
+	ans = std::max(ans, m - x[1]);
+	for (int i = 1; i <= n; i++) {
+		{
+			int l = i + 1, r = n, len = (r - l + 1) / 2;
+			if (l <= r) {
+				lnt tmp = 2 * x[i];
+				tmp += 2 * (s1[l + len - 1] - s1[l - 1]);
+				tmp += 2 * (s2[r] - s2[r - len]);
+				if (len * 2 == r - l + 1) {
+					tmp -= s1[l + len - 1] - s1[l + len - 2];
+				} else {
+					tmp += s2[l + len] - s2[l + len - 1];
+				}
+				ans = std::max(ans, tmp);
+			}
+		}
+		{
+			int l = 1, r = i - 1, len = (r - l + 1) / 2;
+			if (l <= r) {
+				lnt tmp = 2 * (m - x[i]);
+				tmp += 2 * (s1[l + len - 1] - s1[l - 1]);
+				tmp += 2 * (s2[r] - s2[r - len]);
+				if (len * 2 == r - l + 1) {
+					tmp -= s2[l + len] - s2[l + len - 1];
+				} else {
+					tmp += s1[l + len] - s1[l + len - 1];
+				}
+				ans = std::max(ans, tmp);
+			}
+		}
+	}
+	io.put(ans, '\n');
 	return 0;
 }

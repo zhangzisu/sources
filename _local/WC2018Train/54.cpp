@@ -95,8 +95,30 @@ class IOX : public IO {
 		putchar(10);
 	}
 } io;
-
+#define MAXN 3010
+#define MOD 59393
+int n = io.getint(), k = io.getint(), m, a[20], v[MAXN], f[MAXN], g[MAXN], p[MAXN];
+void out(int x) {
+	for (int i = 1; i <= p[x]; i++) io.put(x, ' ', ++m, '\n'), out(m);
+}
 int main() {
-	//
+	for (int i = 0; i <= k; i++) a[i] = io.getint();
+	for (int d = 1; d < n; d++) {
+		for (int i = 0, x = 1; i <= k; i++, x = x * d % MOD) {
+			if ((v[d] += x * a[i] % MOD) >= MOD) v[d] -= MOD;
+		}
+	}
+	if (n == 1) return io.put(0, ' ', a[0], '\n'), 0;
+	for (int i = 0; i < n - 2; i++) {
+		for (int d = 2; d < n && i + d - 1 <= n - 1; d++) {
+			if (f[i + d - 1] < f[i] + v[d] - v[1]) {
+				f[i + d - 1] = f[i] + v[d] - v[1];
+				g[i + d - 1] = i;
+			}
+		}
+	}
+	io.put(n - 1, ' ', f[n - 2] + n * v[1], '\n');
+	for (int i = n - 2; i; i = g[i]) p[++m] = i - g[i];
+	p[1]++, out(m = 1);
 	return 0;
 }
