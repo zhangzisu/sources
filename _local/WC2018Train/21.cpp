@@ -162,7 +162,7 @@ inline void merge(int x, int y) {
 	p[x] = y;
 }
 int main() {
-	IOX io;
+	/*IOX io;
 	n = io.getint(), m = io.getint();
 	for (int i = 1; i <= n; i++) {
 		SUM[i] = sum[i] = val[i] = io.getint();
@@ -200,6 +200,7 @@ int main() {
 				io.puts("-1");
 			}
 		}
-	}
+	}*/
+	
 	return 0;
 }
