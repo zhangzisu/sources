@@ -94,36 +94,44 @@ class IOX : public IO {
         put(s);
         putchar(10);
     }
-} io(fopen("ad.in", "r"), fopen("ad.out", "w"));
+} io;
 #define MAXN 800010
 const int INF = 0x3F3F3F3F;
 int v[MAXN], vcnt;
+struct val_t {
+    int val, pos;
+    inline val_t(int val = 0, int pos = 0) : val(val), pos(pos) {}
+    inline int friend operator<(val_t a, val_t b) {
+        return a.val < b.val;
+    }
+};
 inline int lowbit(int x) { return x & -x; }
 namespace bit1 {
-int max[MAXN];
-inline void mdf(int x, int y) {
+val_t max[MAXN];
+inline void mdf(int x, val_t y) {
     for (; x <= vcnt; x += lowbit(x)) max[x] = std::max(max[x], y);
 }
-inline int qry(int x) {
-    int y = 0;
+inline val_t qry(int x) {
+    val_t y(0, 0);
     for (; x; x -= lowbit(x)) y = std::max(y, max[x]);
     return y;
 }
 }  // namespace bit1
 namespace bit2 {
-int min[MAXN];
-inline void mdf(int x, int y) {
+val_t min[MAXN];
+inline void mdf(int x, val_t y) {
     for (; x; x -= lowbit(x)) min[x] = std::min(min[x], y);
 }
-inline int qry(int x) {
-    int y = vcnt + 1;
+inline val_t qry(int x) {
+    val_t y(vcnt + 1, 0);
     for (; x <= vcnt; x += lowbit(x)) y = std::min(y, min[x]);
     return y;
 }
 }  // namespace bit2
 namespace zmt {
-int max[MAXN * 20], ls[MAXN * 20], rs[MAXN * 20], root[MAXN], tot = 0;
-inline int modify(int n, int l, int r, int p, int v) {
+val_t max[MAXN * 20];
+int ls[MAXN * 20], rs[MAXN * 20], root[MAXN], tot = 0;
+inline int modify(int n, int l, int r, int p, val_t v) {
     int cur = ++tot;
     max[cur] = std::max(max[n], v), ls[cur] = ls[n], rs[cur] = rs[n];
     if (l != r) {
@@ -136,7 +144,7 @@ inline int modify(int n, int l, int r, int p, int v) {
     }
     return cur;
 }
-inline int query(int n, int l, int r, int L, int R) {
+inline val_t query(int n, int l, int r, int L, int R) {
     if (!n) return 0;
     if (l == L && r == R) return max[n];
     int mid = (l + r) >> 1;
@@ -147,6 +155,7 @@ inline int query(int n, int l, int r, int L, int R) {
 }  // namespace zmt
 int n = io.getint(), m = io.getint(), l[MAXN], r[MAXN], id[MAXN], a[MAXN], b[MAXN], c[MAXN];
 long long ans = 0;
+int ansa, ansb;
 int main() {
     for (int i = 1; i <= n; i++) v[++vcnt] = l[i] = io.getint(), v[++vcnt] = r[i] = io.getint();
     for (int i = 1; i <= m; i++) v[++vcnt] = a[i] = io.getint(), v[++vcnt] = b[i] = io.getint(), c[i] = io.getint();
@@ -157,26 +166,33 @@ int main() {
     for (int i = 1; i <= n; i++) {
         l[i] = std::lower_bound(v + 1, v + vcnt + 1, l[i]) - v;
         r[i] = std::lower_bound(v + 1, v + vcnt + 1, r[i]) - v;
-        bit1::mdf(l[i], r[i]);
-        bit2::mdf(r[i], l[i]);
+        bit1::mdf(l[i], val_t(r[i], i));
+        bit2::mdf(r[i], val_t(l[i], i));
         id[i] = i;
     }
     std::sort(id + 1, id + n + 1, [](int x, int y) { return r[x] < r[y]; });
     for (int i = 1, cur = 1; i <= vcnt; i++) {
         zmt::root[i] = zmt::root[i - 1];
         for (; cur <= n && r[id[cur]] == i; cur++) {
-            zmt::root[i] = zmt::modify(zmt::root[i], 1, vcnt, l[id[cur]], v[r[id[cur]]] - v[l[id[cur]]]);
+            zmt::root[i] = zmt::modify(zmt::root[i], 1, vcnt, l[id[cur]], val_t(v[r[id[cur]]] - v[l[id[cur]]], id[cur]));
         }
     }
     for (int i = 1; i <= m; i++) {
-        int now = 0;
+        val_t now(0, 0);
         a[i] = std::lower_bound(v + 1, v + vcnt + 1, a[i]) - v;
         b[i] = std::lower_bound(v + 1, v + vcnt + 1, b[i]) - v;
-        now = std::max(now, std::min(v[bit1::qry(a[i])], v[b[i]]) - v[a[i]]);
-        now = std::max(now, v[b[i]] - std::max(v[bit2::qry(b[i])], v[a[i]]));
+        auto tmp = bit1::qry(a[i]);
+        now = std::max(now, val_t(std::min(v[tmp.val], v[b[i]]) - v[a[i]], tmp.pos));
+        tmp = bit2::qry(b[i]);
+        now = std::max(now, val_t(v[b[i]] - std::max(v[tmp.val], v[a[i]]), tmp.pos));
         now = std::max(now, zmt::query(zmt::root[b[i]], 1, vcnt, a[i], vcnt));
-        ans = std::max(ans, 1LL * now * c[i]);
+        if (1LL * now.val * c[i] > ans) {
+            ans = 1LL * now.val * c[i];
+            ansa = now.pos;
+            ansb = i;
+        }
     }
     io.put(ans, '\n');
+    if (ans) io.put(ansa, ' ', ansb, '\n');
     return 0;
 }

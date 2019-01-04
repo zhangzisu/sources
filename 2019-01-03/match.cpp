@@ -113,16 +113,13 @@ std::pair<int, int> dp(int x, int deep) {
     for (int i = 0; i < 26; i++) {
         if (son[x][i]) {
             auto g = dp(son[x][i], deep + 1);
-            int t = std::min(f.first, g.second);
-            ans += t * deep;
-            f.first -= t, g.second -= t;
-            t = std::min(f.second, g.first);
-            ans += t * deep;
-            f.second -= t, g.first += t;
             f.first += g.first;
             f.second += g.second;
         }
     }
+    int t = std::min(f.first, f.second);
+    ans += deep * t;
+    f.first -= t, f.second -= t;
     return f;
 }
 int main() {
