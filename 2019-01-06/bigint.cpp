@@ -1,0 +1,289 @@
+#include <iomanip>
+#include <iostream>
+#include <vector>
+class BigInteger {
+   private:
+    static const unsigned long long BASE = 1000000000000000000;
+    static const int WIDTH = 18;
+    bool sign;
+    size_t length;
+    std::vector<unsigned long long> num;
+    void cutLeadingZero();
+    void setLength();
+
+   public:
+    BigInteger(long long n);
+    BigInteger(const char *n);
+    BigInteger(const BigInteger &n);
+    const BigInteger &operator=(long long n);
+    const BigInteger &operator=(const char *n);
+    const BigInteger &operator=(const BigInteger &n);
+    size_t size() const;
+    BigInteger e(size_t n) const;
+    BigInteger abs() const;
+    int firstVal() const;
+    const BigInteger &operator+() const;
+    friend BigInteger operator+(const BigInteger &a, const BigInteger &b);
+    const BigInteger &operator+=(const BigInteger &n);
+    const BigInteger &operator++();
+    BigInteger operator++(int);
+    BigInteger operator-() const;
+    friend BigInteger operator-(const BigInteger &a, const BigInteger &b);
+    const BigInteger &operator-=(const BigInteger &n);
+    const BigInteger &operator--();
+    BigInteger operator--(int);
+    friend BigInteger operator*(const BigInteger &a, const BigInteger &b);
+    const BigInteger &operator*=(const BigInteger &n);
+    friend BigInteger operator/(const BigInteger &a, const BigInteger &b);
+    const BigInteger &operator/=(const BigInteger &n);
+    friend BigInteger operator%(const BigInteger &a, const BigInteger &b);
+    const BigInteger &operator%=(const BigInteger &n);
+};
+void BigInteger::cutLeadingZero() {
+    while (num.back() == 0 && num.size() != 1) num.pop_back();
+}
+void BigInteger::setLength() {
+    cutLeadingZero();
+    int tmp = num.back();
+    if (tmp == 0) {
+        length = 1;
+    } else {
+        length = (num.size() - 1) * 8;
+        while (tmp > 0) {
+            ++length;
+            tmp /= 10;
+        }
+    }
+}
+BigInteger::BigInteger(long long n) { *this = n; }
+BigInteger::BigInteger(const char *n) { *this = n; }
+BigInteger::BigInteger(const BigInteger &n) { *this = n; }
+const BigInteger &BigInteger::operator=(long long n) {
+    num.clear();
+    if (n == 0) num.push_back(0);
+    if (n >= 0) {
+        sign = true;
+    } else if (n < 0) {
+        sign = false;
+        n = -n;
+    }
+    while (n != 0) {
+        num.push_back(n % BASE);
+        n /= BASE;
+    }
+    setLength();
+    return *this;
+}
+const BigInteger &BigInteger::operator=(const char *n) {
+    int len = strlen(n);
+    int tmp = 0;
+    int ten = 1;
+    int stop = 0;
+    num.clear();
+    sign = (n[0] != '-');
+    if (!sign) stop = 1;
+    for (int i = len; i > stop; --i) {
+        tmp += (n[i - 1] - '0') * ten;
+        ten *= 10;
+        if ((len - i) % 8 == 7) {
+            num.push_back(tmp);
+            tmp = 0;
+            ten = 1;
+        }
+    }
+    if ((len - stop) % WIDTH != 0) num.push_back(tmp);
+    setLength();
+    return *this;
+}
+const BigInteger &BigInteger::operator=(const BigInteger &n) {
+    num = n.num;
+    sign = n.sign;
+    length = n.length;
+    return *this;
+}
+size_t BigInteger::size() const { return length; }
+BigInteger BigInteger::abs() const {
+    BigInteger ans(*this);
+    ans.sign = true;
+    return ans;
+}
+unsigned long long BigInteger::firstVal() const {
+    return num.front();
+}
+const BigInteger &BigInteger::operator+() const { return *this; }
+BigInteger operator+(const BigInteger &a, const BigInteger &b) {
+    if (!b.sign) return a - (-b);
+    if (!a.sign) return b - (-a);
+    BigInteger ans;
+    int carry = 0;
+    int aa, bb;
+    size_t lena = a.num.size();
+    size_t lenb = b.num.size();
+    size_t len = std::max(lena, lenb);
+    ans.num.clear();
+    for (size_t i = 0; i < len; ++i) {
+        aa = lena <= i ? 0 : a.num[i];
+        bb = lenb <= i ? 0 : b.num[i];
+        ans.num.push_back((aa + bb + carry) % BigInteger::BASE);
+        carry = (aa + bb + carry) / BigInteger::BASE;
+    }
+    if (carry > 0) ans.num.push_back(carry);
+    ans.setLength();
+    return ans;
+}
+
+const BigInteger &BigInteger::operator+=(const BigInteger &n) {
+    *this = *this + n;
+    return *this;
+}
+
+const BigInteger &BigInteger::operator++() {
+    *this = *this + 1;
+    return *this;
+}
+
+BigInteger BigInteger::operator++(int) {
+    BigInteger ans(*this);
+    *this = *this + 1;
+    return ans;
+}
+
+BigInteger operator-(const BigInteger &a, const BigInteger &b) {
+    if (!b.sign) return a + (-b);
+    if (!a.sign) return -((-a) + b);
+    if (a < b) return -(b - a);
+    BigInteger ans;
+    int carry = 0;
+    int aa, bb;
+    size_t lena = a.num.size();
+    size_t lenb = b.num.size();
+    size_t len = std::max(lena, lenb);
+    ans.num.clear();
+    for (size_t i = 0; i < len; ++i) {
+        aa = a.num[i];
+        if (i >= lenb) {
+            bb = 0;
+        } else {
+            bb = b.num[i];
+        }
+        ans.num.push_back((aa - bb - carry + BigInteger::BASE) % BigInteger::BASE);
+        if (aa < bb + carry) {
+            carry = 1;
+        } else {
+            carry = 0;
+        }
+    }
+    ans.setLength();
+    return ans;
+}
+const BigInteger &BigInteger::operator-=(const BigInteger &n) {
+    *this = *this - n;
+    return *this;
+}
+const BigInteger &BigInteger::operator--() {
+    *this = *this - 1;
+    return *this;
+}
+BigInteger BigInteger::operator--(int) {
+    BigInteger ans(*this);
+    *this = *this - 1;
+    return ans;
+}
+BigInteger operator*(const BigInteger &a, const BigInteger &b) {
+    size_t lena = a.num.size();
+    size_t lenb = b.num.size();
+    std::vector<long long> ansLL;
+    for (size_t i = 0; i < lena; ++i) {
+        for (size_t j = 0; j < lenb; ++j) {
+            if (i + j >= ansLL.size()) {
+                ansLL.push_back((long long)a.num[i] * (long long)b.num[j]);
+            } else {
+                ansLL[i + j] += (long long)a.num[i] * (long long)b.num[j];
+            }
+        }
+    }
+    while (ansLL.back() == 0 && ansLL.size() != 1) {
+        ansLL.pop_back();
+    }
+    size_t len = ansLL.size();
+    long long carry = 0;
+    long long tmp;
+    BigInteger ans;
+    ans.sign = (ansLL.size() == 1 && ansLL[0] == 0) || (a.sign == b.sign);
+    ans.num.clear();
+    for (size_t i = 0; i < len; ++i) {
+        tmp = ansLL[i];
+        ans.num.push_back((tmp + carry) % BigInteger::BASE);
+        carry = (tmp + carry) / BigInteger::BASE;
+    }
+    if (carry > 0) {
+        ans.num.push_back(carry);
+    }
+    ans.setLength();
+    return ans;
+}
+const BigInteger &BigInteger::operator*=(const BigInteger &n) {
+    *this = *this * n;
+    return *this;
+}
+BigInteger operator/(const BigInteger &a, const BigInteger &b) {
+    BigInteger aa(a.abs());
+    BigInteger bb(b.abs());
+    if (aa < bb) {
+        return 0;
+    }
+    char *str = new char[aa.size() + 1];
+    memset(str, 0, sizeof(char) * (aa.size() + 1));
+    BigInteger tmp;
+    int lena = aa.length;
+    int lenb = bb.length;
+    for (int i = 0; i <= lena - lenb; ++i) {
+        tmp = bb.e(lena - lenb - i);
+        while (aa >= tmp) {
+            ++str[i];
+            aa = aa - tmp;
+        }
+        str[i] += '0';
+    }
+
+    BigInteger ans(str);
+    delete[] str;
+    ans.sign = (ans == 0 || a.sign == b.sign);
+    return ans;
+}
+const BigInteger &BigInteger::operator/=(const BigInteger &n) {
+    *this = *this / n;
+    return *this;
+}
+BigInteger operator%(const BigInteger &a, const BigInteger &b) {
+    return a - a / b * b;
+}
+const BigInteger &BigInteger::operator%=(const BigInteger &n) {
+    *this = *this - *this / n * n;
+    return *this;
+}
+inline bool operator<(const BigInteger &a, const BigInteger &b) {
+    if (a.sign && !b.sign) {
+        return false;
+    } else if (!a.sign && b.sign) {
+        return true;
+    } else if (a.sign && b.sign) {
+        if (a.length < b.length) {
+            return true;
+        } else if (a.length > b.length) {
+            return false;
+        } else {
+            size_t lena = a.num.size();
+            for (int i = lena - 1; i >= 0; --i) {
+                if (a.num[i] < b.num[i]) {
+                    return true;
+                } else if (a.num[i] > b.num[i]) {
+                    return false;
+                }
+            }
+            return false;
+        }
+    } else {
+        return -b < -a;
+    }
+}
