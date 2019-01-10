@@ -8,7 +8,7 @@ const whitelist = [
 	/^\..*$/,
 	/^node_modules$/,
 	/^bigfiles$/,
-	/^yarn.lock$/,
+	/^yarn\.lock$/,
 	/\.c(c|pp|xx|s)?$/i,
 	/\.j(ava|s|son)$/i,
 	/\.h[a-z]*$/i,
