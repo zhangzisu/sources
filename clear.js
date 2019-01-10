@@ -27,7 +27,7 @@ const whitelist = [
  * @returns {boolean}
  */
 function match(list, str) {
-	return list.reduce((p, c) => (p || c.test(str)), true)
+	return list.reduce((p, c) => (p || c.test(str)), false)
 }
 
 /**
