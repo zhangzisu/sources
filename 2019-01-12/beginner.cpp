@@ -1,0 +1,140 @@
+#include <algorithm>
+#include <cctype>
+#include <cstdio>
+#include <cstdlib>
+#include <cstring>
+class IO {
+   protected:
+	static const int BSIZE = 65536;
+	int is;
+	char ib[BSIZE], ob[BSIZE], *ip, *op;
+	FILE *in, *out;
+
+   public:
+	inline IO(FILE *in = stdin, FILE *out = stdout) {
+		ip = ib + BSIZE, op = ob, is = 0;
+		this->in = in;
+		this->out = out;
+	}
+	inline ~IO() {
+		fwrite(ob, 1, op - ob, out);
+	}
+	inline char getchar() {
+		if (ip == ib + BSIZE) is = fread(ib, 1, BSIZE, in), ip = ib;
+		return ip == ib + is ? EOF : *ip++;
+	}
+	inline void putchar(char c) {
+		if (op == ob + BSIZE) fwrite(ob, 1, BSIZE, out), op = ob;
+		*op++ = c;
+	}
+};
+class IOX : public IO {
+   protected:
+	int tmp[64];
+
+   public:
+	inline IOX(FILE *in = stdin, FILE *out = stdout) : IO(in, out) {}
+	inline int getdigit() {
+		register char ch = getchar();
+		while (!isdigit(ch)) ch = getchar();
+		return ch ^ 48;
+	}
+	inline char getalpha() {
+		register char ch = getchar();
+		while (!isalpha(ch)) ch = getchar();
+		return ch;
+	}
+	inline int getint() {
+		register int x = 0, f = 0;
+		register char ch = getchar();
+		for (; !isdigit(ch); ch = getchar()) f ^= ch == 45;
+		for (; isdigit(ch); ch = getchar()) x = (((x << 2) + x) << 1) + (ch ^ 48);
+		return f ? -x : x;
+	}
+	inline unsigned getuint() {
+		register unsigned x = 0;
+		register char ch = getchar();
+		for (; isdigit(ch); ch = getchar()) x = (((x << 2) + x) << 1) + (ch ^ 48);
+		return x;
+	}
+	inline long long getint64() {
+		register long long x = 0, f = 0;
+		register char ch = getchar();
+		for (; !isdigit(ch); ch = getchar()) f ^= ch == 45;
+		for (; isdigit(ch); ch = getchar()) x = (((x << 2) + x) << 1) + (ch ^ 48);
+		return f ? -x : x;
+	}
+	inline unsigned long long getuint64() {
+		register unsigned long long x = 0;
+		register char ch = getchar();
+		for (; isdigit(ch); ch = getchar()) x = (((x << 2) + x) << 1) + (ch ^ 48);
+		return x;
+	}
+	inline void put(int x) {
+		if (!x) return putchar('0');
+		if (x < 0) putchar(45), x = -x;
+		register int _6;
+		for (_6 = 0; x; x /= 10) tmp[++_6] = (x % 10) ^ 48;
+		while (_6) putchar(tmp[_6--]);
+	}
+	inline void put(long long x) {
+		if (!x) return putchar('0');
+		if (x < 0) putchar(45), x = -x;
+		register int _6;
+		for (_6 = 0; x; x /= 10) tmp[++_6] = (x % 10) ^ 48;
+		while (_6) putchar(tmp[_6--]);
+	}
+	inline void put(const char *s) {
+		for (; *s; s++) putchar(*s);
+	}
+	inline void put(char c) { putchar(c); }
+	template <typename T, typename... Args>
+	inline void put(T first, Args... rest) { put(first), put(rest...); }
+	inline void puts(const char *s) {
+		put(s);
+		putchar(10);
+	}
+} io(fopen("beginner.in", "r"), fopen("beginner.out", "w"));
+#define MAXN 100010
+#include <queue>
+#include <vector>
+struct circle_t {
+	int l, r, id;
+	inline int friend operator<(circle_t a, circle_t b) {
+		return a.r > b.r;
+	}
+} c[MAXN];
+std::vector<int> next[MAXN];
+std::priority_queue<circle_t> Q;
+int sg(int x) {
+	int ret = 0;
+	for (int y : next[x]) ret ^= sg(y) + 1;
+	return ret;
+}
+int main() {
+	for (int T = io.getint(); T; T--) {
+		int n = io.getint();
+		while (Q.size()) Q.pop();
+		next[0].clear();
+		for (int i = 1; i <= n; i++) {
+			next[i].clear();
+			int x = io.getint(), r = io.getint();
+			c[i].l = x - r;
+			c[i].r = x + r;
+			c[i].id = i;
+		}
+		std::sort(c + 1, c + n + 1, [](circle_t a, circle_t b) { return a.l < b.l; });
+		for (int i = 1; i <= n; i++) {
+			const auto &cir = c[i];
+			while (Q.size() && Q.top().r < cir.l) Q.pop();
+			if (!Q.size()) {
+				next[0].push_back(cir.id);
+			} else {
+				next[Q.top().id].push_back(cir.id);
+			}
+			Q.push(cir);
+		}
+		io.put(sg(0) ? "Yes\n" : "No\n");
+	}
+	return 0;
+}

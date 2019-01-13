@@ -48,10 +48,11 @@ function listAndRemove(root) {
 				if (isDir) {
 					listAndRemove(fullpath)
 					if (!fs.readdirSync(fullpath).length) {
+						console.log(`${fullpath} has been removed due to empty content`)
 						fs.removeSync(fullpath)
 					}
 				} else {
-					console.log(`${fullpath} has been deleted.`)
+					console.log(`${fullpath} has been deleted`)
 					fs.unlinkSync(fullpath)
 				}
 			})
