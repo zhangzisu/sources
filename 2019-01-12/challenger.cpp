@@ -95,35 +95,104 @@ class IOX : public IO {
 		put(s);
 		putchar(10);
 	}
-} io(fopen("challenger.in", "r"), fopen("challenger.out", "w"));
-namespace s20 {
-const int MAXN = 20;
-int f[1 << MAXN][2], g[MAXN][MAXN];
-inline int main(int n, int m) {
-	for (int i = 0; i < n; i++) {
-		for (int j = 0; j < n; j++) {
-			g[i][j] = io.getint();
-		}
+} io;
+#define MAXN 110
+#define MAXV 100010
+using matrix = int[MAXN][MAXN];
+int pri[MAXV], vis[MAXV], pnt = 0;
+inline void shai() {
+	for (int i = 2; i < MAXV; i++) {
+		if (!vis[i]) pri[++pnt] = i;
+		for (int j = i + i; j < MAXV; j += i) vis[j] = 1;
 	}
-	f[0][0] = 1;
-	for (int i = 0; i < (1 << n); i++) {
-		int p = __builtin_popcount(i);
-		for (int j = 0; j < n; j++) {
-			if ((i >> j) & 1) continue;
-			if (g[p][j] < 0) continue;
-			for (int k = 0; k < m; k++) {
-				f[i | (1 << j)][(k + g[p][j]) % m] |= f[i][k];
+}
+int MOD;
+inline void trim(int &x) { x -= MOD, x += (x >> 31) & MOD; }
+inline void up(int &x, int y) { trim(x += y); }
+inline int fuck(int x, int y) {
+	int z = 1;
+	for (; y; y >>= 1) {
+		if (y & 1) z = 1LL * z * x % MOD;
+		x = 1LL * x * x % MOD;
+	}
+	return z;
+}
+int fac[MAXV], fnt = 0;
+inline int isRt(int g) {
+	for (int i = 1; i <= fnt; i++) {
+		if (fuck(g, (MOD - 1) / fac[i]) == 1) return 0;
+	}
+	return 1;
+}
+inline int getRt() {
+	int phi = MOD - 1;
+	for (int i = 1; pri[i] * pri[i] <= phi; i++) {
+		if (phi % pri[i]) continue;
+		while (phi % pri[i] == 0) phi /= pri[i];
+		fac[++fnt] = pri[i];
+	}
+	if (phi != 1) fac[++fnt] = phi;
+	for (int i = 2; i < MOD; i++)
+		if (isRt(i)) return i;
+	throw "GG";
+}
+inline int det(matrix &a, int n) {
+	int ret = 1;
+	for (int i = 0; i < n; i++) {
+		int p = i;
+		while (!a[p][i] && p < n) p++;
+		if (p >= n) return 0;
+		if (p != i) {
+			for (int j = i; j < n; j++) std::swap(a[i][j], a[p][j]);
+		}
+		ret = 1LL * ret * a[i][i] % MOD;
+		int inv = fuck(a[i][i], MOD - 2);
+		for (p = i + 1; p < n; p++) {
+			if (!a[p][i]) continue;
+			int delta = 1LL * a[p][i] * inv % MOD;
+			for (int j = i; j < n; j++) {
+				up(a[p][j], MOD - 1LL * a[i][j] * delta % MOD);
 			}
 		}
 	}
-	io.puts(f[(1 << n) - 1][0] ? "Yes" : "No");
-	return 0;
+	return ret;
 }
-}  // namespace s20
-#define MAXN 20
 int n = io.getint(), m = io.getint();
+matrix a, b, c;
 int main() {
-	if (n <= 20 && m <= 2) return s20::main(n, m);
-	io.puts("Yes");
+	srand(time(NULL));
+	shai();
+	for (int i = 0; i < n; i++) {
+		for (int j = 0; j < n; j++) {
+			a[i][j] = io.getint();
+		}
+	}
+	MOD = 233 * m + 1;
+	while (vis[MOD]) MOD += m;
+	int g = getRt();
+	int rt = fuck(g, (MOD - 1) / m);
+	// printf(">>> MOD = %d, G = %d, rt = %d\n", MOD, g, rt);
+	for (int gao = 10; gao; gao--) {
+		int sum = 0;
+		for (int i = 0; i < n; i++) {
+			for (int j = 0; j < n; j++) {
+				c[i][j] = rand() + 1;
+			}
+		}
+		for (int base = 0; base < m; base++) {
+			int x = fuck(rt, base);
+			for (int i = 0; i < n; i++) {
+				for (int j = 0; j < n; j++) {
+					b[i][j] = ~a[i][j] ? 1LL * fuck(x, a[i][j]) * c[i][j] % MOD : 0;
+				}
+			}
+			up(sum, det(b, n));
+		}
+		if (sum) {
+			io.put("Yes\n");
+			return 0;
+		}
+	}
+	io.put("No\n");
 	return 0;
 }
