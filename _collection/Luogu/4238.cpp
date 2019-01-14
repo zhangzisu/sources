@@ -55,7 +55,7 @@ int n, a[MAXN], b[MAXN];
 int main() {
 	scanf("%d", &n);
 	for (int i = 0; i < n; i++) scanf("%d", a + i);
-	INV(a, b, n);
+	INV(a, b, n << 1);
 	for (int i = 0; i < n; i++) printf("%d ", b[i]);
 	puts("");
 	return 0;
