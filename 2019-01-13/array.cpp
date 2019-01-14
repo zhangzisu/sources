@@ -96,73 +96,29 @@ class IOX : public IO {
 	}
 } io;
 #define MAXN 100010
+#include <bitset>
 int n = io.getint(), m, a[MAXN], b[MAXN];
-namespace jiangzeming {
-	int b[10];
-	inline int main() {
-		for (int i = 0; i < n; i++) b[i] = i;
-		int ans = 0;
-		do {
-			int x = a[b[0]];
-			for (int i = 1; i < n; i++) x = x % a[b[i]];
-			ans = std::max(ans, x);
-		} while (std::next_permutation(b, b + n));
-		io.put(ans, '\n');
-		return 0;
-	}
-}  // namespace jiangzeming
-namespace xijingping {
-	int f[2000], g[2000];
-	inline int main() {
-		int ans = 0;
-		std::sort(a, a + n);
-		if (a[0] != a[1]) ans = a[0];
-		for (int i = n - 1; a[i] != a[0]; i--) {
-			memcpy(g, f, sizeof(g));
-			f[a[i]] = 1;
-			for (int j = 0; j < 2000; j++) {
-				if (!g[j]) continue;
-				f[j % a[i]] = 1;
-			}
-		}
-		for (int i = 0; i < 2000; i++) {
-			if (!f[i]) continue;
-			ans = std::max(ans, i % a[0]);
-		}
-		io.put(ans, '\n');
-		return 0;
-	}
-}  // namespace xijingping
+std::bitset<MAXN> f, g;
 int main() {
-	int max = 0;
-	for (int i = 0; i < n; i++) max = std::max(max, a[i] = io.getint());
-	if (n <= 10) return jiangzeming::main();
-	if (max < 2000) return xijingping::main();
+	for (int i = 0; i < n; i++) a[i] = io.getint();
 	std::sort(a, a + n);
 	memcpy(b, a, sizeof(b));
 	m = std::unique(b, b + n) - b;
 	if (a[0] != a[1]) {
-		int ans = a[0];
-		for (int i = 1; i < n; i++) ans = std::max(ans, a[i] % a[0]);
-		io.put(ans, '\n');
+		io.put(a[0], '\n');
 	} else {
-		int ans = 0;
-		for (int i = 0; i < m; i++) ans = std::max(ans, b[i] % b[0]);
-		for (int i = 8000; i < 16500; i++) {
-			if (!b[i]) continue;
-			for (int j = i; j < i + 5000; j++) {
-				if (!b[j]) continue;
-				ans = std::max(ans, b[j] % b[i] % b[0]);
+		for (int i = MAXN - 1, cur = m - 1; i; i--) {
+			if (cur && b[cur] == i) {
+				for (int j = i; j < MAXN; j += i) g[j] = 1;
+				f[i] = 1, cur--;
+			} else {
+				if (((f >> i) & g).any()) f[i] = 1;
 			}
 		}
-		for (int i = 0; i < 300; i++) {
-			if (!b[i]) continue;
-			for (int j = i; j < i + 300; j++) {
-				if (!b[j]) continue;
-				for (int k = j; k < j + 300; k++) {
-					if (!b[k]) continue;
-					ans = std::max(ans, b[k] % b[j] % b[i] % b[0]);
-				}
+		int ans = 0;
+		for (int i = 1; i < MAXN; i++) {
+			if (f[i]) {
+				ans = std::max(ans, i % a[0]);
 			}
 		}
 		io.put(ans, '\n');
