@@ -17,7 +17,8 @@ const whitelist = [
 	/\.bat$/i,
 	/\.m(d|arkdown)$/i,
 	/\.[a-z]+ml$/i,
-	/\.ps[0-9]?$/i
+	/\.ps[0-9]?$/i,
+	/^LICENSE$/
 ]
 
 /**
