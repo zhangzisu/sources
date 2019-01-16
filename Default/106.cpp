@@ -20,13 +20,28 @@ inline int getInt() {
 #include <queue>
 #define MAXN 200010
 using lnt = long long;
-const lnt INF = 0x3F3F3F3F3F3F3F3FLL;
+const lnt INFLL = 0x3F3F3F3F3F3F3F3FLL;
+const int INF = 0x3F3F3F3F;
 int head[MAXN], to[MAXN << 1], val[MAXN << 1], next[MAXN << 1], tot = 0;
 inline void $(int u, int v, int w) {
 	next[tot] = head[u], to[tot] = v, val[tot] = w, head[u] = tot++;
 	next[tot] = head[v], to[tot] = u, val[tot] = w, head[v] = tot++;
 };
 lnt ds[MAXN], dt[MAXN], tag[MAXN << 2];
+inline void run(lnt *dis, int s) {
+	static std::priority_queue<std::pair<lnt, int>> Q;
+	Q.emplace(dis[s] = 0, s);
+	while (Q.size()) {
+		auto x = Q.top();
+		Q.pop();
+		if (-x.first != dis[x.second]) continue;
+		for (int i = head[x.second]; ~i; i = next[i]) {
+			if (dis[to[i]] > val[i] - x.first) {
+				Q.emplace(-(dis[to[i]] = val[i] - x.first), to[i]);
+			}
+		}
+	}
+}
 int fa[MAXN], id[MAXN], pre[MAXN], nxt[MAXN], cnt = 0;
 void modify(int n, int l, int r, int L, int R, lnt v) {
 	if (l == L && r == R) return tag[n] = std::min(tag[n], v), void();
@@ -51,71 +66,62 @@ lnt query(int n, int l, int r, int p) {
 	} while (l < r);
 	return ret;
 }
+int Q[MAXN], H = 1, T = 0, d[MAXN];
 int main() {
 	memset(head, -1, sizeof(head));
-	int m = (getInt(), getInt());
+	int n = getInt(), m = getInt();
 	for (int i = 1; i <= m; i++) {
 		int u = getInt(), v = getInt(), w = getInt();
 		$(u, v, w);
 	}
 	int s = getInt(), t = getInt(), q = getInt();
-	{
-		static std::priority_queue<std::pair<lnt, int>> Q;
-		memset(ds, 0x3F, sizeof(ds));
-		Q.emplace(ds[s] = 0, s);
-		while (Q.size()) {
-			auto x = Q.top();
-			Q.pop();
-			if (-x.first != ds[x.second]) continue;
-			for (int i = head[x.second]; ~i; i = next[i]) {
-				if (ds[to[i]] > val[i] - x.first) {
-					Q.emplace(-(ds[to[i]] = val[i] - x.first), to[i]);
-				}
+	memset(ds, 0x3F, sizeof(ds));
+	run(ds, s);
+	if (ds[t] == INFLL) {
+		while (q--) puts("infinity");
+		return 0;
+	}
+	memset(dt, 0x3F, sizeof(dt));
+	run(dt, t);
+	for (int x = 1; x <= n; x++) {
+		for (int i = head[x]; ~i; i = next[i]) {
+			if (ds[x] == ds[to[i]] + val[i]) {
+				d[x]++;
 			}
 		}
-		if (ds[t] == INF) {
-			while (q--) puts("infinity");
-			return 0;
-		}
-		memset(dt, 0x3F, sizeof(dt));
-		Q.emplace(dt[t] = 0, t);
-		while (Q.size()) {
-			auto x = Q.top();
-			Q.pop();
-			if (-x.first != dt[x.second]) continue;
-			for (int i = head[x.second]; ~i; i = next[i]) {
-				if (dt[to[i]] > val[i] - x.first) {
-					fa[to[i]] = x.second;
-					Q.emplace(-(dt[to[i]] = val[i] - x.first), to[i]);
+		if (!d[x]) Q[++T] = x;
+	}
+	while (H <= T) {
+		int x = Q[H++];
+		for (int i = head[x]; ~i; i = next[i]) {
+			if (ds[to[i]] == ds[x] + val[i]) {
+				if (!--d[to[i]]) {
+					fa[Q[++T] = to[i]] = x;
 				}
 			}
 		}
 	}
-	for (int x = s; x; x = fa[x]) id[x] = ++cnt;
-	{
-		static std::queue<int> Q;
-		memset(pre, 0x3F, sizeof(pre));
-		Q.push(s);
-		while (Q.size()) {
-			int x = Q.front();
-			Q.pop();
-			if (id[x]) pre[x] = id[x];
+	for (int x = t; x; x = fa[x]) id[x] = ++cnt;
+	for (int x = n; x >= 1; x--) {
+		if (id[x]) {
+			pre[x] = id[x];
+		} else {
+			pre[x] = INF;
 			for (int i = head[x]; ~i; i = next[i]) {
-				if (ds[to[i]] == ds[x] + val[i]) {
-					if (pre[to[i]] == 0x3F3F3F3F) Q.push(to[i]);
-					pre[to[i]] = std::min(pre[to[i]], pre[x]);
+				if (ds[to[i]] + val[i] == ds[x]) {
+					pre[x] = std::min(pre[x], pre[to[i]]);
 				}
 			}
 		}
-		Q.push(t);
-		while (Q.size()) {
-			int x = Q.front();
-			Q.pop();
-			if (id[x]) nxt[x] = id[x];
+	}
+	for (int x = 1; x <= n; x++) {
+		if (id[x]) {
+			nxt[x] = id[x];
+		} else {
+			nxt[x] = 0;
 			for (int i = head[x]; ~i; i = next[i]) {
-				if (dt[to[i]] == dt[x] + val[i]) {
-					if (nxt[to[i]] == 0) Q.push(to[i]);
-					nxt[to[i]] = std::max(nxt[to[i]], pre[x]);
+				if (ds[x] + val[i] == ds[to[i]]) {
+					nxt[x] = std::max(nxt[x], nxt[to[i]]);
 				}
 			}
 		}
@@ -126,15 +132,16 @@ int main() {
 		if (id[u] > id[v]) std::swap(u, v);
 		if (id[u] && id[v] && id[u] + 1 == id[v]) continue;
 		if (pre[u] >= nxt[v]) continue;
-		modify(1, 1, cnt - 1, pre[u], nxt[v] - 1, ds[u] + dt[v] + val[i]);
-		// fprintf(stderr, "Update %d - %d to %lld\n", pre[u], nxt[v] - 1, ds[u] + dt[v] + val[i]);
+		if (!pre[u]) continue;
+		modify(1, 1, cnt - 1, pre[u], nxt[v] - 1, std::min(dt[u] + ds[v], ds[u] + dt[v]) + val[i]);
+		// fprintf(stderr, "Update %d - %d to %lld\n", pre[u], nxt[v] - 1, dis[u] + dt[v] + val[i]);
 	}
 	for (int u, v; q; q--) {
 		u = getInt(), v = getInt();
 		if (id[u] > id[v]) std::swap(u, v);
 		if (id[u] && id[v] && id[u] + 1 == id[v]) {
 			lnt ans = query(1, 1, cnt - 1, id[u]);
-			if (ans == INF) {
+			if (ans == INFLL) {
 				puts("Infinity");
 			} else {
 				printf("%lld\n", ans);
