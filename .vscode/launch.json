@@ -6,12 +6,12 @@
 	"configurations": [
 		{
 			"type": "node",
-			"request": "launch",
-			"name": "Launch Program",
-			"program": "${file}"
+			"request": "attach",
+			"name": "Attach",
+			"port": 9229
 		},
 		{
-			"name": "C++ GDB Debug (Linux)",
+			"name": "C++ GDB Debug",
 			"type": "cppdbg",
 			"request": "launch",
 			"program": "${fileDirname}\\${fileBasenameNoExtension}",
@@ -29,28 +29,11 @@
 					"ignoreFailures": true
 				}
 			],
-			"preLaunchTask": "Build current source file"
-		},
-		{
-			"name": "C++ GDB Debug (Windows)",
-			"type": "cppdbg",
-			"request": "launch",
-			"program": "${fileDirname}\\${fileBasenameNoExtension}.exe",
-			"args": [],
-			"stopAtEntry": false,
-			"cwd": "${fileDirname}",
-			"environment": [],
-			"externalConsole": true,
-			"MIMode": "gdb",
-			"miDebuggerPath": "gdb.exe",
-			"setupCommands": [
-				{
-					"description": "Enable pretty-printing for gdb",
-					"text": "-enable-pretty-printing",
-					"ignoreFailures": true
-				}
-			],
-			"preLaunchTask": "Build current source file"
+			"preLaunchTask": "Build current source file",
+			"windows": {
+				"program": "${fileDirname}\\${fileBasenameNoExtension}.exe",
+				"miDebuggerPath": "C:\\ProgramData\\chocolatey\\lib\\mingw\\tools\\install\\mingw64\\bin\\gdb.exe"
+			}
 		}
 	]
 }

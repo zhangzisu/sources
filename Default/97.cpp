@@ -32,38 +32,30 @@ inline void NTT(int *a, int n) {
 }
 const int N = 21;
 const int MAXN = 1 << N;
-int n, a1[MAXN], a2[MAXN], a3[MAXN], b1[MAXN], b2[MAXN], b3[MAXN];
+const int inv = fp(MAXN, MOD - 2);
+int n, a[MAXN], b[MAXN], f[MAXN], g[MAXN], c[MAXN];
 char buf[MAXN];
 int main() {
 	scanf("%s", buf);
 	n = strlen(buf);
 	for (int i = 0; i < n; i++) {
-		if (buf[i] == '0' || buf[i] == '1') {
-			a1[i] = (buf[i] & 1) + 1;
-			a2[i] = a1[i] * a1[i];
-			a3[i] = a2[i] * a1[i];
-		}
+		if (buf[i] == '0') a[i] = 1;
+		if (buf[i] == '1') b[i] = 1;
 	}
-	memcpy(b1, a1, sizeof(int) * n), std::reverse(b1, b1 + n), NTT(b1, MAXN), NTT(a1, MAXN);
-	memcpy(b2, a2, sizeof(int) * n), std::reverse(b2, b2 + n), NTT(b2, MAXN), NTT(a2, MAXN);
-	memcpy(b3, a3, sizeof(int) * n), std::reverse(b3, b3 + n), NTT(b3, MAXN), NTT(a3, MAXN);
-	for (int i = 0; i < MAXN; i++) a1[i] = 1LL * a1[i] * b3[i] % MOD;
-	for (int i = 0; i < MAXN; i++) a2[i] = 1LL * a2[i] * b2[i] % MOD;
-	for (int i = 0; i < MAXN; i++) a3[i] = 1LL * a3[i] * b1[i] % MOD;
-	NTT(a1, MAXN), std::reverse(a1 + 1, a1 + MAXN);
-	NTT(a2, MAXN), std::reverse(a2 + 1, a2 + MAXN);
-	NTT(a3, MAXN), std::reverse(a3 + 1, a3 + MAXN);
-	int inv = fp(MAXN, MOD - 2);
-	long long ans = 0;
-	for (int i = 0; i < MAXN; i++) a1[i] = 1LL * a1[i] * inv % MOD;
-	for (int i = 0; i < MAXN; i++) a2[i] = 1LL * a2[i] * inv % MOD;
-	for (int i = 0; i < MAXN; i++) a3[i] = 1LL * a3[i] * inv % MOD;
-	for (int i = 1; i <= n; i++) {
-		int val = (a1[2 * n - i - 1] + a3[2 * n - i - 1] - 2LL * a2[2 * n - i - 1] % MOD + MOD) % MOD;
-		if (!val) {
-			fprintf(stderr, "PSB |> %d\n", i);
-			ans = ans ^ (1LL * i * i);
-		}
+	memcpy(f, a, sizeof(f)), memcpy(g, b, sizeof(g)), std::reverse(g, g + n), NTT(f, MAXN), NTT(g, MAXN);
+	for (int i = 0; i < MAXN; i++) f[i] = 1LL * f[i] * g[i] % MOD;
+	NTT(f, MAXN), std::reverse(f + 1, f + MAXN);
+	for (int i = 0; i < MAXN; i++) f[i] = 1LL * f[i] * inv % MOD;
+	for (int i = 0; i < n; i++) c[i] |= !!f[i + n - 1];
+	memcpy(f, a, sizeof(f)), memcpy(g, b, sizeof(g)), std::reverse(f, f + n), NTT(f, MAXN), NTT(g, MAXN);
+	for (int i = 0; i < MAXN; i++) f[i] = 1LL * f[i] * g[i] % MOD;
+	NTT(f, MAXN), std::reverse(f + 1, f + MAXN);
+	for (int i = 0; i < MAXN; i++) f[i] = 1LL * f[i] * inv % MOD;
+	for (int i = 0; i < n; i++) c[i] |= !!f[i + n - 1];
+	long long ans = 1LL * n * n;
+	for (int i = n - 1; i >= 1; i--) {
+		for (int j = i + i; j < n; j += i) c[i] |= c[j];
+		if (!c[i]) ans ^= 1LL * (n - i) * (n - i);
 	}
 	printf("%lld\n", ans);
 	return 0;

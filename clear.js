@@ -49,11 +49,19 @@ function listAndRemove(root) {
 				if (isDir) {
 					listAndRemove(fullpath)
 					if (!fs.readdirSync(fullpath).length) {
-						fs.removeSync(fullpath)
+						try {
+							fs.removeSync(fullpath)
+						} catch (e) {
+							console.log(e)
+						}
 					}
 				} else {
-					console.log(`${fullpath} has been deleted.`)
-					fs.unlinkSync(fullpath)
+					try {
+						fs.unlinkSync(fullpath)
+						console.log(`${fullpath} has been deleted.`)
+					} catch (e) {
+						console.log(e)
+					}
 				}
 			})
 		}
