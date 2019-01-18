@@ -96,9 +96,7 @@
 	"editor.fontSize": 14,
 	"terminal.integrated.shell.linux": "/bin/zsh",
 	"workbench.colorCustomizations": {
-		"activityBar.background": "#372D04",
-		"titleBar.activeBackground": "#4E3F06",
-		"titleBar.activeForeground": "#FEFBEE"
+		"activityBar.background": "#34495e",
 	},
 	"eslint.enable": false
 }
