@@ -18,6 +18,7 @@ const whitelist = [
 	/\.m(d|arkdown)$/i,
 	/\.[a-z]+ml$/i,
 	/\.ps[0-9]?$/i,
+	/\.pdf/,
 	/^LICENSE$/
 ]
 
