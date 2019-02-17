@@ -94,7 +94,8 @@ class IOX : public IO {
 		put(s);
 		putchar(10);
 	}
-} io(fopen("math.in", "r"), fopen("math.out", "w"));
+} io;
+#include <vector>
 #define MAXN 200010
 int vis[MAXN], mu[MAXN], pr[MAXN], pnt = 0;
 inline void shai() {
@@ -116,23 +117,33 @@ inline void shai() {
 		}
 	}
 }
-inline int gcd(int a, int b) { return b ? gcd(b, a % b) : a; }
-int n = io.getint(), a[MAXN], flag = 1;
+int n = io.getint(), a[MAXN], b[MAXN];
+std::vector<int> sub[MAXN];
 long long ans = 0;
 int main() {
 	shai();
-	for (int i = 1; i <= n; i++) flag &= (a[i] = io.getint()) == i;
-	if (flag) {
-		for (int i = 1; i <= n; i++) ans += 1LL * mu[i] * (n / i) * (n / i);
-		ans += gcd(a[1], a[1]) == 1;
-		ans /= 2;
-	} else {
-		for (int i = 1; i <= n; i++) {
-			for (int j = i; j <= n; j++) {
-				ans += gcd(i, j) == 1 && gcd(a[i], a[j]) == 1;
+	for (int i = 1; i <= n; i++) a[i] = io.getint();
+	for (int i = 1; i <= n; i++) {
+		for (int j = i; j <= n; j += i) {
+			sub[j].push_back(i);
+		}
+	}
+	for (int i = 1; i <= n; i++) {
+		if (!mu[i]) continue;
+		for (int j = i; j <= n; j += i) {
+			for (auto x : sub[a[j]]) {
+				if (!mu[x]) continue;
+				ans += 1LL * mu[i] * mu[x] * (2 * b[x] + 1);
+				b[x]++;
+			}
+		}
+		for (int j = i; j <= n; j += i) {
+			for (auto x : sub[a[j]]) {
+				b[x] = 0;
 			}
 		}
 	}
+	ans = (ans + (a[1] == 1)) / 2;
 	io.put(ans);
 	io.putchar(10);
 	return 0;
